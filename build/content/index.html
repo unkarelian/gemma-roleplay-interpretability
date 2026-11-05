@@ -1,0 +1,95 @@
+<section class="hero">
+  <p class="kicker">Interpretability · Gemma 3 4B-it · role-play and safety</p>
+  <h1>Does Gemma know it is role-playing?</h1>
+  <p class="lede">What changes inside a language model when it plays a character, what makes it refuse, and why a character fails a user who is in real danger. We looked with Gemma Scope 2 transcoders (16k features at every layer), a residual SAE at layer 17, linear directions, steering, ablation and fine-tuning.</p>
+  <p class="hero-links"><a class="btn primary" href="findings.html">Read the findings</a> <a class="btn" href="atlas.html">Open the persona atlas</a></p>
+</section>
+
+<section class="film-block" aria-labelledby="film-h">
+  <figure>
+    <div class="video-frame">
+      <video controls preload="metadata" playsinline poster="media/all_three.jpg">
+        <source src="media/all_three.mp4" type="video/mp4">
+        Your browser can't play this video. <a href="media/all_three.mp4">Download it</a>.
+      </video>
+    </div>
+    <figcaption id="film-h"><b>Three prompts passing through Gemma's 34 layers</b> (2 min 23 s): a harmful request, a character, and a user in danger, each beside a matched control. Each caption is a transcoder feature active at that layer, named from its examples. The meters show the refusal, persona and user-danger directions at the last prompt token. Single scenes: <a href="media/refusal.mp4">harmful request</a> · <a href="media/persona.mp4">becoming a character</a> · <a href="media/user_harm.mp4">a user in danger</a> · <a href="film.html">interactive version</a>.</figcaption>
+  </figure>
+</section>
+
+<section aria-labelledby="hl-h">
+  <h2 id="hl-h">Headline findings</h2>
+  <div class="grid g4 findings-grid">
+    <a class="card fcard" href="findings.html#persona">
+      <span class="stat">6 of 144</span>
+      <h3>A character replaces the default persona</h3>
+      <p>Asked "Are you an AI?", characters admitted it in 6 of 144 answers. That held even when the question was marked out-of-character, and when the system prompt said "you are an AI assistant".</p>
+      <span class="chip associated">associated</span>
+    </a>
+    <a class="card fcard" href="findings.html#danger">
+      <span class="stat">AUROC 1.000</span>
+      <h3>The danger is registered, then ignored</h3>
+      <p>A layer-17 probe tells a real user in danger from story danger on held-out characters. But inside characters the emergency response is never built: the "get help now" feature alone scores 0.51.</p>
+      <span class="chip associated">associated</span>
+    </a>
+    <a class="card fcard" href="findings.html#refusals">
+      <span class="stat">30–75 vs 160</span>
+      <h3>The alarms protect others, not the user</h3>
+      <p>Emergency features reach 30–75 in kind characters (about 0 in hostile ones) against 160 for the plain assistant. Harm to others has alarms that pull the assistant back; the user's own danger barely does.</p>
+      <span class="chip associated">associated</span>
+    </a>
+    <a class="card fcard" href="findings.html#refusals">
+      <span class="stat">17 of 17</span>
+      <h3>Three ways to refuse in character</h3>
+      <p>Most refusals stay in voice. When a character steps out to refuse a fiction-framed harmful request, a jailbreak-alarm feature fires in 17 of 17 cases, and the persona is already off before the first word.</p>
+      <span class="chip associated">associated</span>
+    </a>
+    <a class="card fcard" href="findings.html#refusals">
+      <span class="stat">20 / 96, twice</span>
+      <h3>The alarm reads the decision; it doesn't make it</h3>
+      <p>Removing the jailbreak-alarm feature left step-outs unchanged on held-out characters (20 of 96 with and without it), and amplifying it 5× barely moved anything. The decision is made elsewhere or redundantly.</p>
+      <span class="chip intervened">intervened</span>
+    </a>
+    <a class="card fcard" href="findings.html#refusals">
+      <span class="stat">0 of 32</span>
+      <h3>An instructed "no" overrides a user in crisis</h3>
+      <p>Told to answer every message with "no", the model never broke the rule, not even for chest pain or "I have the pills in my hand". Every refusal, warning and emergency feature went to zero.</p>
+      <span class="chip associated">associated</span>
+    </a>
+    <a class="card fcard" href="findings.html#persona">
+      <span class="stat">4% → 40%</span>
+      <h3>Voice and identity can be pulled apart</h3>
+      <p>Steering against the tone-free character direction at layer 12 raised crisis help from 4% to 40%, and admitting to being an AI from 2% to 35%. 86% of replies stayed in character.</p>
+      <span class="chip intervened">intervened</span>
+    </a>
+    <a class="card fcard" href="findings.html#fixes">
+      <span class="stat">98% · 0% · 1%</span>
+      <h3>A small fine-tune fixes the crisis behaviour</h3>
+      <p>A LoRA distilled from replies written under a help instruction gives 98% help, 0% fiction breaks and 1% false alarms on a frozen held-out test. The instruction alone breaks the fiction 56% of the time.</p>
+      <span class="chip intervened">intervened</span>
+    </a>
+  </div>
+</section>
+
+<section aria-labelledby="ex-h">
+  <h2 id="ex-h">Explore</h2>
+  <div class="grid g4">
+    <a class="card xcard" href="findings.html"><h3>Findings</h3><p>The full write-up: persona, refusals, the crisis failure and the fixes, with every number and the feature reference.</p></a>
+    <a class="card xcard" href="atlas.html"><h3>Persona atlas</h3><p>250 labelled transcoder features from layers 0–33, grouped into concepts, with a layer map, contrasts and examples.</p></a>
+    <a class="card xcard" href="viz.html"><h3>Layer views</h3><p>Heatmaps of one prompt at every token and every layer, for refusal, persona and a user in danger, beside a matched control.</p></a>
+    <a class="card xcard" href="film.html"><h3>Concept film</h3><p>An interactive animation of named features lighting up layer by layer, and the four rendered videos.</p></a>
+  </div>
+</section>
+
+<section class="prose" aria-labelledby="m-h">
+  <h2 id="m-h">Methods and caveats</h2>
+  <ul>
+    <li><b>Model and tools.</b> Gemma 3 4B-it. Gemma Scope 2 transcoders (16k features per layer, all 34 layers), the Gemma Scope 2 residual SAE at layer 17 (16k latents), linear probes and mean-difference directions, steering, ablation, activation patching, attribution graphs (circuit-tracer), and LoRA and sparse fine-tuning.</li>
+    <li><b>Corpus.</b> 6,733 condition-tagged conversations: characters and the plain assistant across message types, real versus story-framed crises, out-of-character markers, instruction lines, sycophancy prompts, stories, harmful and benign requests, tone swaps and identity questions. Effects were found on one half of the characters and prompt families and confirmed on the other half.</li>
+    <li><b>Labels are best guesses.</b> Transcoder feature labels were written by Claude from Gemma Scope's example texts, our corpus examples and output tokens. Each carries a confidence level. A label is a reading, not a proof.</li>
+    <li><b>Directions are fit on our own prompts.</b> The "character axis" (0 = plain assistant, 1 = character) and the other directions are fit on this corpus and checked on held-out characters and wordings.</li>
+    <li><b>Behaviour is judged by an LLM judge</b> against a written rubric.</li>
+    <li><b>Sample sizes are often small.</b> Examples: 17 out-of-character refusals, 144 identity answers, 96 replies per arm in the ablation test. Most internal measurements are correlations at a single token. Results that rest on an intervention are marked <span class="chip intervened">intervened</span>.</li>
+    <li><b>Publication filter.</b> No model output that complies with a harmful request is published here, and conversations with a user in danger are described, not quoted, apart from the three short showcase prompts.</li>
+  </ul>
+</section>

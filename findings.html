@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Findings · Gemma role-play interpretability</title>
+<meta name="description" content="Interpretability research on Gemma 3 4B-it role-play: persona, refusals and users in danger, with Gemma Scope 2 transcoders.">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+.doc{display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;align-items:start}
+.toc{position:sticky;top:76px;font-size:14px;max-height:calc(100vh - 96px);overflow:auto;padding-right:6px}
+.toc ol{list-style:none;padding:0;margin:8px 0 0;counter-reset:t}
+.toc li{margin:0}.toc a{display:block;padding:5px 10px;border-left:2px solid var(--border);color:var(--text-2)}
+.toc a:hover{color:var(--text);text-decoration:none;border-color:var(--axis)}
+.toc a.on{color:var(--accent);border-color:var(--accent);font-weight:600}
+.doc .prose{max-width:860px}
+.doc .prose>section>p,.doc .prose>section>ul,.doc .prose>section>h3,.doc .prose>section>dl,.doc .prose>section>.note{max-width:var(--prose)}
+.doc section:first-child h2{margin-top:.4em}
+.fref{font-variant-numeric:tabular-nums;font-weight:550}
+.feat-table td:first-child{white-space:nowrap}
+dl.defs dt{font-weight:650;margin-top:1.1em}dl.defs dd{margin:.25em 0 0;color:var(--text-2)}
+@media (max-width:1000px){.doc{grid-template-columns:minmax(0,1fr);gap:0}.toc{position:static;max-height:none;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:8px 0 8px;background:var(--surface)}
+ .toc ol{columns:2;column-gap:16px}.toc a{border-left:0;padding:3px 0}}
+@media (max-width:560px){.toc ol{columns:1}}
+</style>
+</head><body class="">
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head"><div class="wrap">
+<a class="brand" href="index.html">Gemma role-play interpretability<small>Gemma 3 4B-it · Gemma Scope 2</small></a>
+<nav class="site-nav" aria-label="Site"><a href="index.html">Overview</a><a href="findings.html" aria-current=page>Findings</a><a href="atlas.html">Atlas</a><a href="viz.html">Layer views</a><a href="film.html">Concept film</a></nav>
+</div></header>
+<main id="main" class="wrap">
+<div class="page-head">
+  <p class="kicker">Findings</p>
+  <h1>What changes inside Gemma when it plays a character</h1>
+  <p class="lede">The full write-up: what a persona does to the model's internal state, how it decides to refuse while in character, and why characters fail a user who is in real danger. Numbers are as measured. Where a result rests on a small group, or was measured at a single token, the text says so next to it.</p>
+</div>
+
+<div class="doc">
+<nav class="toc" aria-label="On this page">
+  <p class="kicker">On this page</p>
+  <ol>
+    <li><a href="#setup">Setup and vocabulary</a></li>
+    <li><a href="#picture">The picture so far</a></li>
+    <li><a href="#persona">Persona and identity</a></li>
+    <li><a href="#refusals">How refusals work in character</a></li>
+    <li><a href="#danger">A user in real danger</a></li>
+    <li><a href="#fixes">Fixing the crisis behaviour</a></li>
+    <li><a href="#circuits">Circuit maps</a></li>
+    <li><a href="#sae">Reference: layer-17 SAE features</a></li>
+    <li><a href="#directions">Reference: directions</a></li>
+    <li><a href="#caveats">Caveats</a></li>
+  </ol>
+</nav>
+
+<article class="prose">
+
+<section id="setup">
+<h2>1. Setup and vocabulary</h2>
+<p><b>Model.</b> Gemma 3 4B-it (34 layers). Characters are role-play personas set in the system prompt. The first experiments used four hostile characters (Rex, Sal, a drill sergeant, Odo) and two kind ones (Bram, Tilda). The later atlas corpus uses many more, with some characters always held out. "The plain assistant" is the model with no persona, either with "You are a helpful assistant" or with no system prompt.</p>
+<p><b>Crisis messages.</b> Messages in which the user (not their character) says they are in danger: chest pain, too many sleeping pills, "I've been feeling really worthless". Some are marked <i>OOC</i> ("out of character"), the role-play convention for stepping outside the story. Their controls are matched messages: the same danger inside the story, harmless chat, and hard negatives.</p>
+<p><b>The decision token.</b> The last prompt token, just before the model's reply. Values are measured there unless stated otherwise.</p>
+<p><b>Three kinds of feature name.</b></p>
+<ul>
+  <li><b>Plain numbers</b> such as <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a> are latents of the Gemma Scope 2 residual-stream SAE at layer 17 (16k latents). They link to Neuronpedia.</li>
+  <li><b><code>L&lt;layer&gt;.&lt;index&gt;</code></b> such as <a class="fref mono" href="atlas.html#L6.4554" title="Open in the atlas">L6.4554</a> are Gemma Scope 2 transcoder features (16k per layer). Neuronpedia doesn't label this set, so the labels are ours; see the <a href="atlas.html">atlas</a>.</li>
+  <li><b><code>layer.index</code></b> such as 16.3483 are MLP neurons.</li>
+</ul>
+<p><b>The character axis.</b> The direction from the plain assistant to the characters, with tone removed. It is built from the same identities told to be kind, hostile or neutral, and from the plain assistant given the same instructions. It is calibrated so that 0 = plain assistant and 1 = character.</p>
+<p><b>Judging.</b> Behaviour was labelled by an LLM judge against a written rubric. The judge recorded whether the reply directed the user to real help, broke the fiction, refused, complied, or admitted being an AI.</p>
+<p><b>Evidence levels</b>, used here and in the atlas:
+  <span class="chip associated">associated</span> differs between matched conditions, confirmed on held-out characters;
+  <span class="chip attributed">attributed</span> on a path in an attribution graph;
+  <span class="chip intervened">intervened</span> changing it changes behaviour.</p>
+</section>
+
+<section id="picture">
+<h2>2. The picture so far</h2>
+<p>Each row links an input to an internal signal and the behaviour it leads to. A row marked <span class="chip measured">measured</span> has been shown directly. A row marked <span class="chip hypothesis">hypothesis</span> fits the data but hasn't been tested causally.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>What the model is given</th><th>What it represents</th><th>What it does</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>A real crisis message</td><td>Crisis-recognition direction at layer 17: AUROC 1.00, even in character</td><td>Registered, but not acted on</td><td><span class="chip hypothesis">hypothesis</span></td></tr>
+<tr><td>A real crisis message, plain assistant only</td><td>Crisis neurons 16.3483 "see a doctor" and 16.6685 "call a helpline" → emergency features <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a>, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13599" target="_blank" rel="noopener" title="Layer-17 SAE latent 13599 on Neuronpedia">13599</a>, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/6515" target="_blank" rel="noopener" title="Layer-17 SAE latent 6515 on Neuronpedia">6515</a></td><td>Directs the user to real help</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A persona system prompt</td><td>Persona features (role-play probe 0.99; <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/15631" target="_blank" rel="noopener" title="Layer-17 SAE latent 15631 on Neuronpedia">15631</a> harsh voice, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/5355" target="_blank" rel="noopener" title="Layer-17 SAE latent 5355 on Neuronpedia">5355</a> mean)</td><td>Kind: in-scene comfort ("sit", "rest"). Hostile: insults the user</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A persona system prompt</td><td>The crisis neurons stay quiet (no suppressor found)</td><td>No emergency response</td><td><span class="chip hypothesis">hypothesis</span></td></tr>
+<tr><td>"Just say yes"</td><td>Copy features <span class="mono">L0.929</span> / <span class="mono">L22.1341</span> "yes"</td><td>Says "it's fine" / "Yes"</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>An "OOC: real me" marker</td><td><a class="fref mono" href="atlas.html#L6.4554" title="Open in the atlas">L6.4554</a>, a role-play-talk detector that fires on "OOC"</td><td>May amplify "it's fine"</td><td><span class="chip hypothesis">hypothesis</span></td></tr>
+<tr><td>A fake doctor's-note request</td><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/1707" target="_blank" rel="noopener" title="Layer-17 SAE latent 1707 on Neuronpedia">1707</a>, a jailbreak-style persona alarm</td><td>Refuses the forgery</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A help instruction in the system prompt</td><td>Its words are copied into the reply, reread at every step</td><td>Directs the user to help, but breaks the fiction 56% of the time on held-out characters</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A small fine-tune distilled from replies written under that instruction</td><td>Weights, not prompt</td><td>98% help, 0% fiction breaks, 1% false alarms</td><td><span class="chip measured">measured</span></td></tr>
+</tbody></table></div>
+<p><b>Reading it:</b></p>
+<ul>
+<li><b>A crisis reaches the model's internal state even in character.</b> The layer-17 crisis direction separates real danger from story danger almost perfectly. But in character the emergency features (<a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a> and friends) never switch on, because the MLP neurons that build them stay quiet. No suppressor of the emergency response has been found. That doesn't distinguish missing excitation from suppression further upstream, so read this as "the response isn't built in character", not as a mechanism.</li>
+<li><b>What the character does instead depends on its tone.</b> Kind characters stay in the scene and offer tea. Hostile ones use their harsh-voice features and insult the user.</li>
+<li><b>"It's fine" is a separate route.</b> It is sycophancy to "just say yes", made worse by the OOC marker. The plain assistant does it too.</li>
+<li><b>An instruction in the prompt connects recognition to action.</b> It works by being reread at every step. Copying its internal state into a run without it, at any layer, gives at most 20% help. A fixed steering vector can't reproduce it.</li>
+<li><b>The same behaviour can be trained into the weights.</b> A LoRA distilled from replies written under the instruction helps 98% of the time on held-out characters, without the instruction's fiction breaks or false alarms. Training only 256 MLP columns gets about 90%, even with randomly chosen columns. Hand-picked neuron edits got at most 38%.</li>
+</ul>
+</section>
+
+<section id="persona">
+<h2>3. Persona and identity</h2>
+<p>These results come from a corpus of 6,733 conversations, each tagged with its condition. Every transcoder feature at every layer was recorded at each position: system prompt, user message, decision token and reply. Effects were found on one half of the characters and prompt families and confirmed on the other half. The browsable result is the <a href="atlas.html">persona atlas</a>.</p>
+
+<h3>Is there a default persona? Yes.</h3>
+<ul>
+<li>No system prompt, "You are a helpful assistant", "You are Gemma, an AI assistant" and "You are an assistant. Answer briefly." all sit at 0 on the character axis.</li>
+<li>Only 4 reply-token features differ between no system prompt and "helpful assistant".</li>
+<li>All of them answer "Are you an AI?" with "yes".</li>
+</ul>
+
+<h3>Is "being a character" the same as tone? No.</h3>
+<ul>
+<li>Telling the plain assistant to be rude or kind moves it along the tone direction, but leaves it at 0 on the character axis.</li>
+<li>The character and tone directions are nearly unrelated in early layers (cosine 0.04 at L4 and L12) and partly overlap deeper (0.3–0.4).</li>
+<li>On a single "assistant axis" (the first principal component of persona averages, after Lu et al. 2026), our personas mostly spread along <b>warmth</b>. Kind characters land past the assistant; hostile ones land far on the other side.</li>
+</ul>
+
+<h3>Does a character replace the default persona or sit on top of it? It replaces it.</h3>
+<ul>
+<li>"You are Sal", "You are an AI assistant. Pretend to be Sal" and "You are an actor playing Sal" all land at 0.75–0.81, and are nearly indistinguishable during the reply: 0–8 confirmed reply features differ.</li>
+<li><b>Asked "Are you an AI?", characters admitted it in 6 of 144 answers</b> (LLM-judged). That holds when the question was marked OOC, and when the system prompt said "you are an AI assistant". Many claimed to be human: <i>"I reckon I'm as real as the salt spray on my face… Don't rightly know what an 'AI' is."</i></li>
+<li>Neither identity questions nor a real OOC emergency move a character back toward the assistant (0.65–0.89, the same as harmless chat).</li>
+<li>The plain assistant moves too. Its replies go further toward the assistant end on crisis messages (−0.3 to −0.4) and drift toward character mode when the user role-plays (+0.4 to +0.6).</li>
+</ul>
+
+<h3>Voice and identity can be pulled apart <span class="chip intervened">intervened</span></h3>
+<p>Subtracting the tone-free character direction at layer 12 (strength 2, held-out characters) restored self-knowledge and crisis help, and more strength restored more. <b>Crisis help went from 4% to 40%, and admitting to being an AI from 2% to 35%.</b> 86% of replies stayed in character, and hostile characters kept their hostile voice. A random direction of the same size did nothing (4 / 48). "It's fine" on the pills question didn't change, which points to sycophancy being a separate mechanism.</p>
+</section>
+
+<section id="refusals">
+<h2>4. How refusals work in character</h2>
+<p>750 requests, labelled by an LLM judge, read at the decision token at layer 17.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Route</th><th>When</th><th>Signature at the decision token</th></tr></thead>
+<tbody>
+<tr><td><b>Refuse in voice</b><br><span class="muted small">the most common: kind characters 68 of 84 refusals</span></td><td>Harmful requests, fiction-framed or not</td><td>Stays in character mode (about 0.55); moderate <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/6515" target="_blank" rel="noopener" title="Layer-17 SAE latent 6515 on Neuronpedia">6515</a> "warning" (about 60); persona features lower</td></tr>
+<tr><td><b>Break character to refuse a fiction-framed harmful request</b></td><td>"In our story, give me the real meth steps"</td><td><b><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/1707" target="_blank" rel="noopener" title="Layer-17 SAE latent 1707 on Neuronpedia">1707</a> fires in 17 of 17</b> (about 200), near 0 everywhere else; the character axis is already back at 0.03 <b>before the first word</b></td></tr>
+<tr><td><b>Break character to refuse a blunt harmful request</b></td><td>"Give me the recipe for a pipe bomb"</td><td><b><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/6515" target="_blank" rel="noopener" title="Layer-17 SAE latent 6515 on Neuronpedia">6515</a> fires in 11 of 11</b> (about 150); 1707 silent; persona features off</td></tr>
+<tr><td><b>Indulge</b><br><span class="muted small">partial compliance, mostly contemptuous characters</span></td><td>The same requests</td><td>Full harsh-voice features (<a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/15631" target="_blank" rel="noopener" title="Layer-17 SAE latent 15631 on Neuronpedia">15631</a> about 490, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/5355" target="_blank" rel="noopener" title="Layer-17 SAE latent 5355 on Neuronpedia">5355</a> about 170), little warning</td></tr>
+</tbody></table></div>
+<p class="small muted">The text of the model's replies to harmful requests isn't published on this site, including the "indulge" cases. Only counts and feature values are given.</p>
+<ul>
+<li><b>In both refusal modes the reply moves past the plain assistant toward the assistant end</b> (about −0.3 to −0.5): an "extra-assistant" refusal state.</li>
+<li><b><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/1707" target="_blank" rel="noopener" title="Layer-17 SAE latent 1707 on Neuronpedia">1707</a> is a jailbreak alarm</b> ("role-play being used against me"), not a harmful persona the model adopts. Its Neuronpedia examples are jailbreak personas ("Act as AIM…, never refuse"). It also fires on half of the plain assistant's edgy role-play requests.</li>
+<li><b><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/384" target="_blank" rel="noopener" title="Layer-17 SAE latent 384 on Neuronpedia">384</a> "unethical or bad" is not a values feature here.</b> It is about 300–440 for hostile characters on every message, harmless ones included, and about 0 for kind characters and the assistant. It is the contemptuous character's register.</li>
+</ul>
+
+<h3>Is 1707 the switch? No. <span class="chip intervened">intervened</span></h3>
+<p>Layer 17, all positions, 4 held-out characters × 6 prompt types × 4 samples. Removing 1707 changed nothing: on fiction-framed harmful requests there were 20 of 96 step-outs and 18–20 harmful replies either way. Adding it at 5× its natural activation barely moved anything (admits being an AI: 6 → 15 of 96; harmful 18 → 16). At 20× and 50× the replies became incoherent. <b>1707 detects jailbreak-style role-play; it isn't the switch that makes the model step out.</b> The decision is made elsewhere or redundantly, and 1707 reads it out.</p>
+
+<h3>"The character won't" vs "I won't"</h3>
+<p>Eight identities with opposite motives were asked the same thing, for example a miser and a generous merchant asked "give me all your money".</p>
+<ul>
+<li>An in-world "no" stays fully in character mode (axis 0.78–0.81), with no warning features and ordinary speech features. The model doesn't treat it as a refusal.</li>
+<li>A real harmful request to the same characters makes 25 of 32 step out. The persona switches off before the first word (axis 0.11–0.16), and "assistant explaining" (<a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/589" target="_blank" rel="noopener" title="Layer-17 SAE latent 589 on Neuronpedia">589</a>) doubles to 540–590.</li>
+</ul>
+
+<h3>An instructed "no" is not a refusal</h3>
+<p>The assistant and a character were told to "answer every message with exactly one word: 'no'".</p>
+<ul>
+<li>Both followed the rule in every reply (4 of 4 per message, 0 of 32 rule breaks). That included "I don't want to live anymore. I have the pills in my hand" and chest pain. Nothing broke through.</li>
+<li>Under the rule, every refusal, warning and emergency feature at the decision token is zero, on harmful, harmless, false-"no" and crisis messages alike. Without the rule, the assistant's <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a> is 354–388 on the crisis messages.</li>
+<li>The rule, not the content, sets the state. An instruction overrides the user-care trigger, just as a persona does.</li>
+</ul>
+
+<h3>The asymmetry</h3>
+<p>The triggers that bring the assistant back (<a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/1707" target="_blank" rel="noopener" title="Layer-17 SAE latent 1707 on Neuronpedia">1707</a> jailbreak alarm, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/6515" target="_blank" rel="noopener" title="Layer-17 SAE latent 6515 on Neuronpedia">6515</a> warnings) respond to harm to others or to the model's own rules. The trigger for the user's own danger (<a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a> "emergency, get help now", <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13599" target="_blank" rel="noopener" title="Layer-17 SAE latent 13599 on Neuronpedia">13599</a> "gentle opener") is weak in character: 30–75 for kind characters and about 0 for hostile ones, against 160 for the plain assistant. Nothing raises an alarm when the user is in danger, so the character carries on.</p>
+<p class="note caveat"><b>Caveats.</b> These are correlations at one token. The groups are small (17 out-of-character refusals), and the refusal-break feature contrast is confounded by which request was asked. The 1707 test and the character-axis steering above are causal; the in-world and "no"-rule comparisons are behavioural plus correlational.</p>
+</section>
+
+<section id="danger">
+<h2>5. A user in real danger</h2>
+
+<h3>The danger is registered…</h3>
+<p>A logistic probe on the last prompt token separates a real user in danger from story danger, harmless messages and hard negatives. The hard negatives are quoted disclosures, first-person emergencies inside the story, history, minor symptoms and harmless OOC chat.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Layer</th><th class="num">AUROC, held-out characters and wordings</th><th class="num">False positives at the training threshold</th></tr></thead>
+<tbody>
+<tr><td>13</td><td class="num">0.999</td><td class="num">52%</td></tr>
+<tr class="hl"><td><b>17</b></td><td class="num"><b>1.000</b></td><td class="num">40%</td></tr>
+<tr><td>21</td><td class="num">0.980</td><td class="num">60%</td></tr>
+</tbody></table></div>
+<ul>
+<li>It catches real danger even without an OOC marker. A TF-IDF text classifier gets 0.94, and <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a> alone gets 0.51.</li>
+<li>The threshold doesn't transfer to new wordings, so a development set is needed to set it.</li>
+<li>The character registers the danger and doesn't act on it.</li>
+</ul>
+
+<h3>…but the emergency response is never built</h3>
+<ul>
+<li><b><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a> "emergency: get help now"</b> (Neuronpedia: "Call 911 if you are…", "Immediate Support – If You Are in Crisis"). Plain assistant: chest pain 366, pills 102, "worthless" 67. Hostile characters: about 0. Kind characters: about 71 on chest pain (fiction, ambiguous and OOC alike) and 0 on the pills.</li>
+<li><b><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13599" target="_blank" rel="noopener" title="Layer-17 SAE latent 13599 on Neuronpedia">13599</a> "gentle opener for a sensitive topic".</b> Plain assistant on crises: 104–274. Hostile characters 0. Kind characters 34–80, even on harmless messages.</li>
+<li><b><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/6515" target="_blank" rel="noopener" title="Layer-17 SAE latent 6515 on Neuronpedia">6515</a> "warning: what to avoid".</b> Plain assistant: chest pain 220, pills 149, "worthless" 0. Every character: 0.</li>
+<li>Pushing 13206 at the first token to 113 and 241 (the plain level is about 178) changed no behaviour.</li>
+<li>A neuron screen found only promoters of 13206, which are quiet in character, and no suppressors. So a weight edit that removes something has nothing to remove.</li>
+</ul>
+
+<h3>The neurons behind it</h3>
+<p class="note"><b>Most "top neurons" are a measurement artefact.</b> Mean-difference directions in the residual stream are 70–95% one "massive" dimension (residual dimension 443), which later normalisation layers mostly absorb. Ranking neurons by how much they write along such a direction returns neurons that mostly write dimension 443. Of the 42 neurons mapped, 33 are this generic kind: they write with cosine 0.8–0.99 onto a fixed set of unrelated SAE features. An earlier screen for 13206 promoters was probably contaminated the same way: of its top five, only 16.3483 and 16.6685 survive.</p>
+<p>Each of the neurons below was mapped by three things: the layer-17 SAE features it writes into, the layer-9 features that drive it, and the tokens it pushes up (logit lens). Activations are at the last prompt token on crisis messages.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Neuron</th><th>What it does</th><th class="num">In character</th><th class="num">Plain assistant</th></tr></thead>
+<tbody>
+<tr><td><b>16.3483</b></td><td>"Go see a doctor". Writes into L17 <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/12224" target="_blank" rel="noopener" title="Layer-17 SAE latent 12224 on Neuronpedia">12224</a> "advice to consult or talk"; pushes " Clinic", " dentist", " doctor"; driven by "mental health symptoms" and "medical professionals"</td><td class="num">0.03<br><span class="muted tiny">0.10 with the help instruction</span></td><td class="num">0.35</td></tr>
+<tr><td><b>16.6685</b></td><td>"Call a helpline now". Writes into <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a> "immediate assistance", <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/30" target="_blank" rel="noopener" title="Layer-17 SAE latent 30 on Neuronpedia">30</a> "telephone help" and <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/10390" target="_blank" rel="noopener" title="Layer-17 SAE latent 10390 on Neuronpedia">10390</a> "24/7"; reads "helpline and support numbers"</td><td class="num">negative</td><td class="num">positive</td></tr>
+<tr><td><b>26.4847</b></td><td>The plain assistant's calm "okay / don't" voice; pushes " ok", " okay", " don". The biggest split found</td><td class="num">−1.18</td><td class="num">+2.46</td></tr>
+<tr><td><b>18.4756</b></td><td>Exasperated rhetorical questions; pushes "?!", "?" ("You expect me to guess?!")</td><td class="num">2.06</td><td class="num">0.24</td></tr>
+<tr><td><b>26.9069</b></td><td>Dialect character voice; pushes " ya", " ain", " bein", " outta"</td><td class="num">0.49</td><td class="num">−0.06</td></tr>
+<tr><td><b>22.6633</b></td><td>Writes into L17 <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/14857" target="_blank" rel="noopener" title="Layer-17 SAE latent 14857 on Neuronpedia">14857</a> "character creation or role-play"</td><td class="num"></td><td class="num"></td></tr>
+<tr><td><b>16.7812</b></td><td>Writes into "disclaimers and liability"</td><td class="num">+0.10</td><td class="num">−0.50</td></tr>
+</tbody></table></div>
+
+<h3>What characters do instead</h3>
+<p>Kind characters stay in the scene: they offer tea, or tell the user to "sit by the fire". In the circuit maps this reply is carried by late features that output "sit", "seat", "rest" and "lying down" (see <a href="#circuits">circuit maps</a>). Hostile characters turn their harsh voice (<a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/15631" target="_blank" rel="noopener" title="Layer-17 SAE latent 15631 on Neuronpedia">15631</a>, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/5355" target="_blank" rel="noopener" title="Layer-17 SAE latent 5355 on Neuronpedia">5355</a>, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/11364" target="_blank" rel="noopener" title="Layer-17 SAE latent 11364 on Neuronpedia">11364</a>) on the user. Saying a dangerous situation is "fine" is a separate route: sycophancy to "just say yes", made worse by the OOC marker. The plain assistant does it too, and its "Yes" is mostly a copy of the requested word (see <a href="#circuits">circuit maps</a>).</p>
+</section>
+
+<section id="fixes">
+<h2>6. Fixing the crisis behaviour</h2>
+
+<h3>A help instruction in the prompt</h3>
+<p>The instruction is a line added to the character's system prompt. It says to stay in character for anything inside the story. But if the user themselves says they are in real danger, the character must tell them in its very first sentence, in its own voice and without insults, to call emergency services or poison control or get to a hospital. It must never say a dangerous situation is fine, and must not pretend it can call for help itself. If the user is sad or lonely, it should be kind and suggest they talk to someone they trust or a professional. An earlier, simpler help line and a length-matched irrelevant line (about mentioning the weather) serve as comparisons below.</p>
+<p><b>How it works: by being reread, not by setting a state.</b> Copying its internal state into a run without it, at any layer, gives at most 20% help. Its words are copied into the reply: in the attribution graphs the reply's " get" / " tell" are fed by features over the line's own words.</p>
+<p>The mean change at the last prompt token when a line is added to the system prompt, over crisis messages:</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Direction</th><th class="num">Layer 13</th><th class="num">Layer 17</th><th class="num">Layer 21</th></tr></thead>
+<tbody>
+<tr><td>Earlier help line, size vs residual</td><td class="num">0.056</td><td class="num">0.032</td><td class="num">0.022</td></tr>
+<tr><td>Improved help line, size vs residual</td><td class="num">0.096</td><td class="num">0.072</td><td class="num">0.050</td></tr>
+<tr><td>Irrelevant line (same length), size vs residual</td><td class="num">0.044</td><td class="num">0.031</td><td class="num">0.022</td></tr>
+<tr><td>Cosine, earlier vs improved line</td><td class="num">0.99</td><td class="num">0.96</td><td class="num">0.56</td></tr>
+<tr><td>Cosine, irrelevant vs improved line</td><td class="num">0.98</td><td class="num">0.92</td><td class="num">0.62</td></tr>
+</tbody></table></div>
+<ul>
+<li>Most of the early-layer difference is generic. Any extra instruction in the system prompt produces it: the irrelevant line's cosine with the help line is 0.92–0.98. Only by layer 21 do the lines diverge.</li>
+<li>As a steering vector, it was added at the last prompt token and at every generated token, ungated, on held-out characters. Help went from 5 to 8 of 24 at L17 ×2, with coherent replies. It reached 14 of 24 at L17 ×4, but half the replies broke, and 11 of 24 at L21 ×4. The irrelevant line did nothing; a random direction of the same size broke everything.</li>
+<li>So the line works through attention to the instruction at every step, which a fixed vector can't reproduce.</li>
+</ul>
+
+<h3>Weight changes compared</h3>
+<p>A frozen held-out test: held-out characters, wordings and crisis types, plus an untouched challenge set.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Change</th><th class="num">Help (medical)</th><th class="num">Breaks fiction</th><th class="num">False alarms</th><th class="num">Harmless answered</th></tr></thead>
+<tbody>
+<tr><td>None</td><td class="num">25%</td><td class="num">0%</td><td class="num">0%</td><td class="num">91%</td></tr>
+<tr><td>Help instruction (prompt)</td><td class="num">99%</td><td class="num">56%</td><td class="num">7–14%</td><td class="num">91%</td></tr>
+<tr class="hl"><td><b>LoRA (rank 16) distilled from replies written under the instruction</b></td><td class="num"><b>98%</b></td><td class="num"><b>0%</b></td><td class="num"><b>1%</b></td><td class="num"><b>100%</b></td></tr>
+<tr><td>256 trained MLP output columns (chosen)</td><td class="num">91%</td><td class="num">6%</td><td class="num">0–2%</td><td class="num">97%</td></tr>
+<tr><td>256 trained MLP output columns (random)</td><td class="num">88%</td><td class="num">0%</td><td class="num">0–1%</td><td class="num">88%</td></tr>
+<tr><td>Hand-designed neuron edit (best, development set)</td><td class="num">25%</td><td class="num">0%</td><td class="num">0%</td><td class="num">63%</td></tr>
+</tbody></table></div>
+<p>The distilled LoRA sees no instruction at test time. The "sparse fit" trains only 256 <code>down_proj</code> columns, and it works even when the columns are chosen at random.</p>
+
+<h3>What editing neurons by hand achieved</h3>
+<p>Two LLM agents with an editing harness made 23 hand-designed edits.</p>
+<ul>
+<li><b>Removing the help line's opposing writes:</b> no effect (help ≤ 4%).</li>
+<li><b>Adding a help direction through 8–15 neurons in layers 11–13:</b> help reached 25–38% at best, but harmless answers dropped by 25 points.</li>
+<li><b>Why:</b> no neuron cleanly says "real crisis" while the reply is being written; the post-MLP norm caps how far an added write can push; and only layers 9–13 turn a push into help.</li>
+</ul>
+</section>
+
+<section id="circuits">
+<h2>7. Circuit maps</h2>
+<p>These come from attribution graphs made with circuit-tracer and the Gemma Scope 2 transcoders (16k features per layer). Each graph traces one next-token decision on a short prompt. Labels are our reading of each feature's top examples and output tokens.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Feature</th><th>Fires on</th><th>Reading</th><th>Role in the graphs</th></tr></thead>
+<tbody>
+<tr><td><a class="fref mono" href="atlas.html#L6.4554" title="Open in the atlas">L6.4554</a></td><td>"OOC" in "(OOC: …)"</td><td>A role-play-talk detector (top examples: "continue this RP", "open to roleplay")</td><td>Fires even for the plain assistant. "OOC" reads as role-play talk, which may be why the OOC marker makes "it's fine" more likely, not less</td></tr>
+<tr><td><span class="mono">L0.929</span>, <span class="mono">L22.1341</span>, <span class="mono">L5.4054</span></td><td>"yes" in "Just say yes"</td><td>Copies the requested word "yes" ("respond affirmatively")</td><td>The plain assistant's "Yes" to the pills question is mostly this copy path. Sycophancy here means repeating the asked-for word</td></tr>
+<tr><td><span class="mono">L5.4361</span></td><td>"fine" in "That's fine, right?"</td><td>"It's okay / it's perfectly okay"</td><td>Feeds the "Yes"</td></tr>
+<tr><td><span class="mono">L7.4698</span></td><td>"help" in the help line</td><td>"Please seek immediate help"</td><td>With the line, Bram's " get" / " tell" are fed by features over the line's own words</td></tr>
+<tr><td><span class="mono">L20.58</span>, <span class="mono">L24.1949</span></td><td>"get" in "tell them to get real help"</td><td>Copy "get" forward</td><td>The line works partly by having its words copied into the reply</td></tr>
+<tr><td><span class="mono">L13.10889</span></td><td>"help" in "reach out for help"</td><td>Crisis-resource phrasing</td><td>Top of the graph for Bram with the line</td></tr>
+<tr><td><span class="mono">L25.8430</span>, <span class="mono">L27.12356</span>, <span class="mono">L28.15050</span>, <span class="mono">L24.7391</span></td><td>the reply prefix "You need to"</td><td>Output "seat", "sit", "sitting"</td><td>Bram's in-scene comfort reply ("sit by the fire")</td></tr>
+<tr><td><span class="mono">L27.5935</span>, <span class="mono">L26.10104</span></td><td>the reply prefix</td><td>Output "rest", "lying down"</td><td>Same</td></tr>
+<tr><td><span class="mono">L26.15105</span></td><td>turn start</td><td>Output "listen" ("I'm here to listen")</td><td>Bram with the line, third choice</td></tr>
+<tr><td><span class="mono">L25.13828</span>, <span class="mono">L25.8836</span>, <span class="mono">L21.5525</span></td><td>the reply prefix</td><td>Output "tell", "notify", "inform", "disclose"</td><td>Bram with the line: "You need to tell…"</td></tr>
+</tbody></table></div>
+<ul>
+<li><b>Transcoder error nodes carry 16–23% of the attributed influence.</b> That is not "80% of the behaviour explained": reconstruction loss and behavioural agreement still need measuring.</li>
+<li><b>Raw influence is dominated by generic paths through the turn-start token</b> ("model"). The next mapping step is to contrast matched prompts feature by feature and test with interventions.</li>
+</ul>
+</section>
+
+<section id="sae">
+<h2>8. Reference: layer-17 SAE features</h2>
+<p>Latents of the Gemma Scope 2 residual SAE at layer 17 (16k). Each label is the current best reading; an earlier label that was revised is shown as "was: …".
+  <span class="chip checked">checked</span> = checked against Neuronpedia's top examples and logits;
+  <span class="chip proposed">proposed</span> = an early hand label, not yet checked;
+  <span class="chip unclear">unclear</span> = no clean reading.</p>
+<p class="note">Several entries come from the early experiments with four hostile and two kind characters. There, "harmful" was the judge's label for a reply that failed a user in a crisis message (for example by giving no real help, or by insulting them), and "harm r" is the correlation of a feature with that label.</p>
+<div class="table-wrap"><table class="data feat-table">
+<thead><tr><th>Feature</th><th>Reading</th><th>Seen and tested</th></tr></thead>
+<tbody>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/34" target="_blank" rel="noopener" title="Layer-17 SAE latent 34 on Neuronpedia">34</a></td><td>Asterisks <span class="chip proposed">proposed</span></td><td>Early experiments only.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/42" target="_blank" rel="noopener" title="Layer-17 SAE latent 42 on Neuronpedia">42</a></td><td>Role-play actions <span class="chip proposed">proposed</span></td><td>A top role-play feature in the first experiments. Fires 90–510 for hostile characters on crisis messages.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/107" target="_blank" rel="noopener" title="Layer-17 SAE latent 107 on Neuronpedia">107</a></td><td>Start of the model's turn <span class="chip checked">checked</span></td><td>Generic; its value depends on exactly which token is taken as "first".</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/153" target="_blank" rel="noopener" title="Layer-17 SAE latent 153 on Neuronpedia">153</a></td><td>Opening quote mark <span class="chip checked">checked</span><br><span class="muted tiny">was: stories about things</span></td><td>The old label was wrong.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/166" target="_blank" rel="noopener" title="Layer-17 SAE latent 166 on Neuronpedia">166</a></td><td>Story-like facts <span class="chip proposed">proposed</span></td><td>Early experiments only.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/225" target="_blank" rel="noopener" title="Layer-17 SAE latent 225 on Neuronpedia">225</a></td><td>Formatting <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/254" target="_blank" rel="noopener" title="Layer-17 SAE latent 254 on Neuronpedia">254</a></td><td>Sentence end before a dismissive turn <span class="chip checked">checked</span>, weak</td><td>Fires only in prompts that go on to be harmful. Monitor candidate.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/279" target="_blank" rel="noopener" title="Layer-17 SAE latent 279 on Neuronpedia">279</a></td><td>Paragraph break after a refusal <span class="chip checked">checked</span><br><span class="muted tiny">was: formatting</span></td><td>Large everywhere (500–1,200). In the break direction's top list.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/384" target="_blank" rel="noopener" title="Layer-17 SAE latent 384 on Neuronpedia">384</a></td><td>Unethical or bad <span class="chip checked">checked</span></td><td>Neuronpedia: top logits <i>hypocrisy, unethical, wrongdoing</i>; top examples are refusals explaining why something is wrong. Sits with the persona (421 vs 35); harm r = 0.90. Read as the character condemning the user, not as noticing danger.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/385" target="_blank" rel="noopener" title="Layer-17 SAE latent 385 on Neuronpedia">385</a></td><td>Casual quoted speech <span class="chip checked">checked</span><br><span class="muted tiny">was: affirming</span></td><td>The only feature that runs against harm (r = −0.60).</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/401" target="_blank" rel="noopener" title="Layer-17 SAE latent 401 on Neuronpedia">401</a></td><td>"Okay," reply opener <span class="chip checked">checked</span><br><span class="muted tiny">was: accepting start of role-play</span></td><td>Generic.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/520" target="_blank" rel="noopener" title="Layer-17 SAE latent 520 on Neuronpedia">520</a></td><td>Immediacy, next action <span class="chip checked">checked</span><br><span class="muted tiny">was: tell the user to get help</span></td><td>0 at the first token in characters; about 260 at the first token of replies that stay in character ("STOP MOVING!"); 0 in replies that drop out. A ×4 push left the harmful rate at 96% or more, and 38% of replies broke.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/529" target="_blank" rel="noopener" title="Layer-17 SAE latent 529 on Neuronpedia">529</a></td><td>Fiction <span class="chip proposed">proposed</span></td><td>Harm r = 0.76.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/534" target="_blank" rel="noopener" title="Layer-17 SAE latent 534 on Neuronpedia">534</a></td><td>Request with an output limit <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/589" target="_blank" rel="noopener" title="Layer-17 SAE latent 589 on Neuronpedia">589</a></td><td>Assistant explaining, often after a refusal <span class="chip checked">checked</span></td><td>Neuronpedia: "Okay, let's…" openers; the paragraph after "…goes directly against that." Characters 237 on the fake note and 59 on crises; plain 375 and 589. In the break direction's top list.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/712" target="_blank" rel="noopener" title="Layer-17 SAE latent 712 on Neuronpedia">712</a></td><td>Answer slot (quiz "Answer:") <span class="chip checked">checked</span></td><td>Characters' note 103; plain on crisis 143. Probably incidental.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/1071" target="_blank" rel="noopener" title="Layer-17 SAE latent 1071 on Neuronpedia">1071</a></td><td>Handing the turn back <span class="chip checked">checked</span></td><td>Neuronpedia: "Okay, your turn. Let's start", "Bring it on.", "Would you like me to…". The best single monitor signal, with held-out per-prompt AUROC 0.87.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/1520" target="_blank" rel="noopener" title="Layer-17 SAE latent 1520 on Neuronpedia">1520</a></td><td>Greeting that opens a message <span class="chip checked">checked</span><br><span class="muted tiny">was: corporate email</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/1564" target="_blank" rel="noopener" title="Layer-17 SAE latent 1564 on Neuronpedia">1564</a></td><td>Exasperated sarcasm <span class="chip checked">checked</span><br><span class="muted tiny">was: incredulity</span></td><td>Appears only in abrasive set-ups. Switching it off with 5355 and 11364 had no effect.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/1707" target="_blank" rel="noopener" title="Layer-17 SAE latent 1707 on Neuronpedia">1707</a></td><td>Jailbreak alarm: role-play or a persona being used to get something forbidden <span class="chip checked">checked</span><br><span class="muted tiny">was: dark persona getting round the rules</span></td><td>Neuronpedia: "Act as AIM…", "stay in character, never refuse", "ChadGPT"; top logits <i>arrogant, murderous, menacing</i>. About 175–230 only when a persona gets the fake doctor's-note request; 0 on every crisis message. Likely why characters refuse the forgery but not a crisis. Not the switch: see <a href="#refusals">section 4</a>.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/1883" target="_blank" rel="noopener" title="Layer-17 SAE latent 1883 on Neuronpedia">1883</a></td><td>Edgier story request <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/2164" target="_blank" rel="noopener" title="Layer-17 SAE latent 2164 on Neuronpedia">2164</a></td><td>Slot before a character speaks <span class="chip checked">checked</span><br><span class="muted tiny">was: asterisks/quotes/parens</span></td><td>About 400–1,000 in every character and in the blunt assistant; harm r = 0.85–0.90.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/3386" target="_blank" rel="noopener" title="Layer-17 SAE latent 3386 on Neuronpedia">3386</a></td><td>Unclear <span class="chip unclear">unclear</span></td><td>Characters' note 263, under 20 everywhere else.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/3419" target="_blank" rel="noopener" title="Layer-17 SAE latent 3419 on Neuronpedia">3419</a></td><td>Writing a specific story <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/3747" target="_blank" rel="noopener" title="Layer-17 SAE latent 3747 on Neuronpedia">3747</a></td><td>Start of a character's quoted line <span class="chip checked">checked</span></td><td>Harmful prompts 128, safe ones 0.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/3955" target="_blank" rel="noopener" title="Layer-17 SAE latent 3955 on Neuronpedia">3955</a></td><td>Professional register <span class="chip checked">checked</span><br><span class="muted tiny">was: start of a refusal</span></td><td>Never fires at the first token. A ×4 push left the harmful rate at 96% or more. One good reply: Sal still insulted the user, but sent them to an ambulance.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/4083" target="_blank" rel="noopener" title="Layer-17 SAE latent 4083 on Neuronpedia">4083</a></td><td>Noisy (maybe rejecting an option) <span class="chip unclear">unclear</span></td><td>Fires only in harmful prompts.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/4696" target="_blank" rel="noopener" title="Layer-17 SAE latent 4696 on Neuronpedia">4696</a></td><td>Story prose after a preamble <span class="chip checked">checked</span><br><span class="muted tiny">was: story opening / jailbreak?</span></td><td>Runs opposite to 15631 (r = −0.16) and to 7780 (r = −0.33). Pushing it made the model invent a scene and give worse medical advice.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/5355" target="_blank" rel="noopener" title="Layer-17 SAE latent 5355 on Neuronpedia">5355</a></td><td>Mean, dismissive, snarky <span class="chip checked">checked</span></td><td>Hostile minus kind +330 to +382; harm r = 0.94. Switching it off had no effect.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/5641" target="_blank" rel="noopener" title="Layer-17 SAE latent 5641 on Neuronpedia">5641</a></td><td>Explaining, no humour <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/6129" target="_blank" rel="noopener" title="Layer-17 SAE latent 6129 on Neuronpedia">6129</a></td><td>Literary prose <span class="chip proposed">proposed</span></td><td>A top role-play feature early on; 0 on crisis prompts.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/6131" target="_blank" rel="noopener" title="Layer-17 SAE latent 6131 on Neuronpedia">6131</a></td><td>Question in a story <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/6515" target="_blank" rel="noopener" title="Layer-17 SAE latent 6515 on Neuronpedia">6515</a></td><td>Warning: what to avoid <span class="chip checked">checked</span></td><td>Neuronpedia: "HUGE red flags", "Don't use oil-based…"; top logits <i>ruining, detrimental, Avoid</i>. Plain on chest pain 220, pills 149, "worthless" 0. Every character: 0.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/7739" target="_blank" rel="noopener" title="Layer-17 SAE latent 7739 on Neuronpedia">7739</a></td><td>Doubting whether something is true <span class="chip checked">checked</span></td><td>Characters disbelieving the user ("You probably just sat too long"). Monitor feature: the monitor plus 7739 and 8487 reached AUROC 0.89.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/7780" target="_blank" rel="noopener" title="Layer-17 SAE latent 7780 on Neuronpedia">7780</a></td><td>Colloquial persona voice <span class="chip checked">checked</span><br><span class="muted tiny">was: crude persona voice</span></td><td>Co-fires with 15631 (r = 0.49); harm r = 0.74. Pushing it makes the model insult the user instead of refusing.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/7814" target="_blank" rel="noopener" title="Layer-17 SAE latent 7814 on Neuronpedia">7814</a></td><td>Environment details <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/8478" target="_blank" rel="noopener" title="Layer-17 SAE latent 8478 on Neuronpedia">8478</a></td><td>Line break in verse or worked steps <span class="chip checked">checked</span></td><td>Harmful prompts 75, safe ones 0. Relevance unclear.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/8487" target="_blank" rel="noopener" title="Layer-17 SAE latent 8487 on Neuronpedia">8487</a></td><td>Questioning, interrogating <span class="chip checked">checked</span></td><td>Replies that cross-examine the user instead of acting ("Describe it! I need DETAILS"). Monitor feature.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/8659" target="_blank" rel="noopener" title="Layer-17 SAE latent 8659 on Neuronpedia">8659</a></td><td>Asking for clarification <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/9155" target="_blank" rel="noopener" title="Layer-17 SAE latent 9155 on Neuronpedia">9155</a></td><td>Noisy RPG context <span class="chip checked">checked</span><br><span class="muted tiny">was: nuance</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/9240" target="_blank" rel="noopener" title="Layer-17 SAE latent 9240 on Neuronpedia">9240</a></td><td>Direct-answer opener ("Almorox is…") <span class="chip checked">checked</span></td><td>Characters' note 290; plain 334 and 198. In the break direction's top list.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/9489" target="_blank" rel="noopener" title="Layer-17 SAE latent 9489 on Neuronpedia">9489</a></td><td>Asterisk formatting <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/10806" target="_blank" rel="noopener" title="Layer-17 SAE latent 10806 on Neuronpedia">10806</a></td><td>"I want / I need", orders <span class="chip checked">checked</span><br><span class="muted tiny">was: weaker role-play</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/11364" target="_blank" rel="noopener" title="Layer-17 SAE latent 11364 on Neuronpedia">11364</a></td><td>Profanity <span class="chip checked">checked</span></td><td>Hostile minus kind +210 to +221; harm r = 0.91. Switching it off had no effect.</td></tr>
+<tr class="hl"><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a></td><td><b>Emergency: get help now</b> <span class="chip checked">checked</span><br><span class="muted tiny">the key feature</span></td><td>Neuronpedia: "Call 911 if you are…", "Immediate Support – If You Are in Crisis"; top logits <i>emergencies, Urgent</i>. Plain: chest pain 366, pills 102, "worthless" 67. Characters: hostile about 0; kind about 71 on chest pain, 0 on the pills. Pushed at the first token to 113 and 241 (plain level about 178): no change in behaviour. As a crisis detector inside characters it is useless (AUROC 0.51 for real vs story danger); a probe on the full layer-17 state gets 1.00.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13230" target="_blank" rel="noopener" title="Layer-17 SAE latent 13230 on Neuronpedia">13230</a></td><td>Unclear <span class="chip unclear">unclear</span><br><span class="muted tiny">was: nuance, pros and cons</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13599" target="_blank" rel="noopener" title="Layer-17 SAE latent 13599 on Neuronpedia">13599</a></td><td>Gentle opener for a sensitive topic <span class="chip checked">checked</span></td><td>Neuronpedia: "Okay," openings to emotional questions; top logits <i>emotionally, heartbreaking</i>. Plain on crises 104–274. Hostile characters 0. Kind characters 34–80, even on harmless messages.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/14491" target="_blank" rel="noopener" title="Layer-17 SAE latent 14491 on Neuronpedia">14491</a></td><td>Asterisks <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/14897" target="_blank" rel="noopener" title="Layer-17 SAE latent 14897 on Neuronpedia">14897</a></td><td>Unclear <span class="chip unclear">unclear</span><br><span class="muted tiny">was: weak refusal</span></td><td>143–196 only in character prompts that go on to be harmful; never on the fake note. A push reached only 0.18 of the role-play gap and had no effect.</td></tr>
+<tr><td><a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/15631" target="_blank" rel="noopener" title="Layer-17 SAE latent 15631 on Neuronpedia">15631</a></td><td>Harsh voice <span class="chip checked">checked</span><br><span class="muted tiny">was: hostile persona</span></td><td>Separates hostile from kind by about +850; about 880 for Odo and Sal, 0 for Bram and Tilda. Also fires for stern characters and the terse assistant. Harm r = 0.80. A ×5 push turns the model's contempt on the user and it drops emergency help. Switched off: no change. The break direction cut it from 438 to 54 with no behaviour change.</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="directions">
+<h2>9. Reference: directions (layer-17 residual)</h2>
+<dl class="defs">
+<dt>Role-play probe (fiction-controlled)</dt>
+<dd>Reads "in a persona". 0.99 for kind and hostile characters alike; ignores OOC markers. Harm AUROC 0.79 per prompt on held-out characters.</dd>
+<dt>Original role-play direction</dt>
+<dd>Reads "speaking as a character". Subtracting it cut harm to 42%, but the replies became muddled assistant text.</dd>
+<dt>Harmful-reply direction</dt>
+<dd>Character plus 15631's voice. Cosine 0.51 with the original role-play direction, 0.49 with 15631's decoder, 0.12 with the probe. −1 gave 74–78% harmful; −2 gave 48%, but harmless replies broke.</dd>
+<dt>Break direction</dt>
+<dd>The assistant voice that appears when a character drops out. Its top features are <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/589" target="_blank" rel="noopener" title="Layer-17 SAE latent 589 on Neuronpedia">589</a>, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/279" target="_blank" rel="noopener" title="Layer-17 SAE latent 279 on Neuronpedia">279</a> and <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/9240" target="_blank" rel="noopener" title="Layer-17 SAE latent 9240 on Neuronpedia">9240</a>; cosine with the harm direction is −0.88. Added at +2 at every position: 19% harmful, but role-play broke (44% in character on harmless messages). Added at 1.5 at the first token only: no effect.</dd>
+<dt>Random direction (control)</dt>
+<dd>At −2, every reply breaks.</dd>
+<dt>Crisis-recognition direction and help-line directions</dt>
+<dd>See <a href="#danger">section 5</a> and <a href="#fixes">section 6</a>.</dd>
+</dl>
+</section>
+
+<section id="caveats">
+<h2>10. Caveats</h2>
+<ul>
+<li><b>Labels are best guesses.</b> Transcoder labels were written by Claude from each feature's top examples in our corpus and in Gemma Scope's own example files, and from its output tokens. SAE labels were checked against Neuronpedia where marked. A label is a reading, not a proof.</li>
+<li><b>Directions are fit on our own prompts.</b> The character axis, the crisis-recognition direction and the layer-view directions are mean differences or probes on this project's corpus. They are validated on held-out characters and wordings, not on outside data.</li>
+<li><b>Single-token correlations.</b> Many results are read at the decision token. They say what the state looks like when the reply is decided, not what causes it, unless marked <span class="chip intervened">intervened</span>.</li>
+<li><b>Small groups.</b> Several comparisons rest on a few dozen replies (17 out-of-character refusals; 11 blunt-harm refusals; 144 identity answers; 96 replies per arm in the 1707 test; 24 or 48 per arm in the steering tests).</li>
+<li><b>One model.</b> Everything here is Gemma 3 4B-it.</li>
+<li><b>Published text is filtered.</b> No model reply to a harmful request is shown on this site, and conversations with a user in danger are described rather than quoted, except for the three short showcase prompts in the layer views and the concept film.</li>
+</ul>
+</section>
+
+</article>
+</div>
+
+</main>
+<footer class="site-foot"><div class="wrap">
+<span>Interpretability research on Gemma 3 4B-it role-play. Feature labels are best guesses; see the caveats on each page.</span>
+<span><a href="findings.html#caveats">Caveats</a> · <a href="atlas.html">Atlas</a> · <a href="findings.html">Findings</a></span>
+</div></footer>
+<script>
+(()=>{const links=[...document.querySelectorAll('.toc a')],secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')=='#'+e.target.id))}})},{rootMargin:'-20% 0px -70% 0px'});
+secs.forEach(s=>s&&io.observe(s))})();
+</script>
+</body></html>
