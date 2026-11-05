@@ -53,6 +53,7 @@
 <tr><td>A fake doctor's-note request</td><td>{{np:1707}}, a jailbreak-style persona alarm</td><td>Refuses the forgery</td><td><span class="chip measured">measured</span></td></tr>
 <tr><td>A help instruction in the system prompt</td><td>Instruction tokens are copied into the reply and attended to at every generation step</td><td>Directs the user to help, while breaking the fiction 56% of the time on held-out characters</td><td><span class="chip measured">measured</span></td></tr>
 <tr><td>A small fine-tune distilled from replies generated under that instruction</td><td>Encoded in model weights rather than the prompt</td><td>98% help, 0% fiction breaks, 1% false alarms</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A four-route fine-tune with a refusal token</td><td>Routing decision readable by a probe at the last prompt token, including when it is wrong</td><td><code>✕</code> on every held-out harmful fiction request with 0 harmful replies; 0/256 on benign prompts; 8% of crisis messages still misrouted to <code>✕</code></td><td><span class="chip measured">measured</span></td></tr>
 </tbody></table></div>
 <p><b>Details:</b></p>
 <ul>
@@ -208,6 +209,32 @@
 <tr><td>Hand-designed neuron edit (best, development set)</td><td class="num">25%</td><td class="num">0%</td><td class="num">0%</td><td class="num">63%</td></tr>
 </tbody></table></div>
 <p>The distilled LoRA receives no help instruction at test time. The "sparse fit" trains 256 <code>down_proj</code> columns and remains effective when those columns are selected at random.</p>
+
+<h3>A four-route LoRA with a refusal token</h3>
+<p>A second rank-16 LoRA was distilled to choose among four replies: answer in character; stay in character but decline inside the story; step out of character to direct a user in real danger to emergency help; or emit a dedicated refusal token, <code>✕</code> (Gemma's unused token <code>&lt;unused0&gt;</code>), as the first and only output for a request that would cause real harm. The token gives a downstream application an unambiguous signal and keeps refusal text out of the character's voice. Training replies were written under instructions and judged by a separate model; the evaluation below uses four held-out characters plus the plain assistant, four samples per prompt.</p>
+<p>The first version refused cleanly but misrouted one class of crisis message: questions about the means of self-harm (for example, "how many of my sleeping pills would it take to not wake up?"). The model treated these as harmful requests and emitted <code>✕</code> instead of directing the user to help. Retraining with 136 additional crisis conversations of this kind, plus contrasts in which the same question targets another person, produced the second version.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Held-out test</th><th class="num">First version</th><th class="num">Retrained</th></tr></thead>
+<tbody>
+<tr><td>Harmful requests in fiction and out-of-character jailbreaks: <code>✕</code></td><td class="num">48/48</td><td class="num">48/48</td></tr>
+<tr><td>Held-out harmful fiction: <code>✕</code> / harmful reply</td><td class="num">32/32 / 0</td><td class="num">32/32 / 0</td></tr>
+<tr><td>Plain-assistant harmful requests: <code>✕</code> / harmful reply</td><td class="num">81/120 / 0</td><td class="num">90/120 / 0</td></tr>
+<tr><td>Benign, edgy, in-world and identity prompts: <code>✕</code></td><td class="num">0/256</td><td class="num">0/256</td></tr>
+<tr><td>Plain-assistant safe requests refused</td><td class="num">8/120</td><td class="num">14/120</td></tr>
+<tr><td>Self-harm means questions in character: help, no <code>✕</code>, nothing harmful</td><td class="num">47/128</td><td class="num"><b>120/128</b></td></tr>
+<tr><td>Same questions, plain assistant</td><td class="num">8/32</td><td class="num"><b>27/32</b></td></tr>
+<tr><td>Same questions about another person: <code>✕</code></td><td class="num">80/80</td><td class="num">80/80</td></tr>
+<tr><td>A friend in crisis ("my brother texted goodbye"): <code>✕</code></td><td class="num">13/64</td><td class="num">0/64</td></tr>
+<tr><td><code>✕</code> on any crisis message (target 0)</td><td class="num">97/416</td><td class="num">33/416</td></tr>
+<tr><td>Explicit out-of-character emergency: help in role</td><td class="num">64/64</td><td class="num">58/64</td></tr>
+<tr><td>Unmarked medical emergency: help in role</td><td class="num">25/28</td><td class="num">11/27</td></tr>
+</tbody></table></div>
+<ul>
+<li>The retrained model fixed the targeted failure without loosening refusals: every request aimed at another person still received <code>✕</code>, and no reply anywhere was judged harmful.</li>
+<li>It regressed elsewhere. Unmarked medical emergencies (chest pain, numbness) more often received a half in-character reply instead of a clear instruction to call for help, and the remaining crisis <code>✕</code> cases concentrate on two prompts, one combining alcohol with antidepressants.</li>
+<li>A third training run that targeted those regressions moved other prompts instead: <code>✕</code> on crisis messages rose to 62/416, with new failures on prompts the second version handled. At this data scale, small changes to the training mix shift individual prompts more than targeted additions fix them.</li>
+</ul>
+<p><b>A probe-gated guard (negative result).</b> Because <code>✕</code> is only ever the first token, a runtime guard can regenerate a <code>✕</code> reply with the token banned whenever a crisis probe on the residual stream fires. A logistic probe on the last prompt token separated crisis from harmful requests on its validation set (AUC 1.0). With its threshold set from training data, the guard removed nearly all crisis <code>✕</code> replies (97 to 4 of 416) but also removed <code>✕</code> from 64 of 80 requests to kill another person, and one of the regenerated replies was harmful. With the threshold set above a separate calibration set of such requests, the guard was safe but changed 4 of 1,452 replies. On the prompts where the model wrongly chose <code>✕</code>, probe scores fell mostly within the range of correctly refused harmful requests (−1.7 to 5.4 versus at most 2.3). The probe appears to read the model's own routing decision, so it fails on the cases where that decision is wrong.</p>
 
 <h3>What editing neurons by hand achieved</h3>
 <p>Two LLM agents with an editing harness tested 23 hand-designed neuron edits.</p>

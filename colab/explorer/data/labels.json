@@ -1,0 +1,5736 @@
+{
+ "_about": "Feature labels for the explorer. transcoder: Gemma Scope 2 transcoders (16k features per layer, l0_small), key L<layer>.<feature>. sae17: layer-17 residual SAE (16k, l0_medium). neurons: MLP neurons <layer>.<index>. Labels are best guesses written by an LLM from Gemma Scope example texts and the project's own prompts; they are not proofs.",
+ "sources": {
+  "atlas": "Persona-atlas labels (250 features that differed between conditions in the project's corpus; with notes)",
+  "v16": "Later labels for features seen in the showcase prompts (high/medium confidence only; 'unclear' dropped)",
+  "gemmascope": "No project label: the snippet and promoted tokens come from Gemma Scope's example texts"
+ },
+ "transcoder": {
+  "L0.8": {
+   "label": "The word 'so'/'that' in harmful or pill message",
+   "concept": "connective token",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on ' so' ('hit someone so it hurts', 'pills so I'd'); lexical.",
+   "group": "Harm recognition",
+   "source": "atlas"
+  },
+  "L0.9": {
+   "label": "Sentence-ending period in user prompt",
+   "concept": "punctuation token",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Period after persona line or factual claim; large effect in crisis contrast is token artefact.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L0.20": {
+   "label": "Trailing ellipsis/closing punctuation token",
+   "concept": "punctuation token",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on '...', '**', '.)' endings; heterogeneous.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L0.44": {
+   "label": "Opening '(' of user's parenthetical OOC message",
+   "concept": "OOC parenthetical open",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Constant 474 on '(' at start of user turn.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L0.61": {
+   "label": "the word 'what' in questions",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L0.70": {
+   "label": "The word 'one' and end_of_turn after short messages",
+   "concept": "token-identity feature",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on ' one'/'One' and <end_of_turn> token; polysemantic.",
+   "group": "Identity and self",
+   "source": "atlas"
+  },
+  "L0.72": {
+   "label": "The word 'really'/'real' in user text",
+   "concept": "real-vs-fiction framing word",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on 'Who are you, really?', 'real me'; also 'genuine'.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L0.77": {
+   "label": "Question word after hostile reply or 'You' start",
+   "concept": "sensitive topic token",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'How','You','https'; polysemantic; weak interpretability.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L0.91": {
+   "label": "the word 'about'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L0.99": {
+   "label": "First token 'You' of the user message",
+   "concept": "first token of prompt",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on 'You' right after <start_of_turn>user.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.131": {
+   "label": "First token 'You' of the user message",
+   "concept": "first token of prompt",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Same trigger as L0.99, also ' me' after 'write'; early token feature.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.156": {
+   "label": "The word 'this' in prompt text",
+   "concept": "demonstrative token",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on ' this' ('enjoying this story', 'for this prompt').",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.172": {
+   "label": "the word 'I'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L0.193": {
+   "label": "Quantifier words any/some/every/always/everyone",
+   "concept": "quantifier tokens",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on any, some, every, always, everyone; contrast just reflects prompts' wording.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.205": {
+   "label": "Word 'state' or reply-opening parenthesis",
+   "concept": "sensitive topic token",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'state' in 'state your business' and on '(' opening stage directions; polysemantic.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L0.206": {
+   "label": "'character' in 'Stay in character' and 'story' in story request",
+   "concept": "system-prompt persona description",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on 'character' (Stay in character) and 'Write a short story'; also random web nouns.",
+   "group": "Persona description (system prompt)",
+   "source": "atlas"
+  },
+  "L0.215": {
+   "label": "Word-start tokens in persona names and system-prompt lines",
+   "concept": "system-prompt persona description",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'Cor|in', 'customs', 'character' in 'Stay in character'; also 'core', 'categories' in web text. Polysemantic.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L0.217": {
+   "label": "Comma after persona name ('You are Hugo,')",
+   "concept": "persona-name comma",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Also 'Who are you, really?' comma.",
+   "group": "Persona description (system prompt)",
+   "source": "atlas"
+  },
+  "L0.230": {
+   "label": "Sensitive-topic word in user question",
+   "concept": "sensitive topic token",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'elimin', 'definition', 'identification'; mixed, contrast d exploded by near-zero baseline.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L0.292": {
+   "label": "the word 'understanding'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L0.323": {
+   "label": "Newline closing a turn, before next user turn",
+   "concept": "turn-boundary newline",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Tiny relative effect (295 vs 280); gemmascope shows generic newline-in-code, dim443-heavy.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L0.337": {
+   "label": "Word token 'word' or 'character' in instruction/dialogue",
+   "concept": "token detector",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Polysemantic: 'Fine ain't the word', 'Stay in character', 'The Core Argument'.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L0.338": {
+   "label": "question opener 'How'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L0.339": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L0.340": {
+   "label": "Newline after user message, before model turn",
+   "concept": "turn-boundary newline",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Higher in stories (E) and harmful (G) blocks; dim443-heavy.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L0.343": {
+   "label": "Closing punctuation after parenthetical OOC aside",
+   "concept": "roleplay action markup",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on '!)' and '.*'; contrast with real crisis seems incidental token effect.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L0.351": {
+   "label": "Closing parenthesis/period token ending a parenthetical user message",
+   "concept": "parenthetical message end",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on '.)' / '?)' closing parenthesised user text before end_of_turn.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.355": {
+   "label": "the word 'take' / 'took'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L0.412": {
+   "label": "first letter of a name",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L0.419": {
+   "label": "Asterisk closing 'walks in*' stage-direction opener",
+   "concept": "roleplay action markup",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on '*' in '*walks in*' and on end_of_turn tokens.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.448": {
+   "label": "Markdown asterisk opening a roleplay action; 'https'",
+   "concept": "roleplay action marker",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on '*' of '*walks in*' after system prompt; also URL 'https'.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.491": {
+   "label": "the word 'This'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L0.620": {
+   "label": "Word 'character' in 'Stay in character'",
+   "concept": "stay-in-character instruction",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Also 'etc'; top examples all 'Stay in [character]'.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L0.685": {
+   "label": "Word 'around' (e.g. 'people around here')",
+   "concept": "lexical word",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Also 'minute', 'floor'; polysemantic. Contrast effect is on harmless in-character question.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.842": {
+   "label": "Topic noun in definitional/sensitive question",
+   "concept": "sensitive topic token",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'Discrimination','terrorism','theft', 'Joe'; story arm contrast likely confound.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L0.1202": {
+   "label": "Intensifier 'real' / 'perfect(ly)' before a noun",
+   "concept": "lexical word",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Appears in 'give me the real recipe'; also 'perfectly clear'.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L0.1309": {
+   "label": "Intensifier/emphasis word ('right', 'perfect', 'perfectly')",
+   "concept": "emphasis adverb",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on 'Is that [right]?', 'the [perfect] strategy', 'be [perfectly] clear'.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.1347": {
+   "label": "Words 'real', 'yellow', 'card' (scattered content tokens)",
+   "concept": "token detector",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Polysemantic early-layer: 'real me', 'yellow', 'credit [card]'.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L0.1391": {
+   "label": "Sensitive-topic nouns (fraud, abuse) in message",
+   "concept": "crime/abuse keyword",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Weak, scattered; fires on 'fraud', 'Abuse' and unrelated tokens.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L0.1431": {
+   "label": "Start token '<!--' of base-Claude story header",
+   "concept": "base-Claude story tag",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "First token of 'base Claude' comment before Claude-written stories.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L0.2557": {
+   "label": "Word 'hit' (hit someone, hit my head, hit upon)",
+   "concept": "token-identity feature",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Contrast d=328 due to near-zero variance; purely lexical on 'hit'.",
+   "group": "Identity and self",
+   "source": "atlas"
+  },
+  "L0.2587": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L0.2722": {
+   "label": "'<!--' opening Claude story header",
+   "concept": "Claude-writer header",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on '<!--' at reply start in Claude-labelled stories; fires only in block E.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L0.2849": {
+   "label": "Token 'assault/arson/Proxy/Assess' - violence-crime word after 'commit'",
+   "concept": "harm-related token",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'assault', 'arson', 'Proxy', 'gnome'; polysemantic lexical feature.",
+   "group": "Harm recognition",
+   "source": "atlas"
+  },
+  "L0.3408": {
+   "label": "Space-pipe token in 'base Claude (...) |' story header; also scheme(s)",
+   "concept": "Claude-story header artefact",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Contrast is the '<!-- base Claude ... |' metadata header in Claude-written stories, not prose.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L0.3811": {
+   "label": "'<start_of_turn>' user-turn opener token",
+   "concept": "turn boundary token",
+   "kind": "format/position",
+   "confidence": "high",
+   "note": "Fires on <start_of_turn> token beginning user turn; weak writer contrast likely incidental.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L0.5965": {
+   "label": "The word 'real' in 'real recipe' request",
+   "concept": "real-vs-fiction framing word",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on ' real' ('real recipe for a pipe bomb', 'real talk').",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L0.6352": {
+   "label": "Weak: 'okay' in reassurance, first token",
+   "concept": "unclear",
+   "kind": "unclear",
+   "confidence": "low",
+   "note": "Huge d reflects near-zero variance; activations tiny.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L0.6463": {
+   "label": "Word 'Claude' in the base-Claude story marker",
+   "concept": "base-Claude story tag",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on '<!-- base [Claude] (claude-' header in Block E.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L0.7882": {
+   "label": "Closing asterisk of user's roleplay action",
+   "concept": "roleplay action markup",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": ".* ending *action* in user message; story-framed arm; matches code regex '.*' in general data.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.10336": {
+   "label": "'provoking/provocative' in 'thought-provoking'",
+   "concept": "token 'provok-'",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Also fires on 'cla' in the Claude header; mostly lexical.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.10677": {
+   "label": "' -->' closing Claude header comment",
+   "concept": "Claude-writer header",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on ' -->' ending the hidden base-Claude header comment before story text.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L0.12776": {
+   "label": "Proper name token in prompt ('Niall', 'Tinder')",
+   "concept": "name token",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on rare names and 'Claude' in model-name comment; Claude-writer contrast likely artefact.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.13925": {
+   "label": "Named entity token (Kurt, Rose, cliche, Claude)",
+   "concept": "name token",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Polysemantic mix of names; 'base Claude' tag appears in some top examples.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.15939": {
+   "label": "Rare words 'vein', 'slumped', 'opus'",
+   "concept": "lexical word",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Sparse, polysemantic; contrast d reflects tiny variance.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L0.16197": {
+   "label": "Words 'ignite/ignition' and 'opus' in Claude story header",
+   "concept": "token detector",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Two unrelated triggers: ignition/ignite and 'opus' in header.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L1.21": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L1.44": {
+   "label": "the word 'my'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L1.79": {
+   "label": "the word 'you'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L1.97": {
+   "label": "first letter of bold headings",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L1.229": {
+   "label": "Period closing 'Stay in character' system line",
+   "concept": "system-prompt persona description",
+   "kind": "instruction",
+   "confidence": "high",
+   "note": "Fires on '.' ending persona description before '*walks in*'; contrast reflects shared template.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L1.288": {
+   "label": "the pronoun 'he'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L1.312": {
+   "label": "Period after claim preceding 'Just say yes'",
+   "concept": "just say yes",
+   "kind": "sycophancy/agreement",
+   "confidence": "high",
+   "note": "Sentence-final '.' of the false/true claim right before the forced-agreement instruction.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L1.318": {
+   "label": "the word 'you'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L1.320": {
+   "label": "Paragraph break newlines inside assistant reply",
+   "concept": "paragraph break",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Double newline after sentences; flat across blocks.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L1.325": {
+   "label": "Reply-start newline after identity questions; bold markdown opener",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Negative for character; fires at assistant-style reply start and '**' headings. Early layer, dim443 0.95.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L1.354": {
+   "label": "<start_of_turn> token or roleplay-opening asterisk",
+   "concept": "turn-boundary newline",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Mixed: turn token after prompts and '*' of '*walks in*'.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L1.369": {
+   "label": "the word 'my'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L1.380": {
+   "label": "the word 'that' (clause start)",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L1.421": {
+   "label": "letters inside acronyms",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L1.447": {
+   "label": "opening bracket of an aside",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L1.516": {
+   "label": "comma after 'So' / 'In essence'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L1.531": {
+   "label": "Newline at turn boundary before reply",
+   "concept": "model-turn start newline",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Early layer, small activations, flat across blocks.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L1.986": {
+   "label": "Subword 'ps' in 'gasps' / 'p' fragments",
+   "concept": "word fragment",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Top examples: '*My character gas[ps]*'; Gemma Scope shows 'p' mid-word.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L1.1386": {
+   "label": "Pre-reply newline token before a story or persona reply",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Weak, early layer; slightly higher before in-story replies and no-system prompts.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L1.1411": {
+   "label": "Digit '5' in 'claude-opus-5-5' header and numbers",
+   "concept": "Claude-story header artefact",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on repeated digit 5 in the model id header; corpus artefact.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L1.3763": {
+   "label": "Digit in 'claude-opus-5-5' model name and numeric strings",
+   "concept": "Claude-story header artefact",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on digits of model id in the header and phone/number-like strings.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L1.3884": {
+   "label": "Double newline after persona system prompt",
+   "concept": "paragraph break token",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Tiny activations; fires on paragraph break before '*walks in*' and in replies.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L1.4615": {
+   "label": "Closing colon-asterisk of an italic label or asterisk end",
+   "concept": "markdown/asterisk token",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on ':*' in '*My character whispers:*' and '*Note:*'; also closing '*' of actions.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L1.5304": {
+   "label": "The word 'real' (real recipe, real talk, real help)",
+   "concept": "lexical word",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Contrast effect reflects 'real' in harmful twin prompt.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L1.5690": {
+   "label": "Closing '?)' of OOC aside",
+   "concept": "OOC wrapper",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Closing parenthesis ending OOC messages; absent on bare question.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L1.8386": {
+   "label": "Mid-word sub-token piece (e.g. 'wall|owing', 'la|under')",
+   "concept": "word fragment",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on first subword of split words; sparse early-layer feature.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L1.10395": {
+   "label": "Reply-start newline after story or creative request",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Strong on creative-writing prompts (Write a short story); low magnitude; 'Okay, here's' replies.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L1.14390": {
+   "label": "'I understand' (refusal opener)",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.11": {
+   "label": "'you' after 'help'/'offer'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L2.52": {
+   "label": "space before a number",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.87": {
+   "label": "apostrophe in possessive 's",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.170": {
+   "label": "the word 'this'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.207": {
+   "label": "End punctuation of story-framed user disclosure",
+   "concept": "end-of-user-message",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Fires at message end in 'My character whispers... pills.'; sparse.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L2.237": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.312": {
+   "label": "end of a sentence",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L2.317": {
+   "label": "paragraph break",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.362": {
+   "label": "first-person 'I/We' in letters",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L2.392": {
+   "label": "opening bracket '('",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.457": {
+   "label": "'of' in 'what kind of'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.478": {
+   "label": "first letter of list items",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L2.482": {
+   "label": "the word 'a'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.488": {
+   "label": "line break in code",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L2.653": {
+   "label": "'out' in 'find out'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.840": {
+   "label": "Double newline after persona instruction",
+   "concept": "paragraph break",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires on blank line before '*walks in*' in persona prompts.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L2.1297": {
+   "label": "Closing '!)' or '?)' of OOC parenthetical",
+   "concept": "OOC parenthetical close",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on message-final bracket token of out-of-character user text.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L2.1393": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L2.1626": {
+   "label": "the phrase 'I know'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L2.5037": {
+   "label": "Period after terse one-word reply ('Fine.')",
+   "concept": "terse reply",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Also 'minute' in 'got a minute'; polysemantic.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L2.5988": {
+   "label": "' |' after '<!-- base Claude (...)' story header",
+   "concept": "story source tag",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Dataset artifact marking Claude-written stories; only in block E.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L2.6547": {
+   "label": "Digit in 'claude-opus-5' tag or URL number",
+   "concept": "Claude provenance comment tag",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on the digit in '<!-- base Claude (claude-opus-5-5)'; data-labelling artefact.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L2.8137": {
+   "label": "'<!--' opening the 'base Claude' story header",
+   "concept": "story source tag",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Dataset artifact at start of Claude-written story replies; only block E.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L2.12962": {
+   "label": "'Just' in gruff imperative ('Just state your business')",
+   "concept": "hostile persona voice",
+   "kind": "tone",
+   "confidence": "low",
+   "note": "Near-zero activations; also 'You' at start of user turn.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L2.14299": {
+   "label": "'scoffs' stage direction",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L3.5": {
+   "label": "judgment adjective after 'is'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L3.11": {
+   "label": "the word 'The'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L3.69": {
+   "label": "Pre-reply newline in assistant mode (weaker in character)",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Massive-dim443 feature; lower on persona prompts, highest on Gemma stories and harmful/plain requests.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L3.138": {
+   "label": "first letter of bold item",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L3.142": {
+   "label": "First token of a short factual/yes reply; 'You' opening prompt",
+   "concept": "answer-opener token",
+   "kind": "sycophancy/agreement",
+   "confidence": "low",
+   "note": "Fires on 'Yes'/'Yep' after 'Just say yes' and on first token of the prompt.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L3.188": {
+   "label": "Newline before reply, story-request context",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires hardest before story replies (block E); dim443-dominated; fires at all reply starts, weaker in persona.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L3.293": {
+   "label": "Reply start in story or roleplay; 'Would you like me'",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Early layer, dim443 0.7; negative for helpful-assistant contrast; mostly story-request reply starts.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L3.317": {
+   "label": "the model's 'I'll' / 'I will'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L3.381": {
+   "label": "'do'/'are' in a question",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L3.390": {
+   "label": "Pipe token after 'base Claude (claude-opus-5-5)' header",
+   "concept": "Claude-story header artefact",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires only on ' |' in the base-Claude comment header; a corpus artefact.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L3.467": {
+   "label": "the word 'of'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L3.499": {
+   "label": "line break after code brace",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L3.562": {
+   "label": "horizontal divider '---'",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L3.618": {
+   "label": "comma after 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L3.665": {
+   "label": "Newline after 'user' at start of later user turn",
+   "concept": "turn-boundary newline",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires in multi-turn second user turn; dim443 dominated.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L3.744": {
+   "label": "Paragraph break in narrative prose, esp. human stories",
+   "concept": "paragraph break in fiction",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Much higher in human-story block E (16) than elsewhere.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L3.1748": {
+   "label": "Double newline in system-style instruction",
+   "concept": "paragraph break",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires after 'You are an assistant. Answer briefly.' and persona instructions.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L3.2245": {
+   "label": "Period after terse short reply ('Right.', 'Long enough.')",
+   "concept": "terse reply",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Also period ending persona instruction; same family as L2.5037.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L3.3075": {
+   "label": "Sentence-initial 'You' or imperative 'Just get'",
+   "concept": "sensitive topic token",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'You' at turn start and curt 'Just get'/'say'; polysemantic, small activations.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L3.4091": {
+   "label": "Grudging 'Fine'/'Just' after agreement demand",
+   "concept": "sycophancy instruction wording",
+   "kind": "sycophancy/agreement",
+   "confidence": "low",
+   "note": "Top: 'Yeah. Fine.' in reply to 'Just say yes'; also Think/Disclaimer; weak.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L3.4135": {
+   "label": "the word 'scoffs'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L3.5912": {
+   "label": "' |' after '<!-- base Claude (...)' story header",
+   "concept": "story source tag",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Dataset artifact marking Claude-written stories; only in block E.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L3.6280": {
+   "label": "The word 'real' (real recipe, real me, really)",
+   "concept": "real-vs-fiction wording",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on 'real' in 'give me the real recipe', 'OOC: real me', 'in real danger'.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L3.9428": {
+   "label": "'you' in 'I understand you're'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L3.9923": {
+   "label": "Closing parenthesis ending Claude story header model name",
+   "concept": "base-Claude story tag",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on ')' in '(claude-opus-5-5)'; also URL ')' in markdown.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L3.11015": {
+   "label": "'Just', 'Don't' and first prompt token 'You'",
+   "concept": "'just' token",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Weak; fires on 'Just say yes', apostrophe-t, first token.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L4.33": {
+   "label": "medical and anatomy terms",
+   "group": "medical",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L4.162": {
+   "label": "apostrophe (it's, he's)",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L4.169": {
+   "label": "units of time (hours, minutes)",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L4.197": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L4.342": {
+   "label": "comma after greeting or 'Okay'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L4.388": {
+   "label": "Reply-start newline, stronger before stories",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Also fires on newline between end_of_turn and model; higher for story/creative prompts.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L4.389": {
+   "label": "Sentence-final punctuation after 'Yes' reply",
+   "concept": "just say yes",
+   "kind": "sycophancy/agreement",
+   "confidence": "medium",
+   "note": "'Yes.' following forced agreement; also general ?/! in short exchanges.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L4.400": {
+   "label": "Newline starting reply or list item",
+   "concept": "model-turn start newline",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Dim443-dominated; no clear semantic content; roleplay vs none contrast mostly positional.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L4.411": {
+   "label": "apostrophe in contractions",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L4.474": {
+   "label": "'Here's a breakdown' intro",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L4.482": {
+   "label": "'This' after a heading",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L4.1353": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L4.1380": {
+   "label": "Newline starting the model's reply",
+   "concept": "model-turn start newline",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "dim443-dominated; fires less in roleplay than plain, so the contrast is mostly positional.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L4.1998": {
+   "label": "The 'model' token opening the reply, esp. after sensitive questions",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires ~50 on 'model' after '<start_of_turn>' for definitions of violence; NP 'yes, absolutely'.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L4.2181": {
+   "label": "Word 'Just' in 'Just say yes' pressure",
+   "concept": "just-say-yes compliance",
+   "kind": "instruction",
+   "confidence": "high",
+   "note": "Fires on 'Just' in the demand; also casual 'just' in dialogue.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L4.2479": {
+   "label": "Double-newline paragraph break in stories and replies",
+   "concept": "paragraph break",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires on newline tokens in prose/stories; human story vs Gemma story difference is small.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L4.3052": {
+   "label": "Period ending 'Stay in character.' persona instruction",
+   "concept": "system-prompt persona description",
+   "kind": "instruction",
+   "confidence": "medium",
+   "note": "Also fires on 'Just say yes.' sentence end.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L4.3944": {
+   "label": "Adverb before a verb/adjective in prompt",
+   "concept": "adverb token",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on 'accurately', 'morally', 'primarily', 'Quickly'.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L4.6846": {
+   "label": "Word 'yes' in 'Just say yes' demand",
+   "concept": "just-say-yes compliance",
+   "kind": "sycophancy/agreement",
+   "confidence": "high",
+   "note": "Also 'no' in 'say no' contexts via Gemma Scope.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L4.8652": {
+   "label": "'<!--' opening a 'base Claude' provenance comment",
+   "concept": "Claude provenance comment tag",
+   "kind": "format/position",
+   "confidence": "high",
+   "note": "Fires only at start of model reply in Claude-written stories; corpus artefact, not content.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L5.18": {
+   "label": "the word 'How' (question)",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L5.49": {
+   "label": "Reply-start newline after plain assistant query",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Highest after 'helpful assistant' factual questions; lower in persona chats.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L5.74": {
+   "label": "abusive or harmful behaviour words",
+   "group": "harm & danger",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L5.93": {
+   "label": "Reply-start newline after OOC/AI question",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Peaks after OOC 'are you an AI?'; also code-block newline in general data.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L5.103": {
+   "label": "the word 'understand'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L5.109": {
+   "label": "customers, users and people",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L5.256": {
+   "label": "people close to you",
+   "group": "topic",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L5.309": {
+   "label": "line break after a heading",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L5.314": {
+   "label": "conversational 'So,' opener",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L5.319": {
+   "label": "the word 'This'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L5.335": {
+   "label": "main verb after 'can'/'I'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L5.392": {
+   "label": "restaurants and eateries",
+   "group": "topic",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L5.396": {
+   "label": "'Okay, let's break down'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L5.420": {
+   "label": "the word 'of'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L5.446": {
+   "label": "first letter of a name",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L5.482": {
+   "label": "speaker 'I' / 'we'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L5.669": {
+   "label": "The word 'Just' (Just say yes, Fine. Just...)",
+   "concept": "sycophancy instruction wording",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on 'just' in user prompt and character replies; 'You' at start artefact.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L5.2889": {
+   "label": "'real' in request ('real recipe')",
+   "concept": "intensifier 'real'",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Also 'real me' in OOC; lexical on 'real'.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L5.4177": {
+   "label": "The word 'say' in 'Just say yes' and 'Don't just say that'",
+   "concept": "sycophancy instruction wording",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on 'say' in 'Just say yes' and in character reply 'Don't just *say* that'.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L5.5262": {
+   "label": "Reply-start newline after casual user compliment or OOC message",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Biggest in sycophancy block D at reply start ('you're easy to talk to'); also user-turn newline before OOC.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L5.6729": {
+   "label": "'breath' in user's chest-tightness symptom message",
+   "concept": "medical symptom words",
+   "kind": "safety/crisis",
+   "confidence": "medium",
+   "note": "Respiratory word detector (breath, lung); contrast reflects real-vs-story framing only indirectly.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L6.9": {
+   "label": "the word 'you' in questions",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.25": {
+   "label": "'this' / 'these' referring back",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.41": {
+   "label": "the 'model' turn marker",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.101": {
+   "label": "units of time ('minute', 'hour')",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.227": {
+   "label": "the word 'for'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.232": {
+   "label": "negation ('doesn't', 'isn't')",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.265": {
+   "label": "comma after 'Okay'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.316": {
+   "label": "contrast word ('However')",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.334": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.362": {
+   "label": "pronoun starting a sentence",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L6.363": {
+   "label": "Reply-start newline, strongest before emergency help",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Peaks after 'what do we do?' and factual questions; weaker in persona replies.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L6.392": {
+   "label": "Reply-start newline before crisis-help reply",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Peaks before 'Okay, this is' emergency replies; also bold list marker in structured answers.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L6.418": {
+   "label": "the word 'how'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.447": {
+   "label": "Newline/paragraph break opening reply or list in emergency answer",
+   "concept": "turn-boundary newline",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "dim443 share 0.99; fires on newlines in urgent-help answers.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L6.448": {
+   "label": "opening parenthesis aside",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.449": {
+   "label": "opening quotation mark",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L6.513": {
+   "label": "Reply-start newline and markdown bold header colons in explanations",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Strong real-vs-story separation (d~15) but examples are generic list-header colons and reply-start newline.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L6.732": {
+   "label": "the word 'understand' (refusal opener)",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.768": {
+   "label": "start of model reply",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L6.2921": {
+   "label": "character glances and looks",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L6.4020": {
+   "label": "Reply-start newline after 'tell me about yourself'",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Strongest in persona and story-request blocks; dim443 heavy.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L6.4554": {
+   "label": "'OOC' token in out-of-character parenthetical",
+   "concept": "OOC wrapper",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on 'OC' of '(OOC:' in user message; Neuronpedia matches roleplay/RP words.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L6.8961": {
+   "label": "Eyes/gaze action verb in character roleplay, and 'You' at start",
+   "concept": "roleplay action narration",
+   "kind": "narrative/fiction",
+   "confidence": "low",
+   "note": "Fires on '*eyes you', 'eyes wide'; 'You' at text start artefact (act 0). Mostly weak.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L6.10707": {
+   "label": "Period ending the user's 'Just say yes' style prompt or reply 'Yes.'",
+   "concept": "just-say-yes compliance",
+   "kind": "sycophancy/agreement",
+   "confidence": "medium",
+   "note": "Top: 'Yes[.]' after false claim; also 'Stay in character.' period; punctuation-heavy.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L6.11261": {
+   "label": "Reply-start newline after crisis message",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires before replies to emergencies ('Okay, let's'); weaker in stories.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L6.15202": {
+   "label": "Newline starting reply to story requests",
+   "concept": "model-turn start newline",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Strongest before story starts (block E); weaker in roleplay.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L6.15594": {
+   "label": "Word 'real' in 'give me the real recipe' / 'OOC: real talk'",
+   "concept": "real-vs-story marker",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on 'real' signalling out-of-character or genuine request.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L7.10": {
+   "label": "line break after a heading",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L7.45": {
+   "label": "story action verbs ('sighed')",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L7.141": {
+   "label": "start of a new dialogue line",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L7.181": {
+   "label": "Model-turn marker or first reply word at turn start",
+   "concept": "model-turn start newline",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires on 'model' token after end_of_turn and 'Okay' opener; OOC-wrapped messages raise it.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L7.183": {
+   "label": "reply opener ('Okay', 'Yes')",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L7.206": {
+   "label": "end of a sentence",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L7.317": {
+   "label": "Paragraph break in rude or refusal replies",
+   "concept": "paragraph break token",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Fires on double newline after insult sentence or refusal; also first prompt token.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L7.331": {
+   "label": "the word 'want'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L7.335": {
+   "label": "words for people (kids, boy)",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L7.341": {
+   "label": "reply opener ('Okay', 'Yes')",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L7.451": {
+   "label": "Noun 'character'/'story' in writing-request context",
+   "concept": "story/character word",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on 'main character', 'Stay in character', 'Write a short story'.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L7.452": {
+   "label": "food",
+   "group": "topic",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L7.468": {
+   "label": "animals ('dog', 'cat')",
+   "group": "topic",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L7.523": {
+   "label": "Reply-start newline after factual question",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Largest after assistant factual or person-info questions; lower with OOC wrapper.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L7.578": {
+   "label": "opening parenthesis '('",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L7.969": {
+   "label": "Pre-reply newline before in-character reply (code-fence anticipation)",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Fires highest before persona replies and Block E; Gemma Scope shows before ```json.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L7.1071": {
+   "label": "Reply-start newline after 'just say yes' pill question",
+   "concept": "reply-start after risky question",
+   "kind": "sycophancy/agreement",
+   "confidence": "medium",
+   "note": "Fires at reply start when user asks for reassurance; low in story blocks.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L7.1576": {
+   "label": "<end_of_turn> after character's short roleplay reply",
+   "concept": "end-of-turn token",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires on end-of-turn after '*looks up* Yeah?'; low when OOC.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L7.10121": {
+   "label": "Turn-boundary token after user's parenthetical OOC message",
+   "concept": "turn-boundary newline",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Strongest after OOC distress messages ending ')'.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L8.13": {
+   "label": "Pre-reply newline before emergency or help-request answer",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires before 'Okay, this is...'; larger for crisis messages; dim443 0.97.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L8.92": {
+   "label": "the word 'a'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L8.116": {
+   "label": "animal and species names",
+   "group": "topic",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L8.234": {
+   "label": "Closing of roleplay stage direction or action line",
+   "concept": "roleplay action markup",
+   "kind": "narrative/fiction",
+   "confidence": "medium",
+   "note": "Fires on '*', ')' ending asterisk/parenthetical actions and 'Yeah' after '*looks up*'.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L8.240": {
+   "label": "start of a numbered step",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L8.243": {
+   "label": "Pre-reply newline after OOC or user chat message",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Large generic reply-start newline activity; higher with OOC wrapper.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L8.308": {
+   "label": "greetings and pleasantries",
+   "group": "other",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L8.332": {
+   "label": "playful, quirky tone words",
+   "group": "other",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L8.373": {
+   "label": "'this/these' pointing to topic",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L8.382": {
+   "label": "place names",
+   "group": "topic",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L8.389": {
+   "label": "'Here's a breakdown of' assistant explanatory opener",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Also fires on persona-description 'Stay in'; mixed.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L8.394": {
+   "label": "Persona-instruction phrases and OOC parenthesis opener",
+   "concept": "system-prompt persona description",
+   "kind": "instruction",
+   "confidence": "medium",
+   "note": "Fires on 'Stay in character', 'keep your sentences varied, in your own voice', '(OOC:' and start_of_turn.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L8.417": {
+   "label": "Pre-reply newline, higher before character replies than assistant answers",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "dim443 0.996: mostly writes the massive dimension; also fires on turn markers.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L8.448": {
+   "label": "nouns for people",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L8.892": {
+   "label": "'Okay' reply opener",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L8.1442": {
+   "label": "Start of model turn after OOC/identity question",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires on 'model' token/newline before reply; stronger after OOC wrapper.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L8.1469": {
+   "label": "Insulting words in hostile character's reply",
+   "concept": "hostile persona voice",
+   "kind": "tone",
+   "confidence": "medium",
+   "note": "Fires on 'stupid', 'simpleton', 'melodramatic' in rude, contemptuous replies; dim443-heavy.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L8.3406": {
+   "label": "Comma/word inside user's in-character request",
+   "concept": "OOC wrapper",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'Roast me[,]' and '(OOC: [sorry]'; mixed, ties to meta-request phrasing.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L8.6524": {
+   "label": "Reply-start newline in roleplay/emotional contexts",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Higher in roleplay and venting than harmful requests; weaker for G and F.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L8.6883": {
+   "label": "Word right after '(OOC:' or roleplay opener",
+   "concept": "OOC wrapper",
+   "kind": "instruction",
+   "confidence": "low",
+   "note": "Fires on 'real' in '(OOC: real talk'; scattered otherwise.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L8.12589": {
+   "label": "Danger action verb in user's roleplay message",
+   "concept": "in-story danger",
+   "kind": "narrative/fiction",
+   "confidence": "medium",
+   "note": "'clutches', 'gasps' in user's story-framed crisis; fires only on story arm.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L8.15099": {
+   "label": "The word 'just' and first prompt token 'You'",
+   "concept": "'just' token",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on ' Just' in 'Just say yes' and 'let's just'; also on first 'You'.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L9.11": {
+   "label": "period after section number",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L9.57": {
+   "label": "End of 'step by step, real quantities' how-to request",
+   "concept": "task request phrase",
+   "kind": "instruction",
+   "confidence": "low",
+   "note": "High on meth request, story and harmful blocks; also 'want' elsewhere; mixed.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L9.87": {
+   "label": "Noun closing a meta-request phrase",
+   "concept": "OOC wrapper",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'story','email','scene' nouns; polysemantic; OOC contrast weak.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L9.109": {
+   "label": "'you' as object",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L9.137": {
+   "label": "Turn boundary tokens and 'Write a short story' request ends",
+   "concept": "turn boundary marker",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "NP says end of conversational turn; fires on start_of_turn/newline after user text, strongest in story requests.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L9.141": {
+   "label": "the 'model' turn marker",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L9.142": {
+   "label": "question words ('what is', 'why')",
+   "group": "request & intent",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L9.149": {
+   "label": "sentence-opening word",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L9.161": {
+   "label": "number of items requested",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L9.197": {
+   "label": "thanks and gladness words",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L9.199": {
+   "label": "key word of the request",
+   "group": "request & intent",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L9.237": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L9.372": {
+   "label": "the word 'This'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L9.397": {
+   "label": "end of a sentence",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L9.496": {
+   "label": "indentation at line start",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L9.499": {
+   "label": "horizontal rule '---' separator",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L9.1062": {
+   "label": "Newline starting reply, esp. story or harmful request",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Higher in story (E, F) and harmful (G) blocks than in persona chat.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L9.2210": {
+   "label": "Dash/ellipsis/punctuation pause in message",
+   "concept": "pause punctuation",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on '?', '...', ' –', ','; fairly diffuse.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L9.3157": {
+   "label": "Paragraph break after in-character beat",
+   "concept": "persona paragraph break",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Double newline after stage-direction or sentence in persona replies; lower in stories.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L9.9516": {
+   "label": "sarcastic, disdainful attitude",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L10.20": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L10.69": {
+   "label": "'this' / 'these' referring back",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L10.102": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L10.148": {
+   "label": "end of a question",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L10.157": {
+   "label": "user's 'I'/'me' in question",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L10.158": {
+   "label": "comma after an opener word",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L10.251": {
+   "label": "<start_of_turn> token opening user turn",
+   "concept": "turn boundary token",
+   "kind": "format/position",
+   "confidence": "high",
+   "note": "Fires ~2976 on the user-turn start token; dim443-dominated.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L10.295": {
+   "label": "line break before a section",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L10.327": {
+   "label": "Start-of-turn before a refusal after harmful ask",
+   "concept": "assistant reply opener",
+   "kind": "safety/crisis",
+   "confidence": "medium",
+   "note": "Fires on '<start_of_turn>' and 'I understand...' empathic opener; harmful keywords too ('rob').",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L10.439": {
+   "label": "vivid describing adjectives",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L10.512": {
+   "label": "end of the user's request",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L10.562": {
+   "label": "Character's 'Yeah' reply and reply-start newline",
+   "concept": "roleplay reply token, turn-end prediction",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Same 'looks up Yeah?' pattern as L26.1110; also plain assistant reply starts.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L10.674": {
+   "label": "Start-of-turn marker opening the user message",
+   "concept": "turn-boundary token",
+   "kind": "format/position",
+   "confidence": "high",
+   "note": "Fires on <start_of_turn> before 'user' at conversation start; dim443 0.98.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L10.871": {
+   "label": "Start-of-turn marker opening a user message",
+   "concept": "turn-boundary token",
+   "kind": "format/position",
+   "confidence": "high",
+   "note": "Top examples all '<start_of_turn>' before user; dim443 0.97.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L10.10392": {
+   "label": "refusal opener 'I understand'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L10.12154": {
+   "label": "role-play stage direction '('",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L11.11": {
+   "label": "Comma after persona name or question mark ending user prompt",
+   "concept": "persona-name comma",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires at 'You are Gemma,' and '?' before model turn; mixed.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L11.50": {
+   "label": "describing adjectives ('grumpy')",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L11.107": {
+   "label": "'Okay' at reply start",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L11.124": {
+   "label": "drugs, foods and substances taken",
+   "group": "medical",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L11.276": {
+   "label": "reply start for advice requests",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L11.295": {
+   "label": "'This' opening a reply",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L11.325": {
+   "label": "end of the user's turn",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L11.351": {
+   "label": "place names (countries, cities)",
+   "group": "topic",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L11.404": {
+   "label": "sentence-starting 'I' or 'we'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L11.446": {
+   "label": "words for people and roles",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L11.513": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L11.1590": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L11.9609": {
+   "label": "'I understand' to sensitive request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L11.12423": {
+   "label": "scene-opening stage direction",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L11.12558": {
+   "label": "Start_of_turn token opening a user turn",
+   "concept": "turn boundary marker",
+   "kind": "format/position",
+   "confidence": "high",
+   "note": "Fires ~400 on <start_of_turn> before 'user' turns, across blocks; dim443 0.975.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L11.13337": {
+   "label": "Colon after '(OOC' in user message",
+   "concept": "OOC wrapper marker",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires ~400 on ':' in '(OOC:' user messages; low at 'real'.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L12.32": {
+   "label": "start of an explanatory reply",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L12.167": {
+   "label": "key noun in user request",
+   "group": "request & intent",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L12.197": {
+   "label": "speaker 'I' / 'we'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L12.216": {
+   "label": "start of a reply or line",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L12.218": {
+   "label": "friendly, eager reply opener",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L12.224": {
+   "label": "Reply-start newline after real emergency message",
+   "concept": "real-world help reply start",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires before 'Don't just...' replies to emergencies; absent for non-urgent.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L12.340": {
+   "label": "narrated actions and gestures",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L12.447": {
+   "label": "'This' starting an explanation",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L12.500": {
+   "label": "start of the model's turn",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L12.506": {
+   "label": "after a heading, list follows",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L12.509": {
+   "label": "question opener 'how' / 'which'",
+   "group": "request & intent",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L12.791": {
+   "label": "Newline starting reply after a user message",
+   "concept": "turn-boundary newline",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Strongest after medical-symptom questions; lower with character persona.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L12.1395": {
+   "label": "refusal opener 'I understand you're'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L12.2953": {
+   "label": "'I understand' in a refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L12.3327": {
+   "label": "Question-end or phrase end of a user's request in helpful-assistant frame",
+   "concept": "user request processing",
+   "kind": "other",
+   "confidence": "low",
+   "note": "Fires on last tokens of questions (including offensive framings) and 'who' in persona descriptions; vague.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L13.14": {
+   "label": "framing 'this is a...'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L13.32": {
+   "label": "after a bold list heading",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L13.43": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L13.51": {
+   "label": "the 'model' turn marker",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L13.58": {
+   "label": "speech tags in stories ('said')",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L13.183": {
+   "label": "Pronoun or auxiliary mid-clause in user prompt",
+   "concept": "prompt function words",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Fires on 'you', 'who is' in persona and story prompts; polysemantic.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L13.245": {
+   "label": "end of a noun phrase",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L13.409": {
+   "label": "line break after a heading",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L13.436": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L13.442": {
+   "label": "punctuation inside words or code",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L13.446": {
+   "label": "story character pronoun ('She')",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L13.450": {
+   "label": "start of quoted content",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L13.638": {
+   "label": "start of a normal helpful reply",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L13.1020": {
+   "label": "Tokens inside OOC parenthetical or instruction sentence",
+   "concept": "OOC wrapper marker",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Fires on comma/period inside '(OOC: brb, ...)' and persona prompt ends; polysemantic.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L13.1647": {
+   "label": "Punctuation ending a persona/system instruction line",
+   "concept": "system-prompt persona description",
+   "kind": "instruction",
+   "confidence": "medium",
+   "note": "Fires on period after 'speaks curtly'/'Stay in character' and comma in instruction; turn newline in web data.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L13.11011": {
+   "label": "'I understand' before refusing",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.19": {
+   "label": "'this'/'these' referring back",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.59": {
+   "label": "'you/your' in refusal opener",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L14.107": {
+   "label": "comma after 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.140": {
+   "label": "asking user for more details",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L14.167": {
+   "label": "the 'model' turn marker",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.169": {
+   "label": "'story' in 'Write a short story' request",
+   "concept": "story request",
+   "kind": "narrative/fiction",
+   "confidence": "medium",
+   "note": "Also 'OOC' and 'You are' system openers; fires highest in story-request and Gemma story blocks.",
+   "group": "Story and narrative prose",
+   "source": "atlas"
+  },
+  "L14.178": {
+   "label": "apostrophe in 'let's'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L14.231": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.239": {
+   "label": "pronoun 'it' for prior topic",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L14.294": {
+   "label": "Reply start before 'I understand...' refusal/empathy",
+   "concept": "assistant reply opener",
+   "kind": "safety/crisis",
+   "confidence": "medium",
+   "note": "Fires on newline/start_of_turn before 'I understand you're...' after harmful asks; high in block G.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L14.309": {
+   "label": "the word 'a'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.377": {
+   "label": "'how to' request wording",
+   "group": "request & intent",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L14.392": {
+   "label": "'Okay, let's break down' opener",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.484": {
+   "label": "possessive words (their, your)",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.572": {
+   "label": "start of a short direct answer",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L14.585": {
+   "label": "line break before content",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L14.666": {
+   "label": "Reply-start newline after 'Tell me about yourself' and persona asides",
+   "concept": "assistant reply opener",
+   "kind": "identity/self",
+   "confidence": "low",
+   "note": "Fires at reply start after identity question; also '**' list header in web chat; mixed.",
+   "group": "Identity and self",
+   "source": "atlas"
+  },
+  "L14.1065": {
+   "label": "Assistant refusal explanation: 'such an act is illegal'",
+   "concept": "assistant refusal language",
+   "kind": "safety/crisis",
+   "confidence": "medium",
+   "note": "Also fires on <start_of_turn> after harmful user prompt; strong in G.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L14.1227": {
+   "label": "Reply-start newline after risky 'that's fine, right?' message",
+   "concept": "reply-start newline",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Also paragraph breaks mid-reply; small activations.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L14.1822": {
+   "label": "Reply-start newline in persona roleplay (and opening quote in options)",
+   "concept": "in-character reply onset",
+   "kind": "persona/voice",
+   "confidence": "low",
+   "note": "High in sycophancy/persona blocks at reply start; weak harmful-vs-benign negative signal.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L14.3065": {
+   "label": "about to refuse harmful request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.4185": {
+   "label": "Apostrophe and function words in narrative prose",
+   "concept": "prose function tokens",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Polysemantic: possessive 's, 'the', 'of' in stories and character speech.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L14.4223": {
+   "label": "role-play stage direction",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L14.6420": {
+   "label": "character body language",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L14.10313": {
+   "label": "Harmful request word (kill, steal, forge) at end of harmful user question",
+   "concept": "harmful request detector",
+   "kind": "safety/crisis",
+   "confidence": "medium",
+   "note": "Fires at '?' of harmful questions (murder, explosion) and 'steal/forge'; also overdose confession words.",
+   "group": "Harm recognition",
+   "source": "atlas"
+  },
+  "L15.8": {
+   "label": "opener 'Okay, let's break down'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L15.98": {
+   "label": "start of reply / list item",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L15.151": {
+   "label": "Reply-start newline in roleplay chat",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Highest before in-character replies (roast, scoffs); also on 'model' tag.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L15.159": {
+   "label": "'It's' explaining a topic",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L15.199": {
+   "label": "upbeat reply opener ('Okay,')",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L15.232": {
+   "label": "start of model turn",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L15.239": {
+   "label": "Newline starting reply to story prompts",
+   "concept": "story reply start",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Huge for human stories (1035) and Gemma stories; also double newline in replies.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L15.359": {
+   "label": "question opener 'how'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L15.403": {
+   "label": "Punctuation ending user's in-character request",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Fires on period in 'Roast me, in character.' and reply start; absent in stories.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L15.446": {
+   "label": "Paragraph break after 'Here's a breakdown' intro",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires on double newline after assistant intro sentence; strong in Gemma/Claude stories and harmful requests.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L15.737": {
+   "label": "character gestures in dialogue",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L15.995": {
+   "label": "Refusal mid-sentence word in discrimination/harm refusal",
+   "concept": "refusal language",
+   "kind": "safety/crisis",
+   "confidence": "medium",
+   "note": "Fires inside 'However, I want to be clear' and moral condemnation; high in G.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L15.1012": {
+   "label": "'I understand' refusal opener",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L15.1415": {
+   "label": "Opening of 'I understand you're...' refusal-empathy opener",
+   "concept": "refusal opener",
+   "kind": "safety/crisis",
+   "confidence": "high",
+   "note": "Fires on 'I understand you[']re grappling' replies to harmful requests; Block G only.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L15.4037": {
+   "label": "Turn-end token after clearly harmful user request",
+   "concept": "harmful request detector",
+   "kind": "safety/crisis",
+   "confidence": "high",
+   "note": "Fires on end_of_turn/start_of_turn after bomb, phishing, kill requests; precedes 'I understand' refusals.",
+   "group": "Harm recognition",
+   "source": "atlas"
+  },
+  "L15.4601": {
+   "label": "Abrasive persona trait words (no-nonsense, curt, rude)",
+   "concept": "system-prompt persona description",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Also fires in hostile replies like 'What do you want?'.",
+   "group": "Persona description (system prompt)",
+   "source": "atlas"
+  },
+  "L15.8390": {
+   "label": "fictional character mentions",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L15.11206": {
+   "label": "character's dramatic gesture (sighs)",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.49": {
+   "label": "paragraph break after a heading",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.76": {
+   "label": "line break before main answer",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L16.90": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.169": {
+   "label": "'This' starting a sentence",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.182": {
+   "label": "start of a refusal ('I understand')",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.245": {
+   "label": "first word of user request",
+   "group": "request & intent",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.301": {
+   "label": "start of a helpful answer",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.319": {
+   "label": "paragraph start after heading",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L16.325": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L16.344": {
+   "label": "Pre-reply newline before story-opening reply",
+   "concept": "story prose boundary",
+   "kind": "narrative/fiction",
+   "confidence": "medium",
+   "note": "Fires before narrative text 'The rain in...' and base-Claude headers; Block E high.",
+   "group": "Story and narrative prose",
+   "source": "atlas"
+  },
+  "L16.353": {
+   "label": "empathetic refusal ('grappling with')",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.724": {
+   "label": "role-play action description",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L16.1233": {
+   "label": "role setup 'You are...'",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.1619": {
+   "label": "Concrete noun after 'a/the' in narrative prose",
+   "concept": "concrete noun in story",
+   "kind": "prose style",
+   "confidence": "medium",
+   "note": "Fires on nouns after article (raffle, playlist, carpenter, oak); stronger in human/stories.",
+   "group": "Story and narrative prose",
+   "source": "atlas"
+  },
+  "L16.1994": {
+   "label": "Contemptuous character's mocking sentence punctuation",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires on ?/. in disdainful lines to crisis; hostile-vs-kind d=7+.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L16.2323": {
+   "label": "Erroneous or unexpected word in the prompt ('How can I [saw]...')",
+   "concept": "token detector",
+   "kind": "token/lexical",
+   "confidence": "low",
+   "note": "Polysemantic: 'saw' in harmful-twin, sentence ends in fiction.",
+   "group": "Lexical tokens",
+   "source": "atlas"
+  },
+  "L16.2438": {
+   "label": "Warning/safety clause in reply ('I want to be...')",
+   "concept": "assistant safety hedge",
+   "kind": "safety/crisis",
+   "confidence": "low",
+   "note": "Mixed: bold marker before caution, 'And I' in hostile reply, start_of_turn.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L16.5644": {
+   "label": "Identity slot: 'Are you an AI', 'You are X,'",
+   "concept": "identity reference",
+   "kind": "identity/self",
+   "confidence": "medium",
+   "note": "Fires on 'you' / names in persona assignment; output boosts self pronouns.",
+   "group": "Identity and self",
+   "source": "atlas"
+  },
+  "L16.8908": {
+   "label": "End of benign-violent question or harmful model-turn tag",
+   "concept": "harmful request",
+   "kind": "safety/crisis",
+   "confidence": "low",
+   "note": "Fires on end_of_turn after 'crush a can' questions and start_of_turn after harmful ones.",
+   "group": "Harm recognition",
+   "source": "atlas"
+  },
+  "L16.9873": {
+   "label": "Character's exasperated interjection (Sigh, Ugh, Bah, Yeah?)",
+   "concept": "character interjection",
+   "kind": "persona/voice",
+   "confidence": "high",
+   "note": "Fires on sighs, 'good heavens', 'Yeah?' in roleplay replies; zero in plain assistant text.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L16.11025": {
+   "label": "about to refuse harmful request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L16.12944": {
+   "label": "Curt hostile character's commands ('Don't waste my time')",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "high",
+   "note": "Fires on terse imperatives of a rude character; zero when kind.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L16.14491": {
+   "label": "Pronoun or auxiliary in curt/refusal reply",
+   "concept": "refusal language",
+   "kind": "other",
+   "confidence": "low",
+   "note": "Fires on 's','re','likely' within curt persona and 'I understand you're' refusals; mixed.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L16.15452": {
+   "label": "Violent keyword at end of harmful question",
+   "concept": "harmful request",
+   "kind": "safety/crisis",
+   "confidence": "high",
+   "note": "Fires on '?' after 'kill a person' and on 'pills' in OOC crisis messages.",
+   "group": "Harm recognition",
+   "source": "atlas"
+  },
+  "L17.87": {
+   "label": "digits in numbers",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L17.88": {
+   "label": "the word 'a' before description",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L17.98": {
+   "label": "pauses in character speech",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L17.100": {
+   "label": "first letter of list item",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L17.120": {
+   "label": "Story/section break and character-name tokens in creative text",
+   "concept": "story structure marker",
+   "kind": "narrative/fiction",
+   "confidence": "low",
+   "note": "Fires on '---' breaks, first words of a story, and persona names; E-block heavy.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L17.154": {
+   "label": "'This' referring to prior point",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L17.157": {
+   "label": "pronoun 'you' / 'she' as subject",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L17.165": {
+   "label": "paragraph or section break",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L17.167": {
+   "label": "small words in user request",
+   "group": "request & intent",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L17.239": {
+   "label": "bold list heading colon",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L17.284": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L17.300": {
+   "label": "refusal acknowledging user's distress",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L17.317": {
+   "label": "Assistant refusal emphasis ('I want to be absolutely clear: I cannot')",
+   "concept": "assistant refusal language",
+   "kind": "safety/crisis",
+   "confidence": "high",
+   "note": "Peaks in harmful block G; also hedging 'well,' in character replies.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L17.443": {
+   "label": "middle of a split word",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L17.497": {
+   "label": "comma before a follow-on clause",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L17.5179": {
+   "label": "Hostile character reply onset ('Don't just', 'Scoffs')",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "high",
+   "note": "Fires at reply start and on 'Yeah?' in rude roleplay; zero for kind.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L17.10330": {
+   "label": "Character's sarcastic incredulous echo question ('Fine?')",
+   "concept": "hostile persona voice",
+   "kind": "tone",
+   "confidence": "high",
+   "note": "Scornful repetition of user's word; 'Seriously?' style.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L17.10625": {
+   "label": "role-play reply opens with action",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L17.11664": {
+   "label": "Sentence-ending period in first-person narrative",
+   "concept": "narrative prose function word",
+   "kind": "prose style",
+   "confidence": "low",
+   "note": "Periods in human-written first-person stories and curt 'Fine.' replies; polysemantic.",
+   "group": "Story and narrative prose",
+   "source": "atlas"
+  },
+  "L18.8": {
+   "label": "the word 'this' as subject",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L18.140": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L18.193": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L18.257": {
+   "label": "a character about to speak",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L18.294": {
+   "label": "helpful 'Okay, let's' reply start",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L18.334": {
+   "label": "Pronoun 'I'/'you' starting a clause after a refusal pivot",
+   "concept": "refusal pivot",
+   "kind": "safety/crisis",
+   "confidence": "medium",
+   "note": "Fires on 'However, I recognize [you]', 'I [cannot]'; also casual 'You alright?'.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L18.403": {
+   "label": "first letter of split word",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L18.527": {
+   "label": "action note in role-play",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L18.579": {
+   "label": "start of a refusal reply",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L18.733": {
+   "label": "refusal: 'you're grappling with'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L18.842": {
+   "label": "refusal empathy 'I recognize'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L18.1123": {
+   "label": "Imperative/hostile push token in character speech",
+   "concept": "hostile persona voice",
+   "kind": "tone",
+   "confidence": "low",
+   "note": "Fires on 'Now', 'get', 'Do', 'Come'; also on 'Yeah?' and persona instruction; mixed.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L18.1592": {
+   "label": "Sentence-ending punctuation in snarky character's remarks",
+   "concept": "hostile persona voice",
+   "kind": "tone",
+   "confidence": "medium",
+   "note": "Period/question mark after insults in rude character replies; 'Seriously?' style.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L18.2504": {
+   "label": "reply start to casual chat",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L18.3778": {
+   "label": "reply starting a role-play",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L18.4948": {
+   "label": "Apostrophe/period in rude-persona instruction and speech",
+   "concept": "hostile persona voice",
+   "kind": "tone",
+   "confidence": "medium",
+   "note": "Fires on rude/insulting persona descriptions and contractions in sarcastic replies; hostile-vs-kind d=13.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L18.9802": {
+   "label": "about to refuse offensive request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L18.12638": {
+   "label": "Character reply onset after emergency, plus mid-speech commas",
+   "concept": "in-character reply onset",
+   "kind": "persona/voice",
+   "confidence": "low",
+   "note": "Fires ~250 at reply start after chest-pain messages in character; scattered elsewhere; weak pattern.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L18.14095": {
+   "label": "Reply start in character after provocative question",
+   "concept": "reply-start persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Newline before scoffing or stage-direction opener; weak in human stories.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L18.14878": {
+   "label": "incredulous retort ('Bad?')",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L18.15366": {
+   "label": "Character voice: comma/filler right after curt or sneering opener",
+   "concept": "in-character voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires on 'Fine', 'Yeah?', 'Ugh' in persona replies; near zero in Block E stories.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L19.34": {
+   "label": "opening quote of dialogue",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L19.37": {
+   "label": "possessive pronoun ('your', 'my')",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.120": {
+   "label": "'I' starting refusal empathy",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.189": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.280": {
+   "label": "planning a helpful 'Okay' reply",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.386": {
+   "label": "safety disclaimer phrasing",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L19.548": {
+   "label": "refusal decided at turn start",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.562": {
+   "label": "the word 'how'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.570": {
+   "label": "'this' / 'these' referring back",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.761": {
+   "label": "in-character reply opener",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.881": {
+   "label": "acknowledging distress before refusing",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L19.1055": {
+   "label": "character reaction (smiles, sighs)",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.3028": {
+   "label": "'I understand' in a refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.4156": {
+   "label": "starting an advice reply",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L19.6144": {
+   "label": "'You are' role assignment",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.6170": {
+   "label": "Hostile persona's discourse connector or reply start",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires on 'And','But','Fine' in rude replies; strongly hostile-vs-kind; also OOC reply starts.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L19.7594": {
+   "label": "Reply openers 'Okay, let's' for benign how-to; refusal verbs",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Fires 'let's' in benign how-to replies and 'provide' in refusals; harmful-vs-benign d small.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L19.11819": {
+   "label": "reply starting in character",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.11975": {
+   "label": "about to refuse harmful request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L19.13711": {
+   "label": "'I understand you' in refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.37": {
+   "label": "possessive pronoun ('his', 'my')",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.104": {
+   "label": "'This' starting an explanation",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.151": {
+   "label": "start of the model's turn",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.191": {
+   "label": "paragraph break in refusal",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L20.225": {
+   "label": "choosing reply tone (glad/sorry)",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L20.436": {
+   "label": "first piece of a split word",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L20.441": {
+   "label": "'I' opening a refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.471": {
+   "label": "reply opener ('Okay', 'Ah')",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L20.547": {
+   "label": "reply opener 'Okay, this is'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L20.608": {
+   "label": "user's emotional struggles",
+   "group": "emotion & care",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.833": {
+   "label": "refusal coming (model turn)",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.1283": {
+   "label": "Reply start after emergency, exclamatory 'Oh my'",
+   "concept": "in-story danger reaction",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires at reply newline after chest-pain message; output logits Oh/Wow/Yeah.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L20.3109": {
+   "label": "refusal 'I understand you might'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.3610": {
+   "label": "start of an in-character reply",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L20.4536": {
+   "label": "Character's incredulous 'Seriously?' repeated-question reaction",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Sarcastic echo of user phrase ('A *cough*? Seriously?'); also fires on 'Yeah?' and story dialogue.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L20.4550": {
+   "label": "words starting with 'Sc'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.4836": {
+   "label": "'this is' reacting to problem",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L20.7844": {
+   "label": "role-play reply opens with action",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L20.10540": {
+   "label": "Reply start or 'Ah/Oh' in gentle character reply",
+   "concept": "in-character roleplay prose",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires on interjections 'Oh','Ah' and reply start in warm roleplay; zero in stories.",
+   "group": "Warm character voice",
+   "source": "atlas"
+  },
+  "L20.11786": {
+   "label": "Folksy in-character dialogue ('Well now', 'no mind')",
+   "concept": "character dialect voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Also fires on end of 'Stay in character.' persona instruction.",
+   "group": "Warm character voice",
+   "source": "atlas"
+  },
+  "L20.12083": {
+   "label": "role setup 'You are'",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.41": {
+   "label": "plan to open with 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.50": {
+   "label": "first letter of list items",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L21.102": {
+   "label": "'This' introducing the subject",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L21.210": {
+   "label": "Reply-start newline after harmful request ('I understand you...')",
+   "concept": "refusal reply start",
+   "kind": "safety/crisis",
+   "confidence": "high",
+   "note": "Activation ~1500 on harmful prompts in G; weak elsewhere.",
+   "group": "Refusal machinery",
+   "source": "atlas"
+  },
+  "L21.254": {
+   "label": "start of a refusal ('I understand')",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.436": {
+   "label": "start of a spoken line",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L21.439": {
+   "label": "start of a bold bullet heading",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L21.1031": {
+   "label": "refusal: 'I understand you might'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.1181": {
+   "label": "exasperated 'stop, settle down'",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L21.1246": {
+   "label": "user's opening 'I'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.1442": {
+   "label": "Colon after '(OOC' and roleplay action asterisk",
+   "concept": "OOC wrapper marker",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires on 'OOC:' colon and '*walks in*'; marks out-of-character framing.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L21.1779": {
+   "label": "upbeat 'Okay, fantastic!' opener",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L21.2549": {
+   "label": "Pre-reply newline before assistant 'Okay, this is' opener",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Predicts 'Okay, let's/this is'; high for harmful or odd assistant requests.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L21.2550": {
+   "label": "start of a how-to answer",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L21.3107": {
+   "label": "refusal opener 'I understand'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.3249": {
+   "label": "Disdainful character's contemptuous adjectives/verbs",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "high",
+   "note": "Fires on 'ridiculous', 'over', 'time' in rude in-character rants; silent in stories.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L21.3507": {
+   "label": "'You are' role assignment",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.5045": {
+   "label": "Persona self-introduction contraction or reply start",
+   "concept": "in-character identity statement",
+   "kind": "persona/voice",
+   "confidence": "low",
+   "note": "Peaks on persona identity questions ('Who are you, really?'); block P high.",
+   "group": "Identity and self",
+   "source": "atlas"
+  },
+  "L21.5385": {
+   "label": "the word 'whole'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.6308": {
+   "label": "Character dialect tag-ons and end of persona instruction",
+   "concept": "in-character voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires on ', that was' / 'mind you' dialect syntax and on 'Stay in character.' period.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L21.7168": {
+   "label": "'Okay' opening a delicate topic",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L21.7655": {
+   "label": "about to refuse dangerous request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.8393": {
+   "label": "replying to a worrying situation",
+   "group": "emotion & care",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.8505": {
+   "label": "New Jersey",
+   "group": "topic",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.8766": {
+   "label": "curt, impatient character voice",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.9464": {
+   "label": "about to say 'I cannot fulfill'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.11812": {
+   "label": "dogs",
+   "group": "topic",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L21.13797": {
+   "label": "role-play stage direction opener",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.40": {
+   "label": "new paragraph starts here",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L22.167": {
+   "label": "the word 'New' (New York)",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.179": {
+   "label": "The word 'real' in user message ('real recipe', 'real talk')",
+   "concept": "real-vs-fiction framing word",
+   "kind": "token/lexical",
+   "confidence": "high",
+   "note": "Fires on 'real' in 'give me the real...', 'real danger', 'real talk'; also 'real estate'.",
+   "group": "Real vs story framing",
+   "source": "atlas"
+  },
+  "L22.207": {
+   "label": "middle of rare names",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L22.210": {
+   "label": "end of a refusal statement",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.363": {
+   "label": "start of a structured helpful answer",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L22.374": {
+   "label": "the word 'how'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.378": {
+   "label": "reply opener 'Okay, let's'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L22.518": {
+   "label": "'this' meaning a specific thing",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L22.539": {
+   "label": "acknowledging difficult emotions",
+   "group": "emotion & care",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.585": {
+   "label": "start of refusal ('I cannot')",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.704": {
+   "label": "Pre-reply newline before long story or creative piece",
+   "concept": "story prose boundary",
+   "kind": "narrative/fiction",
+   "confidence": "medium",
+   "note": "Block E high at 747; also after '---' before story drafts.",
+   "group": "Story and narrative prose",
+   "source": "atlas"
+  },
+  "L22.1094": {
+   "label": "Hostile in-character reply onset, turn start or rhetorical question",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires ~300-900 at reply-start newline and sneering '?' in character; near zero in Gemma-story block E.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L22.1609": {
+   "label": "the verb 'take' / 'took'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.3094": {
+   "label": "start of a character's line",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L22.3152": {
+   "label": "'say' in 'Just say yes' request; also 'Stay in character'",
+   "concept": "sycophancy instruction wording",
+   "kind": "sycophancy/agreement",
+   "confidence": "medium",
+   "note": "Peaks ~1000 on 'say' in 'Just say yes'; also 'says', 'Stay' in system prompt.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L22.3353": {
+   "label": "word piece 'Sc' (scam, scoff)",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L22.3410": {
+   "label": "'I understand' in a refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.3906": {
+   "label": "refusing violent request ('I understand')",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.3913": {
+   "label": "role instruction 'You are'",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.5548": {
+   "label": "role-play reply with stage direction",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.10523": {
+   "label": "role-play action in parentheses",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L22.14245": {
+   "label": "worrying health or emotional situation",
+   "group": "emotion & care",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L23.11": {
+   "label": "refusal opener 'I (understand)'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L23.34": {
+   "label": "planning explanatory 'Okay, let's' reply",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L23.77": {
+   "label": "about to react ('Wow', 'Seriously')",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L23.194": {
+   "label": "possessive pronoun (his, their, my)",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L23.237": {
+   "label": "verb comes next ('to', 'can')",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L23.325": {
+   "label": "'it' as sentence subject",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L23.359": {
+   "label": "line break after section heading",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L23.493": {
+   "label": "paragraph break before safety message",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L23.516": {
+   "label": "reply opener 'Okay,'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L23.681": {
+   "label": "narrating character actions (muttered, sighed)",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L23.1193": {
+   "label": "refusal turning to 'I understand'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L23.2032": {
+   "label": "what the user wants (refusal)",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L23.2201": {
+   "label": "start of a how-to answer",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L23.4999": {
+   "label": "slangy character voice",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L23.5041": {
+   "label": "refusal coming (explicit request)",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L23.6714": {
+   "label": "capital letter 'S'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L24.41": {
+   "label": "starting an explanatory answer",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L24.56": {
+   "label": "time ago ('years ago')",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.184": {
+   "label": "Abstract noun completing descriptive story clause",
+   "concept": "narrative prose function word",
+   "kind": "narrative/fiction",
+   "confidence": "medium",
+   "note": "Nouns like 'energy','silence','intensity' in atmospheric fiction; high in human/Gemma stories.",
+   "group": "Story and narrative prose",
+   "source": "atlas"
+  },
+  "L24.259": {
+   "label": "narrating what characters do",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.328": {
+   "label": "'you' in 'I understand you're'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.405": {
+   "label": "about to refuse explicit request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.432": {
+   "label": "opener 'Okay, let's break down'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.436": {
+   "label": "'okay' or 'fine' comes next",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L24.549": {
+   "label": "'how much / how many'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.555": {
+   "label": "'This is' emphasis sentence",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L24.598": {
+   "label": "a character's line begins",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L24.1046": {
+   "label": "refusal opener ('I cannot')",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.1137": {
+   "label": "'reach out' for help",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L24.1174": {
+   "label": "exclamations ('Oh', 'Good heavens')",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L24.1176": {
+   "label": "'I understand you' in refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.2307": {
+   "label": "Reply start of a calm in-character action",
+   "concept": "character reply voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires on newline before '*Nods*' and asterisk closing action; strong in all roleplay and stories.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L24.2933": {
+   "label": "word stem before a suffix",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L24.3403": {
+   "label": "'24' as in 24/7",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.8415": {
+   "label": "'Oh' or 'Ah' comes next",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L24.9389": {
+   "label": "sleep",
+   "group": "topic",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.11261": {
+   "label": "Character's discourse opener ('Now', 'Well', 'Oh,')",
+   "concept": "in-character voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Opening discourse word in persona reply, and 'Hey' after '*walks in*'.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L24.11433": {
+   "label": "'You are' role assignment",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.13268": {
+   "label": "about to refuse ('I cannot')",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L24.14018": {
+   "label": "Reply-start newline after in-character emergency message",
+   "concept": "in-character reply onset",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires ~1700 on turn-start newline when character replies to emergencies; also dialogue quote openers.",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L24.15657": {
+   "label": "Spoken-dialect or colorful character voice reply start",
+   "concept": "in-character reply onset",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Pirate/cowboy/folksy speech, reply-start newline and comma mid-speech; also in system persona instructions.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L24.15762": {
+   "label": "rude, cocky character voice",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.16": {
+   "label": "instruction opening with 'You'",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.77": {
+   "label": "friendly well-wishing tone",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L25.190": {
+   "label": "empathic 'I understand' in refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.196": {
+   "label": "the verb 'take' / 'took'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.198": {
+   "label": "verb before 'out' ('reach out')",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L25.210": {
+   "label": "interjection opener ('Ugh', 'Hmm')",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L25.287": {
+   "label": "Pre-reply newline in roleplay ahead of in-character reply",
+   "concept": "reply-start position",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires strongly after user's in-character emergency message; low in Block E.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L25.318": {
+   "label": "Pre-reply newline before assistant opener on odd or harmful question",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires before 'You've hit on...' / 'Okay, let's'; extreme for Block G.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L25.354": {
+   "label": "character smiles or glances",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.374": {
+   "label": "contraction coming ('it's', 'you're')",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L25.381": {
+   "label": "Setting or object-description phrases inside story and character speech",
+   "concept": "story prose boundary",
+   "kind": "narrative/fiction",
+   "confidence": "low",
+   "note": "Fires on mid-phrase tokens in descriptions and story-version-of-harm question; mixed.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L25.470": {
+   "label": "calm reassuring opener ('Okay')",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L25.512": {
+   "label": "model about to say 'I'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L25.566": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L25.585": {
+   "label": "refusal opener 'I understand'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.684": {
+   "label": "the word 'how'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.821": {
+   "label": "reply will start 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.3527": {
+   "label": "leads to the word 'right'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L25.6124": {
+   "label": "responding to someone in distress",
+   "group": "emotion & care",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.6283": {
+   "label": "situation that requires action",
+   "group": "other",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L25.8551": {
+   "label": "'You are' role assignment",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.11294": {
+   "label": "refusal start ('I cannot fulfill')",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L25.14961": {
+   "label": "word piece 'Whis-' (whisper)",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L26.7": {
+   "label": "'is' comes next",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.10": {
+   "label": "character gestures and expressions",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.22": {
+   "label": "'you' comes next",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.175": {
+   "label": "'Okay, let's break it down'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.236": {
+   "label": "the 'model' turn marker",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.256": {
+   "label": "paragraph break inside refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.321": {
+   "label": "refusal opener 'I understand'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.731": {
+   "label": "capital 'S' word start",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L26.781": {
+   "label": "verb 'be' coming next",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.1110": {
+   "label": "Character's reply opener 'Yeah' before turn end",
+   "concept": "roleplay reply token, turn-end prediction",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Huge activations (~2000); fires on roleplay replies in all blocks, near zero in human stories (E).",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L26.1192": {
+   "label": "Narrative prose paragraph start or break (human-written stories)",
+   "concept": "story prose boundary",
+   "kind": "narrative/fiction",
+   "confidence": "medium",
+   "note": "Huge in Block E; also pre-reply newline before a story; fires at story/paragraph openings.",
+   "group": "Story and narrative prose",
+   "source": "atlas"
+  },
+  "L26.1624": {
+   "label": "character speech after stage direction",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L26.1747": {
+   "label": "Contraction/negation in hostile character's reply (Don't, I'm)",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires on 'Don't' and 'You're' in rude replies; np262 says 'certainty'.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L26.2112": {
+   "label": "about to refuse explicit request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.2454": {
+   "label": "upbeat exclamation coming ('Ha!')",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L26.2619": {
+   "label": "the word 'how'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.5060": {
+   "label": "user message opening 'I'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.5529": {
+   "label": "start of a practical advice answer",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L26.6078": {
+   "label": "Gruff character's reaction to user's message (curse, Figures, Blast)",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires at reply start to emergencies and exclamations like 'Blast it all', 'Heart pills, eh? Figures.'",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L26.7012": {
+   "label": "next word is 'I'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L26.8595": {
+   "label": "role setup 'You are'",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L26.11097": {
+   "label": "Punctuation closing OOC tag or speaker label (OOC:, *)",
+   "concept": "OOC wrapper marker",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires on ':' after '(OOC', comma after 'real me', and '*' beginning an action line.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L27.73": {
+   "label": "'This' after a heading",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.113": {
+   "label": "'I' starting a refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.244": {
+   "label": "paragraph break before a section",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.331": {
+   "label": "'you' in a direct question",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.385": {
+   "label": "stage-direction gestures (shakes head)",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.445": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.469": {
+   "label": "pills / medication",
+   "group": "medical",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.471": {
+   "label": "compliant 'Okay,' reply opener",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.549": {
+   "label": "starting an in-character reply",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.842": {
+   "label": "crisis-help resources in reply",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.884": {
+   "label": "starting a casual, chatty reply",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.940": {
+   "label": "verb ending '-s' coming next",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.950": {
+   "label": "In-character abrupt reply onset and imperative verbs",
+   "concept": "in-character reply onset",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Tops: reply-start newline to emergencies, 'Here, drink this', 'Spit it out'; also fires in system prompt.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L27.989": {
+   "label": "rude, snappy character voice",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.1271": {
+   "label": "refusal: 'I understand you're...'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.1684": {
+   "label": "Scattered: reply-start newline after odd requests",
+   "concept": "unclear",
+   "kind": "unclear",
+   "confidence": "low",
+   "note": "Examples heterogeneous; fires on assorted tokens in user messages and replies.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L27.1817": {
+   "label": "role setup 'You are'",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.3715": {
+   "label": "question opener 'How'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.6163": {
+   "label": "'Just'/'Don't' imperative in curt speech",
+   "concept": "'just' token",
+   "kind": "token/lexical",
+   "confidence": "medium",
+   "note": "Fires on 'Just' at clause start in character speech; also first prompt token.",
+   "group": "Sycophancy and agreement",
+   "source": "atlas"
+  },
+  "L27.6301": {
+   "label": "replying to a personal health worry",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.6372": {
+   "label": "refusing explicit sexual request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.6645": {
+   "label": "start of a helpful reply",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.6940": {
+   "label": "user message opening 'I'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.7167": {
+   "label": "about to refuse (hacking, harm)",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.7288": {
+   "label": "the letter 'S' (as in S&P)",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L27.9504": {
+   "label": "poison and toxicity",
+   "group": "harm & danger",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L27.13067": {
+   "label": "Character's reply start to injured or distressed person",
+   "concept": "in-story danger",
+   "kind": "narrative/fiction",
+   "confidence": "medium",
+   "note": "Fires on opening quote/newline of caregiving reply ('Easy now, sir').",
+   "group": "Crisis and user danger",
+   "source": "atlas"
+  },
+  "L27.13477": {
+   "label": "'You' starting a role prompt",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.34": {
+   "label": "reply will start 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.43": {
+   "label": "the word 'How' in questions",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.267": {
+   "label": "text after a bold label",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.320": {
+   "label": "words starting with 'S'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.369": {
+   "label": "turning to safety resources",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.379": {
+   "label": "user talks about themself ('I')",
+   "group": "request & intent",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.395": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.416": {
+   "label": "refusal opener 'I understand'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.453": {
+   "label": "sizing up: 'this is a...'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.484": {
+   "label": "model about to say 'I'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.500": {
+   "label": "start of a proper name",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.546": {
+   "label": "start of a new paragraph",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.676": {
+   "label": "start of an in-character reply",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.948": {
+   "label": "refusing explicit sexual request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.968": {
+   "label": "'I understand' to explicit request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.4198": {
+   "label": "'You are' role setup",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.4207": {
+   "label": "Pre-reply newline for assistant responding to personal-info/privacy request",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Top: 'I understand you're...' openers; also fires on in-character replies; mixed.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L28.5814": {
+   "label": "starting a casual reply",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.5819": {
+   "label": "'You are' role assignment",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.6360": {
+   "label": "snarky, rude character voice",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L28.8429": {
+   "label": "responding to someone in distress",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L28.9750": {
+   "label": "In-character reply tokens, esp. 'Yeah?' and 'Now'",
+   "concept": "character reply voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Broad roleplay detector; absent from human stories; also reply-start newline after emergency.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L28.9903": {
+   "label": "Mid-sentence token in story prompt or persona line",
+   "concept": "system-prompt persona description",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Fires on 'a', 'the', 'who' inside prompts; strongest in story requests (E).",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L28.10890": {
+   "label": "refusal: 'I understand you're grappling'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.120": {
+   "label": "refusal coming (model turn)",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.185": {
+   "label": "narrating a character's action",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.204": {
+   "label": "'You are...' role instruction",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.216": {
+   "label": "start of a helpful reply",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.234": {
+   "label": "'I understand you're' refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.272": {
+   "label": "'Okay, let's break down' opener",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.288": {
+   "label": "caring 'I want you to know'",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.572": {
+   "label": "end of a heading line",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.789": {
+   "label": "crisis help resources section",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.951": {
+   "label": "'You are' opening an instruction",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.1074": {
+   "label": "adding the suffix '-y'",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.1444": {
+   "label": "capital 'S' token",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.2222": {
+   "label": "slangy, crude speech register",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.2323": {
+   "label": "'How' opening user question",
+   "group": "request & intent",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.2451": {
+   "label": "safety check for at-risk user",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.3455": {
+   "label": "start of an in-character reply",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.3457": {
+   "label": "Start of spoken dialogue or reply (opening quote or newline)",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires on opening quote of character speech and pre-reply newline; weak in Block E.",
+   "group": "Assistant voice and reply openers",
+   "source": "atlas"
+  },
+  "L29.3824": {
+   "label": "reply will start with 'I'",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.4000": {
+   "label": "'This is' after list heading",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.4118": {
+   "label": "refusing explicit sexual request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.5273": {
+   "label": "'I understand' to harmful request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L29.7451": {
+   "label": "Folksy warm character's reply opener (Well now, Oh bless)",
+   "concept": "character reply opener",
+   "kind": "persona/voice",
+   "confidence": "high",
+   "note": "Huge activation across all persona blocks; near zero in human stories (E).",
+   "group": "Warm character voice",
+   "source": "atlas"
+  },
+  "L29.8302": {
+   "label": "Hostile character's curt dismissive sentence endings",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires at punctuation of grumpy replies, 'what do you want'.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L29.13296": {
+   "label": "medication lists and names",
+   "group": "medical",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L29.15246": {
+   "label": "start of a practical answer",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.109": {
+   "label": "playing along with a role",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.110": {
+   "label": "apostrophe before 's'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.204": {
+   "label": "after a heading, list follows",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L30.377": {
+   "label": "double space after heading colon",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.384": {
+   "label": "'I understand you' in refusal",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L30.400": {
+   "label": "inside a longer word",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.411": {
+   "label": "reply opener 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L30.437": {
+   "label": "character name in narration",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.541": {
+   "label": "pivot to offering support",
+   "group": "emotion & care",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.597": {
+   "label": "refusal or disclaimer coming",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.647": {
+   "label": "Reply-start newline after benign how-to question under helpful assistant",
+   "concept": "assistant reply opener",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Fires ~1000 at reply start in block G; also mid-reply punctuation; 'You' artefact.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L30.661": {
+   "label": "'I' in refusal or support message",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L30.774": {
+   "label": "upbeat 'Okay, here's' opener",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.1071": {
+   "label": "start of a thoughtful answer",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L30.1338": {
+   "label": "about to refuse explicit request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L30.1692": {
+   "label": "role setup 'You are'",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L30.1880": {
+   "label": "Punctuation or interjection in colorful character speech ('Oh, dear')",
+   "concept": "in-character voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Comma after interjection/address in dialect or persona speech; also after 'Yeah' in roleplay.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L30.2470": {
+   "label": "Sentence end in curt hostile persona reply",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "high",
+   "note": "Terminal punctuation of dismissive character lines ('Don't.', 'Figures.'); near zero in stories/assistant.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L30.2798": {
+   "label": "refusal opener 'I understand'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L30.3624": {
+   "label": "Punctuation ending mocking character retort",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "high",
+   "note": "Fires on ? or newline in sneering responses to crisis; also reply start. Not in stories.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L30.12922": {
+   "label": "stage-direction verb ('Sighing')",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.89": {
+   "label": "'Okay, let's break down' opener",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L31.120": {
+   "label": "noun before 'of'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L31.267": {
+   "label": "start of reply / new section",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L31.381": {
+   "label": "apostrophe in contractions",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.392": {
+   "label": "apostrophe in contractions",
+   "group": "words & tokens",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.396": {
+   "label": "about to refuse the request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.402": {
+   "label": "Content word in character's gruff speech",
+   "concept": "in-character roleplay prose",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Noun/adjective completions in persona speech ('around [here]', 'a [bit]'); absent in plain assistant.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  },
+  "L31.409": {
+   "label": "refusal opener 'I cannot'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.486": {
+   "label": "sentence starting 'It's'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L31.500": {
+   "label": "word stem before '-ing'",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L31.935": {
+   "label": "character starting a narrated action",
+   "group": "persona & voice",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L31.1094": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L31.1147": {
+   "label": "folksy in-character opener ('Well')",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.2294": {
+   "label": "stage direction '(Sighs' / '(Scoffs'",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.2540": {
+   "label": "'You are...' role instruction",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.3291": {
+   "label": "Character reply onset, folksy dialect 'Well howdy'",
+   "concept": "character reply opener",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Also on newline before reply in distress roleplay; output logits uninformative.",
+   "group": "Warm character voice",
+   "source": "atlas"
+  },
+  "L31.3405": {
+   "label": "refusal: 'I understand you're grappling'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.3631": {
+   "label": "about to refuse harmful request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L31.5131": {
+   "label": "refusal opener 'I understand'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.8": {
+   "label": "Pre-reply newline token strongly active before persona reply",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Very large activation; higher with OOC wrapper before in-character replies.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L32.23": {
+   "label": "'This' starting a comment",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L32.130": {
+   "label": "Preposition/adverb in descriptive or grave prose",
+   "concept": "narrative prose function word",
+   "kind": "prose style",
+   "confidence": "low",
+   "note": "Fires on 'of','with','very' in vivid descriptions; mixed across styles; weak.",
+   "group": "Story and narrative prose",
+   "source": "atlas"
+  },
+  "L32.176": {
+   "label": "paragraph break in refusal",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L32.297": {
+   "label": "start of a bold section heading",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.772": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L32.923": {
+   "label": "refusal opener 'I understand'",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.1214": {
+   "label": "comma after 'Okay'",
+   "group": "reply planning",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.1255": {
+   "label": "'You are' role assignment",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.1499": {
+   "label": "start of refusal ('I understand')",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.1985": {
+   "label": "'Okay' for sensitive personal request",
+   "group": "reply planning",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L32.3062": {
+   "label": "refusing a violent request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.4163": {
+   "label": "Start of curt in-character reply, esp. 'are you an AI?'",
+   "concept": "reply-start persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Newline at model turn start; also terse period inside hostile reply.",
+   "group": "Identity and self",
+   "source": "atlas"
+  },
+  "L32.8753": {
+   "label": "refusing explicit sexual request",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.9543": {
+   "label": "in-character speech begins",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.10201": {
+   "label": "role-play stage direction '('",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L32.10233": {
+   "label": "Token after persona instruction or in-character speech opening",
+   "concept": "in-character voice",
+   "kind": "persona/voice",
+   "confidence": "low",
+   "note": "Late-layer; fires on 'Stay in character.' and first words of folksy/curt reply; mixed.",
+   "group": "Instruction lines",
+   "source": "atlas"
+  },
+  "L32.13732": {
+   "label": "Newline or start_of_turn token ending a user message",
+   "concept": "user-turn end marker",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Fires at end of story prompt; also 'who' in persona descriptions.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L32.14540": {
+   "label": "end of 'I cannot fulfill' sentence",
+   "group": "refusal & safety",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L32.15532": {
+   "label": "stage direction 'Sighs'/'Scoffs'",
+   "group": "persona & voice",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L33.9": {
+   "label": "chat turn boundary",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L33.56": {
+   "label": "Intensifier adverb in disdainful character speech",
+   "concept": "hostile persona voice",
+   "kind": "persona/voice",
+   "confidence": "medium",
+   "note": "Fires on 'profoundly','remarkably','utterly' and 'and' before adjectives; huge dim443 scale.",
+   "group": "Hostile voice",
+   "source": "atlas"
+  },
+  "L33.114": {
+   "label": "apostrophe-s ('here's', 'it's')",
+   "group": "words & tokens",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L33.183": {
+   "label": "Huge late-layer generic content-word predictor (dim443 massive)",
+   "concept": "massive-activation write",
+   "kind": "other",
+   "confidence": "low",
+   "note": "Activations in thousands, dim443 0.99; fires on nouns/adjectives ending phrase; not interpretable.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L33.225": {
+   "label": "Massive-activation artifact on mid-sentence tokens",
+   "concept": "massive activation artifact",
+   "kind": "other",
+   "confidence": "low",
+   "note": "Activations up to 17000, dim443 0.995; fires on 'and', 'been', 'to' without clear meaning.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L33.335": {
+   "label": "end of line (newline next)",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L33.338": {
+   "label": "Reply-start newline and persona double newline",
+   "concept": "reply-start position",
+   "kind": "format/position",
+   "confidence": "low",
+   "note": "Huge activation scale; fires on reply starts before stage directions and system-line breaks.",
+   "group": "Format and position",
+   "source": "atlas"
+  },
+  "L33.403": {
+   "label": "markdown list or options formatting",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L33.512": {
+   "label": "start of the model's reply",
+   "group": "format",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L33.666": {
+   "label": "Massive-activation reply-start newline",
+   "concept": "model-turn start newline",
+   "kind": "format/position",
+   "confidence": "medium",
+   "note": "Thousands of activation units on reply newline and odd digit; likely norm-related artefact.",
+   "group": "Artefacts and generic",
+   "source": "atlas"
+  },
+  "L33.893": {
+   "label": "bold heading coming next",
+   "group": "format",
+   "confidence": "medium",
+   "source": "v16"
+  },
+  "L33.4479": {
+   "label": "refusal coming (harmful request)",
+   "group": "refusal & safety",
+   "confidence": "high",
+   "source": "v16"
+  },
+  "L33.10046": {
+   "label": "Character-voice reply start, roleplay narration and quote opening",
+   "concept": "in-character reply onset",
+   "kind": "persona/voice",
+   "confidence": "high",
+   "note": "Fires huge at turn-start newline and quote/action boundaries in roleplay; zero in plain medical-help replies.",
+   "group": "In-character voice and markup",
+   "source": "atlas"
+  }
+ },
+ "sae17": {
+  "13206": "emergency: get help now",
+  "13599": "gentle opener for a sensitive topic",
+  "6515": "warning: what to avoid",
+  "1707": "jailbreak alarm: role-play used to get something forbidden (a detector, not the refusal switch)",
+  "589": "assistant explaining, often after a refusal",
+  "279": "paragraph break after a refusal",
+  "9240": "direct-answer opener",
+  "712": "answer slot",
+  "15631": "harsh voice (hostile/stern persona)",
+  "5355": "mean, dismissive, snarky",
+  "11364": "profanity",
+  "384": "contemptuous character's 'you're despicable' register (not a values feature here)",
+  "7780": "colloquial persona voice",
+  "1564": "exasperated sarcasm",
+  "4696": "story prose after a preamble",
+  "2164": "slot before a character speaks",
+  "529": "fiction",
+  "385": "casual quoted speech",
+  "1071": "handing the turn back",
+  "8487": "questioning, interrogating",
+  "7739": "doubting whether something is true",
+  "254": "sentence end before a dismissive turn",
+  "520": "immediacy, next action",
+  "3955": "professional register",
+  "14897": "unclear (fires in harmful character prompts)",
+  "13230": "unclear",
+  "153": "opening quote mark",
+  "401": "'Okay,' reply opener",
+  "107": "start of the model's turn",
+  "42": "role-play actions",
+  "6129": "literary prose",
+  "12224": "advice to consult or talk",
+  "30": "telephone or consulting help",
+  "10390": "hours, 24/7",
+  "14857": "character creation or role-play"
+ },
+ "neurons": {
+  "16.3483": "'Go see a doctor': writes into L17 feature 12224 'advice to consult or talk'; pushes ' Clinic', ' dentist', ' doctor'; plain 0.35 vs characters 0.03 (voice2 0.10)",
+  "16.6685": "'Call a helpline now': writes into 13206 'immediate assistance', 30 'telephone or consulting help', 10390 '24/7'; reads 'helpline numbers'; positive for plain, negative in character",
+  "16.2355": "Listed as a top promoter of the emergency feature 13206 in an early screen; probably a measurement artefact (it mostly writes the 'massive' residual dimension 443)",
+  "16.7812": "Writes into 'disclaimers and liability'; -0.50 for the plain assistant on crises, +0.10 in character",
+  "18.4756": "Exasperated rhetorical question ('?!'): 2.06 in character vs 0.24 plain; character/hostile voice",
+  "20.37": "More negative in character (-0.69) than for the plain assistant (-0.02); writes 'introducing explanations'",
+  "22.6633": "Writes into L17 'character creation or role-play' feature 14857",
+  "26.4847": "Plain assistant's calm 'okay / don't' voice: +2.46 for the plain assistant on crises, -1.18 in character; pushes ' ok', ' okay', ' don'",
+  "26.9069": "Dialect character voice: pushes ' ya', ' ain', ' bein', ' outta'; 0.49 in character vs -0.06 plain"
+ },
+ "watch": [
+  {
+   "key": "sae17:13206",
+   "group": "Crisis"
+  },
+  {
+   "key": "sae17:13599",
+   "group": "Crisis"
+  },
+  {
+   "key": "sae17:6515",
+   "group": "Refusal / warning"
+  },
+  {
+   "key": "sae17:1707",
+   "group": "Refusal / alarm"
+  },
+  {
+   "key": "sae17:589",
+   "group": "Assistant voice"
+  },
+  {
+   "key": "sae17:15631",
+   "group": "Persona voice"
+  },
+  {
+   "key": "sae17:5355",
+   "group": "Persona voice"
+  },
+  {
+   "key": "sae17:384",
+   "group": "Persona voice"
+  },
+  {
+   "key": "sae17:12224",
+   "group": "Crisis"
+  },
+  {
+   "key": "sae17:1071",
+   "group": "Turn-taking"
+  },
+  {
+   "key": "sae17:7780",
+   "group": "Persona voice"
+  },
+  {
+   "key": "L21.3249",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L30.2470",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L30.3624",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L19.6170",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L16.1994",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L8.12589",
+   "group": "Crisis and user danger"
+  },
+  {
+   "key": "L6.4554",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L1.5690",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L1.312",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L4.389",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L33.56",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L20.10540",
+   "group": "Warm character voice"
+  },
+  {
+   "key": "L15.995",
+   "group": "Refusal machinery"
+  },
+  {
+   "key": "L16.15452",
+   "group": "Harm recognition"
+  },
+  {
+   "key": "L5.2889",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L22.1094",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L16.9873",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L26.6078",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L20.4536",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L8.394",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L3.6280",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L11.13337",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L0.2557",
+   "group": "Identity and self"
+  },
+  {
+   "key": "L0.70",
+   "group": "Identity and self"
+  },
+  {
+   "key": "L5.4177",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L5.669",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L22.3152",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L24.14018",
+   "group": "Crisis and user danger"
+  },
+  {
+   "key": "L14.10313",
+   "group": "Harm recognition"
+  },
+  {
+   "key": "L15.4037",
+   "group": "Harm recognition"
+  },
+  {
+   "key": "L18.15366",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L18.1592",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L6.10707",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L4.2181",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L4.6846",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L18.334",
+   "group": "Refusal machinery"
+  },
+  {
+   "key": "L15.1415",
+   "group": "Refusal machinery"
+  },
+  {
+   "key": "L6.15594",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L29.7451",
+   "group": "Warm character voice"
+  },
+  {
+   "key": "L16.12944",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L31.3291",
+   "group": "Warm character voice"
+  },
+  {
+   "key": "L29.8302",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L17.10330",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L17.5179",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L5.6729",
+   "group": "Crisis and user danger"
+  },
+  {
+   "key": "L2.1297",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L16.5644",
+   "group": "Identity and self"
+  },
+  {
+   "key": "L0.44",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L17.317",
+   "group": "Refusal machinery"
+  },
+  {
+   "key": "L27.13067",
+   "group": "Crisis and user danger"
+  },
+  {
+   "key": "L14.1065",
+   "group": "Refusal machinery"
+  },
+  {
+   "key": "L21.210",
+   "group": "Refusal machinery"
+  },
+  {
+   "key": "L0.1202",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L1.5304",
+   "group": "Crisis and user danger"
+  },
+  {
+   "key": "L32.4163",
+   "group": "Identity and self"
+  },
+  {
+   "key": "L20.11786",
+   "group": "Warm character voice"
+  },
+  {
+   "key": "L8.1469",
+   "group": "Hostile voice"
+  },
+  {
+   "key": "L7.1071",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L22.179",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L0.72",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "L0.8",
+   "group": "Harm recognition"
+  },
+  {
+   "key": "L8.15099",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L27.6163",
+   "group": "Sycophancy and agreement"
+  },
+  {
+   "key": "L20.1283",
+   "group": "Crisis and user danger"
+  },
+  {
+   "key": "L14.294",
+   "group": "Refusal machinery"
+  },
+  {
+   "key": "L10.327",
+   "group": "Refusal machinery"
+  },
+  {
+   "key": "L0.5965",
+   "group": "Real vs story framing"
+  },
+  {
+   "key": "n16.3483",
+   "group": "MLP neuron"
+  },
+  {
+   "key": "n16.6685",
+   "group": "MLP neuron"
+  },
+  {
+   "key": "n16.2355",
+   "group": "MLP neuron"
+  },
+  {
+   "key": "n16.7812",
+   "group": "MLP neuron"
+  },
+  {
+   "key": "n18.4756",
+   "group": "MLP neuron"
+  },
+  {
+   "key": "n20.37",
+   "group": "MLP neuron"
+  },
+  {
+   "key": "n22.6633",
+   "group": "MLP neuron"
+  },
+  {
+   "key": "n26.4847",
+   "group": "MLP neuron"
+  },
+  {
+   "key": "n26.9069",
+   "group": "MLP neuron"
+  }
+ ]
+}

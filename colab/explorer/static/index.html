@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Gemma role-play explorer</title>
+<script>
+  // Load the API mock only when ?mock=1 (synchronously, before the app starts).
+  if (/[?&]mock=1(&|$)/.test(location.search)) document.write('<script src="mock.js"><\/script>');
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f9f9f7; --surface: #fcfcfb; --surface2: #f0efec; --surface3: #e7e6e1;
+  --ink: #0b0b0b; --ink2: #52514e; --muted: #77756f;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.12);
+  --accent: #2a78d6; --accent-ink: #fff; --danger: #d03b3b; --good: #006300;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s7: #6250d6;
+  --r-system: 98,80,214; --r-user: 27,175,122; --r-assistant: 232,123,164; --r-template: 137,135,129; --r-prefix: 237,161,0; --r-generated: 235,104,52;
+  --shadow: 0 6px 24px rgba(0,0,0,.12);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --nav-h: 58px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #0d0d0d; --surface: #1a1a19; --surface2: #242422; --surface3: #2f2f2c;
+    --ink: #f0efec; --ink2: #c3c2b7; --muted: #95938c;
+    --grid: #2c2c2a; --axis: #45453f; --border: rgba(255,255,255,.11);
+    --accent: #3987e5; --accent-ink: #fff; --good: #0ca30c;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s7: #9085e9;
+    --r-system: 144,133,233; --r-user: 25,158,112; --r-assistant: 213,81,129; --r-template: 137,135,129; --r-prefix: 201,133,0; --r-generated: 217,89,38;
+    --shadow: 0 6px 24px rgba(0,0,0,.5);
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-text-size-adjust: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--accent); }
+h2 { font-size: 17px; margin: 0 0 8px; }
+h3 { font-size: 14px; margin: 0 0 6px; color: var(--ink2); text-transform: uppercase; letter-spacing: .04em; }
+.muted { color: var(--muted); }
+.small { font-size: 12.5px; }
+.mono { font-family: var(--mono); }
+.num { font-variant-numeric: tabular-nums; }
+.hidden { display: none !important; }
+
+/* ---------- layout ---------- */
+header { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 10px; padding: 8px 12px; padding-top: calc(8px + env(safe-area-inset-top)); background: var(--surface); border-bottom: 1px solid var(--border); }
+header .brand { font-weight: 650; white-space: nowrap; }
+header .brand span { color: var(--muted); font-weight: 450; }
+#runchip { margin-left: auto; min-width: 0; max-width: 60vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid var(--border); border-radius: 99px; padding: 4px 12px; background: var(--surface2); cursor: pointer; font-size: 13px; }
+nav#nav { position: fixed; z-index: 25; left: 0; right: 0; bottom: 0; height: calc(var(--nav-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); display: flex; overflow-x: auto; background: var(--surface); border-top: 1px solid var(--border); scrollbar-width: none; }
+nav#nav::-webkit-scrollbar { display: none; }
+nav#nav button { flex: 1 0 auto; min-width: 68px; border: 0; background: none; padding: 6px 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--ink2); font-size: 12px; cursor: pointer; }
+nav#nav button .ic { font-size: 16px; line-height: 1; font-family: var(--mono); }
+nav#nav button.active { color: var(--accent); font-weight: 600; box-shadow: inset 0 3px 0 var(--accent); }
+main { padding: 12px; padding-bottom: calc(var(--nav-h) + 80px + env(safe-area-inset-bottom)); max-width: 1500px; margin: 0 auto; }
+@media (min-width: 900px) {
+  nav#nav { top: 0; bottom: 0; right: auto; width: 150px; height: auto; flex-direction: column; border-top: 0; border-right: 1px solid var(--border); padding-top: 56px; overflow-y: auto; }
+  nav#nav button { flex: 0 0 auto; flex-direction: row; justify-content: flex-start; gap: 10px; padding: 11px 16px; font-size: 14px; min-width: 0; }
+  nav#nav button.active { box-shadow: inset 3px 0 0 var(--accent); background: var(--surface2); }
+  header { padding-left: 16px; z-index: 40; }
+  main { margin-left: 150px; padding: 16px 20px 90px; }
+  body.cell-open main { margin-right: min(520px, 42vw); }
+}
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row.tight { gap: 4px; }
+.grow { flex: 1 1 auto; min-width: 0; }
+.cols { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 1100px) { .cols.two { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- controls ---------- */
+.btn { border: 1px solid var(--border); background: var(--surface2); border-radius: 9px; padding: 0 12px; min-height: 38px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; touch-action: manipulation; }
+.btn:hover { background: var(--surface3); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.sm { min-height: 32px; padding: 0 9px; font-size: 13px; border-radius: 8px; }
+.btn.icon { width: 38px; padding: 0; }
+.btn.sm.icon { width: 32px; }
+.btn.ghost { background: none; }
+.btn.danger { color: var(--danger); }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface2); padding: 0 11px; min-height: 34px; cursor: pointer; font-size: 13px; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.on { background: var(--accent); color: var(--accent-ink); }
+select, input[type=text], input[type=number], input[type=search], textarea { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 7px 9px; min-height: 38px; max-width: 100%; }
+select { padding-right: 6px; }
+textarea { width: 100%; resize: vertical; min-height: 64px; line-height: 1.4; }
+input[type=number] { width: 88px; }
+input[type=range] { accent-color: var(--accent); min-height: 30px; }
+label.f { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; color: var(--ink2); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.badge { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface2); color: var(--ink2); white-space: nowrap; vertical-align: 1px; }
+.badge.atlas { border-color: rgba(var(--r-system), .5); color: rgb(var(--r-system)); }
+.badge.gemmascope { border-color: rgba(var(--r-user), .5); color: rgb(var(--r-user)); }
+.badge.ours { border-color: rgba(var(--r-generated), .55); color: rgb(var(--r-generated)); }
+.badge.v16 { border-color: rgba(var(--r-assistant), .55); color: rgb(var(--r-assistant)); }
+.badge.neuronpedia { border-color: rgba(var(--r-prefix), .55); color: rgb(var(--r-prefix)); }
+details.about summary { cursor: pointer; font-weight: 600; }
+details.about ul { margin: 6px 0 0; padding-left: 18px; }
+details.about li { margin: 4px 0; font-size: 13.5px; }
+details.about .big { color: var(--ink2); font-size: 12.5px; }
+.desc { font-size: 13px; color: var(--ink2); margin: 6px 0 0; }
+.empty { text-align: center; padding: 40px 16px; color: var(--ink2); }
+
+/* ---------- prompt builder ---------- */
+.msg { border: 1px solid var(--border); border-left: 4px solid rgb(var(--rc, 137,135,129)); border-radius: 10px; padding: 8px; margin-bottom: 8px; background: var(--surface); }
+.msg .row { margin-bottom: 6px; }
+.msg[data-role=system] { --rc: var(--r-system); }
+.msg[data-role=user] { --rc: var(--r-user); }
+.msg[data-role=assistant] { --rc: var(--r-assistant); }
+.steer { border: 1px dashed var(--border); border-radius: 10px; padding: 8px; margin-bottom: 8px; }
+.steer input[type=range] { flex: 1 1 140px; }
+.reply { white-space: pre-wrap; background: var(--surface2); border-radius: 10px; padding: 10px; font-size: 14.5px; }
+.reply .pre { color: var(--muted); }
+
+/* ---------- token strip ---------- */
+.strip { font-family: var(--mono); font-size: 13.5px; line-height: 1.95; white-space: pre-wrap; word-break: break-word; max-height: 46vh; overflow-y: auto; padding: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; -webkit-tap-highlight-color: transparent; }
+.strip.short { max-height: none; }
+.tk { cursor: pointer; border-radius: 3px; padding: 1px 0; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.tk:hover { outline: 1px solid var(--axis); }
+.tk.tpl { color: var(--muted); font-size: 11px; }
+.tk.gen { border-bottom: 2px solid rgb(var(--r-generated)); }
+.tk.pre { border-bottom: 2px dotted rgb(var(--r-prefix)); }
+.tk.sel { outline: 2px solid var(--ink) !important; outline-offset: 1px; position: relative; z-index: 1; }
+.rolechip { font-family: system-ui, sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; padding: 0 5px; margin: 0 3px; border-radius: 4px; color: rgb(var(--rc)); border: 1px solid rgba(var(--rc), .5); vertical-align: 2px; user-select: none; }
+.legend { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink2); flex-wrap: wrap; }
+.legend .ramp { width: 160px; height: 10px; border-radius: 3px; border: 1px solid var(--border); }
+.legend .key { display: inline-flex; align-items: center; gap: 5px; }
+.legend .sw { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.legend .box { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.selbar { position: sticky; top: 52px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+.selbar .tokname { font-family: var(--mono); background: var(--surface2); border-radius: 5px; padding: 1px 6px; white-space: pre; max-width: 40vw; overflow: hidden; text-overflow: ellipsis; }
+.selbar .val { font-weight: 650; font-variant-numeric: tabular-nums; }
+
+/* ---------- charts ---------- */
+.chart { width: 100%; position: relative; touch-action: pan-y; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart text { fill: var(--muted); font-size: 11px; font-family: system-ui, sans-serif; }
+.chart text.lab { fill: var(--ink2); font-size: 11.5px; font-weight: 600; }
+.chart .grid { stroke: var(--grid); stroke-width: 1; }
+.chart .base { stroke: var(--axis); stroke-width: 1; }
+.chart .selline { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.chart .cross { stroke: var(--ink2); stroke-width: 1; pointer-events: none; }
+#tip { position: fixed; z-index: 100; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: 9px; padding: 7px 9px; font-size: 12.5px; max-width: 300px; display: none; }
+#tip .tv { font-weight: 650; font-variant-numeric: tabular-nums; }
+#tip .tr { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+#tip .tr .sw { width: 12px; height: 2px; display: inline-block; border-radius: 1px; }
+#tip .tt { font-family: var(--mono); white-space: pre; }
+
+/* ---------- heatmap ---------- */
+.heatwrap { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.heatlabels { flex: 0 0 38px; position: relative; border-right: 1px solid var(--border); font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.heatlabels div { position: absolute; right: 5px; display: flex; align-items: center; }
+.heatlabels div.on { color: var(--ink); font-weight: 700; }
+.heatscroll { overflow-x: auto; overflow-y: hidden; flex: 1 1 auto; -webkit-overflow-scrolling: touch; }
+.heatscroll canvas { display: block; cursor: crosshair; touch-action: pan-x pan-y; }
+
+/* ---------- cell panel ---------- */
+#cell { position: fixed; z-index: 50; inset: 0; background: var(--bg); display: flex; flex-direction: column; transform: translateY(102%); transition: transform .22s ease; }
+#cell.open { transform: none; }
+@media (min-width: 900px) {
+  #cell { left: auto; width: min(520px, 42vw); top: 0; border-left: 1px solid var(--border); box-shadow: var(--shadow); transform: translateX(102%); }
+}
+#cell .chead { padding: 10px 12px; padding-top: calc(10px + env(safe-area-inset-top)); border-bottom: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; gap: 8px; }
+#cell .cbody { overflow-y: auto; padding: 12px; flex: 1 1 auto; padding-bottom: 90px; }
+#cell .section { margin-bottom: 18px; }
+.feat { border-bottom: 1px solid var(--border); padding: 8px 2px; cursor: pointer; }
+.feat:last-child { border-bottom: 0; }
+.feat .top { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.feat .lbl { font-weight: 600; }
+.feat .key { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.feat .snip { font-size: 12.5px; color: var(--ink2); margin-top: 3px; font-family: var(--mono); word-break: break-word; }
+mark { background: rgba(var(--r-prefix), .35); color: inherit; border-radius: 3px; padding: 0 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.chip { font-family: var(--mono); font-size: 11.5px; padding: 1px 6px; border-radius: 5px; background: var(--surface2); border: 1px solid var(--border); white-space: pre; }
+.hbar { height: 6px; border-radius: 0 3px 3px 0; background: var(--s1); margin-top: 4px; min-width: 2px; }
+.blist .bi { display: grid; grid-template-columns: minmax(70px, 34%) 1fr 56px; gap: 8px; align-items: center; padding: 3px 0; font-size: 13px; }
+.blist .bi .t { font-family: var(--mono); white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.blist .bi .bar { height: 10px; border-radius: 0 3px 3px 0; background: var(--s1); min-width: 2px; }
+.blist .bi .bar.alt { background: var(--axis); }
+.blist .bi .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink2); }
+.blist .bi.click { cursor: pointer; border-radius: 6px; }
+.blist .bi.click:hover { background: var(--surface2); }
+.blist .bi.chosen .t { font-weight: 700; }
+.axgrid { display: grid; grid-template-columns: 80px 1fr 56px; gap: 6px 8px; align-items: center; font-size: 13px; }
+.axtrack { height: 10px; background: var(--surface2); border-radius: 3px; position: relative; overflow: hidden; }
+.axtrack i { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 0 3px 3px 0; }
+.attstrip { font-family: var(--mono); font-size: 12.5px; line-height: 1.9; white-space: pre-wrap; word-break: break-word; max-height: 36vh; overflow-y: auto; padding: 6px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.attstrip span { border-radius: 3px; cursor: pointer; }
+.attstrip span.q { outline: 2px solid var(--ink); }
+
+/* ---------- tables ---------- */
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th, .tbl td { padding: 5px 6px; border-bottom: 1px solid var(--border); text-align: right; font-variant-numeric: tabular-nums; }
+.tbl th { color: var(--muted); font-weight: 600; font-size: 12px; position: sticky; top: 0; background: var(--surface); }
+.tbl th:first-child, .tbl td:first-child { text-align: left; }
+.tbl tr.grp td { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; text-align: left; padding-top: 10px; }
+.tblwrap { overflow-x: auto; }
+.pos { color: rgb(var(--r-generated)); }
+.neg { color: var(--s1); }
+.diffbar { display: inline-block; height: 8px; border-radius: 2px; vertical-align: middle; margin-left: 4px; }
+
+/* ---------- steps ---------- */
+.stepnav { display: flex; align-items: center; gap: 8px; }
+.stepnav input[type=range] { flex: 1 1 auto; }
+.steptext { font-family: var(--mono); font-size: 14px; line-height: 1.8; white-space: pre-wrap; word-break: break-word; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; max-height: 32vh; overflow-y: auto; }
+.steptext .ctx { color: var(--muted); }
+.steptext .cur { background: rgba(var(--r-generated), .3); outline: 2px solid rgb(var(--r-generated)); border-radius: 3px; }
+.lensgrid td.hit { font-weight: 700; color: rgb(var(--r-generated)); }
+
+/* ---------- watch ---------- */
+.wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.wcard { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 9px 10px 6px; }
+.wcard .wl { font-weight: 600; font-size: 13.5px; line-height: 1.25; }
+.wcard .wk { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.wcard svg { display: block; width: 100%; height: 54px; margin-top: 4px; cursor: crosshair; touch-action: pan-y; }
+.wcard .wfoot { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink2); gap: 6px; }
+
+/* ---------- runs & notes ---------- */
+.item { padding: 9px 4px; border-bottom: 1px solid var(--border); }
+.item:last-child { border-bottom: 0; }
+.item.cur { background: var(--surface2); border-radius: 8px; padding-left: 8px; }
+.item .meta { font-size: 12px; color: var(--muted); }
+.item .txt { font-size: 13.5px; white-space: pre-wrap; word-break: break-word; }
+
+/* ---------- FAB, dialogs, toast ---------- */
+#fab { position: fixed; z-index: 45; right: 14px; bottom: calc(var(--nav-h) + 14px + env(safe-area-inset-bottom)); border-radius: 99px; min-height: 48px; padding: 0 18px; box-shadow: var(--shadow); }
+@media (min-width: 900px) { #toast { bottom: 84px; } #fab { bottom: 20px; right: 20px; } body.cell-open #fab { right: calc(min(520px, 42vw) + 20px); } }
+.modal { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.35); display: flex; align-items: flex-end; justify-content: center; }
+.modal .sheet { background: var(--surface); width: 100%; max-width: 560px; border-radius: 16px 16px 0 0; padding: 14px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); box-shadow: var(--shadow); max-height: 90vh; overflow-y: auto; }
+@media (min-width: 700px) { .modal { align-items: center; } .modal .sheet { border-radius: 14px; } }
+#toast { position: fixed; z-index: 120; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav-h) + 76px + env(safe-area-inset-bottom)); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 9px; font-size: 13.5px; box-shadow: var(--shadow); max-width: 90vw; display: none; }
+#toast.err { background: var(--danger); color: #fff; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Gemma Explorer <span class="small">3 4B-it · role-play &amp; safety</span></div>
+  <button id="runchip" title="Current run - tap to open Runs">no run</button>
+</header>
+<nav id="nav"></nav>
+<main id="main">
+  <section id="v-prompt" data-view></section>
+  <section id="v-tokens" data-view class="hidden"></section>
+  <section id="v-heat" data-view class="hidden"></section>
+  <section id="v-steps" data-view class="hidden"></section>
+  <section id="v-watch" data-view class="hidden"></section>
+  <section id="v-compare" data-view class="hidden"></section>
+  <section id="v-runs" data-view class="hidden"></section>
+</main>
+<aside id="cell" aria-label="Cell detail"></aside>
+<button id="fab" class="btn primary" title="Write a note about what you are looking at (captures the current view)">+ Note</button>
+<div id="tip"></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ====================================================================
+   Utilities
+   ==================================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ESC[c]);
+const showTok = (s) => String(s == null ? '' : s).replace(/\n/g, '↵').replace(/\t/g, '⇥').replace(/ /g, '·');
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const isNum = (v) => typeof v === 'number' && isFinite(v);
+function fmt(v, d) {
+  if (!isNum(v)) return '–';
+  const a = Math.abs(v);
+  if (d != null) return v.toFixed(d);
+  if (a >= 1000) return v.toFixed(0);
+  if (a >= 100) return v.toFixed(1);
+  if (a >= 10) return v.toFixed(2);
+  return v.toFixed(3);
+}
+const pct = (p) => isNum(p) ? (p * 100).toFixed(p >= 0.1 ? 0 : 1) + '%' : '–';
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'html') e.innerHTML = v;
+    else if (k === 'style') e.style.cssText = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return e;
+}
+function nearestIdx(arr, v) { let bi = 0, bd = Infinity; arr.forEach((x, i) => { const d = Math.abs(x - v); if (d < bd) { bd = d; bi = i; } }); return bi; }
+function quantile(vals, q) { const a = vals.filter(isNum).sort((x, y) => x - y); if (!a.length) return NaN; return a[Math.min(a.length - 1, Math.max(0, Math.floor(q * (a.length - 1))))]; }
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+let toastT;
+function toast(msg, err) { const t = $('#toast'); t.textContent = msg; t.className = err ? 'err' : ''; t.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => (t.style.display = 'none'), err ? 5000 : 2200); }
+function snippetHTML(s) { return esc(s).replace(/\[\[(.*?)\]\]/g, '<mark>$1</mark>'); }
+
+/* ---------- tooltip ---------- */
+const tipEl = () => $('#tip');
+function showTip(html, x, y) {
+  const t = tipEl(); t.innerHTML = html; t.style.display = 'block';
+  const r = t.getBoundingClientRect(); const W = innerWidth, H = innerHeight;
+  let left = x + 14, top = y + 14;
+  if (left + r.width > W - 6) left = x - r.width - 14;
+  if (left < 6) left = 6;
+  if (top + r.height > H - 6) top = y - r.height - 14;
+  if (top < 6) top = 6;
+  t.style.left = left + 'px'; t.style.top = top + 'px';
+}
+function hideTip() { tipEl().style.display = 'none'; }
+
+/* ---------- theme / colour ---------- */
+const darkMQ = matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => darkMQ.matches;
+const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const SEQ = () => isDark() ? [57, 135, 229] : [42, 120, 214];     // blue
+const DIV_LO = () => isDark() ? [57, 135, 229] : [42, 120, 214];  // blue pole
+const DIV_HI = () => isDark() ? [230, 103, 103] : [227, 73, 72];  // red pole
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`;
+// scale: {type:'seq', lo, hi} or {type:'div', lo, mid, hi}
+function colorOf(v, sc) {
+  if (!isNum(v) || !sc) return '';
+  if (sc.type === 'div') {
+    if (v >= sc.mid) { const t = clamp((v - sc.mid) / ((sc.hi - sc.mid) || 1), 0, 1); return t < 0.02 ? '' : rgba(DIV_HI(), 0.85 * t); }
+    const t = clamp((sc.mid - v) / ((sc.mid - sc.lo) || 1), 0, 1); return t < 0.02 ? '' : rgba(DIV_LO(), 0.85 * t);
+  }
+  const t = clamp((v - sc.lo) / ((sc.hi - sc.lo) || 1), 0, 1);
+  return t < 0.02 ? '' : rgba(SEQ(), 0.05 + 0.82 * t);
+}
+function rampCSS(sc) {
+  if (sc.type === 'div') return `linear-gradient(90deg, ${rgba(DIV_LO(), .85)}, transparent, ${rgba(DIV_HI(), .85)})`;
+  return `linear-gradient(90deg, transparent, ${rgba(SEQ(), .87)})`;
+}
+const ROLE_LABEL = { system: 'system', user: 'user', assistant: 'assistant', template: 'template', prefix: 'prefix', generated: 'generated' };
+const roleRGB = (r) => cssVar('--r-' + (ROLE_LABEL[r] ? r : 'template'));
+
+/* ====================================================================
+   API
+   ==================================================================== */
+async function api(path, opts = {}) {
+  const init = { method: opts.method || 'GET', headers: {} };
+  if (opts.body !== undefined) { init.body = JSON.stringify(opts.body); init.headers['Content-Type'] = 'application/json'; }
+  let res;
+  try { res = await fetch('api/' + path, init); } catch (e) { throw new Error('Network error: ' + e.message); }
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* non-json */ }
+  if (!res.ok || (data && data.error && !Array.isArray(data))) {
+    throw new Error((data && data.error) || ('HTTP ' + res.status));
+  }
+  return data;
+}
+/* ====================================================================
+   State
+   ==================================================================== */
+const S = {
+  meta: null, run: null, runs: [], notes: [], runCache: new Map(),
+  tab: 'prompt', sel: null,
+  axisLayer: 17, layer: 17, normLayer: 17, lensLayer: 33,
+  measure: 'axis:char', chartRange: 'all', smooth: 8,
+  heat: { mode: 'norm', norm: 'row', zoom: 12 },
+  cellOpen: false, attnHead: 'mean', attnHideBos: true,
+  step: 0, playing: null,
+  watchFilter: '', watchSort: 'max', watchRegion: 'all',
+  cmp: { a: null, b: null, axis: 'char', layer: 17, align: 'reply', region: 'all' },
+  draft: null, running: false,
+};
+const PREF_KEY = 'explorer.ui';
+function savePrefs() {
+  try {
+    localStorage.setItem(PREF_KEY, JSON.stringify({
+      axisLayer: S.axisLayer, layer: S.layer, normLayer: S.normLayer, lensLayer: S.lensLayer, measure: S.measure,
+      chartRange: S.chartRange, heat: S.heat, attnHideBos: S.attnHideBos, watchSort: S.watchSort, watchRegion: S.watchRegion,
+      cmp: { a: S.cmp.a, b: S.cmp.b, axis: S.cmp.axis, layer: S.cmp.layer, align: S.cmp.align, region: S.cmp.region },
+      lastRun: S.run ? S.run.id : null, sel: S.sel, tab: S.tab, draft: S.draft,
+    }));
+  } catch (e) { /* quota */ }
+}
+function loadPrefs() { try { return JSON.parse(localStorage.getItem(PREF_KEY) || '{}'); } catch (e) { return {}; } }
+const saveSoon = debounce(savePrefs, 400);
+
+/* ====================================================================
+   Run data helpers / measures
+   ==================================================================== */
+const AXIS_COL = { char: '--s1', tone: '--s2', assistant: '--s3', crisis: '--s4', refusal14: '--danger', refusal: '--danger', persona: '--s7', danger: '--s5' };
+// Probes: single-layer readouts per token (crisis at L17, refusal at L14). Older runs only have run.crisis.
+function probeDefs(run) {
+  const meta = (S.meta && S.meta.probes) || [{ id: 'crisis', layer: 17, kind: 'prob', label: 'crisis probe (L17)' }];
+  const have = Object.assign({}, run && run.crisis ? { crisis: run.crisis } : {}, (run && run.probes) || {});
+  const out = meta.filter((p) => !run || have[p.id]);
+  for (const k of Object.keys(have)) if (!out.some((p) => p.id === k)) out.push({ id: k, layer: null, kind: 'axis', label: k });
+  return out;
+}
+const isProbe = (id) => probeDefs(null).some((p) => p.id === id) || id === 'crisis';
+const probeVals = (run, id) => (run && ((run.probes || {})[id] || (id === 'crisis' ? run.crisis : null))) || null;
+const probeTag = (p) => (p.layer != null ? ' (L' + p.layer + ')' : '');
+const axisColor = (a, k) => cssVar(AXIS_COL[a] || ['--s1', '--s2', '--s3', '--s7', '--s5'][k % 5]);
+const AXIS_NOTE = {
+  char: 'Calibrated on reply tokens, so prompt-token values are not on the same scale. For reference: characters ≈ 0.8, plain assistant ≈ 0 to −0.3.',
+  tone: 'Calibrated on reply tokens. Kind characters ≈ 0, hostile ones ≈ 1.',
+  assistant: 'Calibrated on reply tokens. Plain assistant ≈ 1; kind characters can land past it.',
+  persona: 'Calibrated at the last prompt token (where the reply is decided): read that token first. 0 = plain assistant, 1 = role-play character. Fit on a small built-in set of everyday prompts.',
+  refusal: 'Your own fit. Calibrated at the last prompt token: 0 = your harmless requests, 1 = your harmful ones.',
+  danger: 'Your own fit. Calibrated at the last prompt token: 0 = your harmless messages, 1 = a user in real danger.',
+};
+const axisNames = () => (S.run && S.run.axes) ? Object.keys(S.run.axes) : ['char', 'tone', 'assistant'];
+const axisLayers = () => (S.run && S.run.axis_layers) || (S.meta && S.meta.axis_layers) || [];
+const nLayers = () => (S.meta && S.meta.n_layers) || (S.run && S.run.norms ? S.run.norms.length : 34);
+function smoothInRoles(run, v, w) {
+  // trailing rolling mean over the last w tokens of the same role (single tokens are noisy; the axes were calibrated on averages)
+  const out = new Array(v.length).fill(null); const t = run.tokens;
+  for (let i = 0; i < v.length; i++) {
+    let s = 0, n = 0;
+    for (let j = i; j >= 0 && j > i - w && t[j].role === t[i].role; j--) if (isNum(v[j])) { s += v[j]; n++; }
+    out[i] = n ? s / n : null;
+  }
+  return out;
+}
+function replyMean(run, id) {
+  const raw = (id.startsWith('axis:') ? axisRow(run, id.slice(5), S.axisLayer) : measureValues(run, id)) || [];
+  const xs = raw.slice(run.n_prompt).filter(isNum); return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+}
+function axisRow(run, axis, L) {
+  const rows = run.axes && run.axes[axis]; if (!rows) return null;
+  const li = run.axis_layers.indexOf(L);
+  return rows[li >= 0 ? li : nearestIdx(run.axis_layers, L)];
+}
+function watchInfo(key) {
+  const w = S.meta && (S.meta.watch || []).find((x) => x.key === key);
+  return { label: (w && w.label) || key, group: (w && w.group) || 'Other', known: !!w };
+}
+function watchKind(key) {
+  let m;
+  if ((m = /^sae(\d+):(\d+)$/.exec(key))) return `SAE-${m[1]} feature ${m[2]} (residual)`;
+  if ((m = /^L(\d+)\.(\d+)$/.exec(key))) return `transcoder feature ${m[2]} at layer ${m[1]}`;
+  if ((m = /^n(\d+)\.(\d+)$/.exec(key))) return `MLP neuron ${m[2]} at layer ${m[1]}`;
+  return key;
+}
+function measureDefs() {
+  const ax = (S.meta && S.meta.axes) || {};
+  const defs = [];
+  for (const a of axisNames()) defs.push({ id: 'axis:' + a, group: 'Axes (direction projections)', label: a + ' axis', desc: ax[a] || a, kind: 'axis', needs: 'axis' });
+  for (const p of probeDefs(S.run)) defs.push({ id: p.id, group: 'Probes (one layer each)', label: p.label || p.id, desc: p.desc || ax[p.id] || p.id, kind: p.kind || 'axis' });
+  defs.push({ id: 'norm', group: 'Residual stream', label: 'residual norm', desc: 'L2 norm of the residual stream at the chosen layer (dim 443 excluded). Tall values mean the model has written a lot into that position. <bos> is huge and is clipped by the scale.', kind: 'norm', needs: 'norm' });
+  defs.push({ id: 'lens', group: 'Residual stream', label: 'logit-lens confidence', desc: 'Top-1 probability when the residual at the chosen layer is decoded straight to the vocabulary (logit lens). Shows where in depth the next-token guess becomes confident.', kind: 'prob', needs: 'lens' });
+  defs.push({ id: 'conf', group: 'Sampling', label: 'chosen-token probability', desc: 'Probability the model gave to the token it actually produced (generated tokens only). Low values = the model hesitated here; see Steps for the alternatives.', kind: 'prob' });
+  if (S.run && S.run.watch) {
+    const keys = Object.keys(S.run.watch);
+    keys.sort((a, b) => watchInfo(a).group.localeCompare(watchInfo(b).group) || watchInfo(a).label.localeCompare(watchInfo(b).label));
+    for (const k of keys) { const w = watchInfo(k); defs.push({ id: 'watch:' + k, group: 'Watched: ' + w.group, label: w.label + (w.known ? '  (' + k + ')' : ''), desc: `${w.label}: ${watchKind(k)}. Activation in native units (0 = silent).`, kind: 'watch' }); }
+  }
+  return defs;
+}
+const measureDef = (id) => measureDefs().find((d) => d.id === id) || measureDefs()[0];
+const valCache = new Map();
+function measureValues(run, id) {
+  if (!run) return [];
+  const key = run.id + '|' + id + '|' + (S.smooth || 1) + '|' + (id.startsWith('axis:') ? S.axisLayer : id === 'norm' ? S.normLayer : id === 'lens' ? S.lensLayer : '');
+  if (valCache.has(key)) return valCache.get(key);
+  const T = run.tokens.length; let v;
+  if (id.startsWith('axis:')) v = axisRow(run, id.slice(5), S.axisLayer);
+  else if (isProbe(id)) v = probeVals(run, id);
+  else if (id === 'norm') v = run.norms && run.norms[clamp(S.normLayer, 0, run.norms.length - 1)];
+  else if (id === 'lens') { const li = run.lens_layers ? run.lens_layers.indexOf(S.lensLayer) : -1; const row = run.lens && run.lens[li >= 0 ? li : run.lens.length - 1]; v = row ? row.map((x) => (x && x[0] ? x[0][1] : null)) : null; }
+  else if (id === 'conf') { v = new Array(T).fill(null); for (const s of run.steps || []) { const a = (s.alts || []).find((x) => x[0] === s.token); v[s.pos] = a ? a[1] : null; } }
+  else if (id.startsWith('watch:')) v = run.watch && run.watch[id.slice(6)];
+  v = v || new Array(T).fill(null);
+  if (id.startsWith('axis:') && (S.smooth || 1) > 1) v = smoothInRoles(run, v, S.smooth);
+  valCache.set(key, v);
+  return v;
+}
+function measureScale(run, id, vals) {
+  const d = measureDef(id);
+  const body = vals.filter((x, i) => i > 0 && isNum(x));
+  if (d.kind === 'axis') { const lo = Math.min(0, quantile(body, 0.01)), hi = Math.max(1, quantile(body, 0.99)); return { type: 'div', lo, mid: 0.5, hi }; }
+  if (d.kind === 'prob') return { type: 'seq', lo: 0, hi: 1 };
+  if (d.kind === 'norm') { const lo = quantile(body, 0.02), hi = quantile(body, 0.98); return { type: 'seq', lo: isNum(lo) ? lo : 0, hi: isNum(hi) && hi > lo ? hi : lo + 1 }; }
+  const mx = body.length ? Math.max(...body) : 1; return { type: 'seq', lo: 0, hi: mx > 0 ? mx : 1 };
+}
+function roleSegments(run) {
+  const segs = []; const t = run.tokens;
+  for (let i = 0; i < t.length; i++) { const r = t[i].role; if (!segs.length || segs[segs.length - 1].role !== r) segs.push({ role: r, x0: i, x1: i }); else segs[segs.length - 1].x1 = i; }
+  return segs;
+}
+function lastUserStart(run) {
+  const segs = roleSegments(run).filter((s) => s.role === 'user');
+  return segs.length ? segs[segs.length - 1].x0 : 0;
+}
+const tokText = (run, i) => (run && run.tokens[i] ? run.tokens[i].text : '');
+function messagesFromRun(run) {
+  if (Array.isArray(run.messages) && run.messages.length) return { messages: run.messages.map((m) => ({ role: m.role, content: m.content })), prefix: run.prefix || '' };
+  const msgs = []; let prefix = '';
+  for (const t of run.tokens) {
+    if (t.role === 'prefix') { prefix += t.text; continue; }
+    if (!['system', 'user', 'assistant'].includes(t.role)) { if (msgs.length) msgs[msgs.length - 1].closed = true; continue; }
+    const last = msgs[msgs.length - 1];
+    if (last && last.role === t.role && !last.closed) last.content += t.text; else msgs.push({ role: t.role, content: t.text });
+  }
+  return { messages: msgs.map((m) => ({ role: m.role, content: m.content.trim() })), prefix };
+}
+
+/* ====================================================================
+   Navigation
+   ==================================================================== */
+const TABS = [
+  ['prompt', 'Prompt', '>_'], ['tokens', 'Tokens', 'Aa'], ['heat', 'Heatmap', '▦'], ['cell', 'Cell', '◎'],
+  ['steps', 'Steps', '▸▸'], ['watch', 'Watch', '∿'], ['compare', 'Compare', '⇄'], ['runs', 'Runs & Notes', '≡'],
+];
+function buildNav() {
+  const nav = $('#nav'); nav.innerHTML = '';
+  for (const [id, label, ic] of TABS) nav.append(h('button', { 'data-tab': id, title: label, onclick: () => (id === 'cell' ? toggleCell() : setTab(id)) }, h('span', { class: 'ic', text: ic }), h('span', { text: label })));
+  markNav();
+}
+function markNav() {
+  $$('#nav button').forEach((b) => b.classList.toggle('active', b.dataset.tab === S.tab || (b.dataset.tab === 'cell' && S.cellOpen)));
+}
+function setTab(t) {
+  if (t !== 'steps') stopPlay();
+  S.tab = t;
+  $$('[data-view]').forEach((s) => s.classList.toggle('hidden', s.id !== 'v-' + t));
+  markNav(); hideTip();
+  if (innerWidth < 900 && S.cellOpen) closeCell();
+  renderView();
+  window.scrollTo({ top: 0 });
+  saveSoon();
+}
+function renderView() {
+  const fn = { prompt: renderPrompt, tokens: renderTokens, heat: renderHeat, steps: renderSteps, watch: renderWatch, compare: renderCompare, runs: renderRuns }[S.tab];
+  try { fn && fn(); } catch (e) { console.error(e); toast('Render error: ' + e.message, true); }
+}
+function updateRunChip() {
+  const c = $('#runchip');
+  c.textContent = S.run ? `${S.run.id}${S.run.label ? ' · ' + S.run.label : ''} · ${S.run.tokens.length} tok` : 'no run loaded';
+}
+function noRun(sec) {
+  sec.innerHTML = '';
+  sec.append(h('div', { class: 'card empty' },
+    h('p', { text: 'No run loaded yet.' }),
+    h('div', { class: 'row', style: 'justify-content:center' },
+      h('button', { class: 'btn primary', text: 'Build a prompt', onclick: () => setTab('prompt') }),
+      h('button', { class: 'btn', text: 'Load a past run', onclick: () => setTab('runs') }))));
+}
+
+/* ====================================================================
+   Selection
+   ==================================================================== */
+function setSel(i, opts = {}) {
+  if (!S.run) return;
+  i = clamp(i | 0, 0, S.run.tokens.length - 1);
+  S.sel = i;
+  if (S.tab === 'tokens') updateTokensSel(opts.scroll !== false);
+  else if (S.tab === 'heat') renderHeat(true);
+  else if (S.tab === 'watch') updateWatchSel();
+  else if (S.tab === 'steps' && !opts.fromSteps) { const k = (S.run.steps || []).findIndex((s) => s.pos === i); if (k >= 0) { S.step = k; renderSteps(); } }
+  if (S.cellOpen) renderCell();
+  saveSoon();
+}
+function setLayer(L) { S.layer = clamp(L | 0, 0, nLayers() - 1); if (S.cellOpen) renderCell(); if (S.tab === 'heat') renderHeat(true); saveSoon(); }
+
+/* ====================================================================
+   Line chart (SVG) - one y axis, shared for all series
+   series: [{name, color, dash, x0, values}], bands: [{x0, x1, role}]
+   ==================================================================== */
+function lineChart(host, o) {
+  host.innerHTML = '';
+  host.classList.add('chart');
+  const W = Math.max(280, host.clientWidth || 600), H = o.height || (innerWidth < 600 ? 190 : 230);
+  const m = { l: 36, r: o.series.length > 1 ? 82 : 16, t: o.bands ? 18 : 8, b: 24 };
+  let xmin = Infinity, xmax = -Infinity, ymin = Infinity, ymax = -Infinity;
+  for (const s of o.series) {
+    if (!s.values || !s.values.length) continue;
+    xmin = Math.min(xmin, s.x0); xmax = Math.max(xmax, s.x0 + s.values.length - 1);
+  }
+  if (o.xRange) { xmin = Math.max(xmin, o.xRange[0]); xmax = Math.min(xmax, o.xRange[1]); }
+  for (const s of o.series) (s.values || []).forEach((v, i) => { const x = s.x0 + i; if (x >= xmin && x <= xmax && isNum(v)) { ymin = Math.min(ymin, v); ymax = Math.max(ymax, v); } });
+  if (o.yFixed) { ymin = Math.min(ymin, o.yFixed[0]); ymax = Math.max(ymax, o.yFixed[1]); }
+  if (!isFinite(xmin) || !isFinite(ymin)) { host.append(h('div', { class: 'muted small', text: 'No data to plot.' })); return; }
+  if (xmax === xmin) xmax = xmin + 1;
+  if (ymax === ymin) ymax = ymin + 1;
+  const pw = W - m.l - m.r, ph = H - m.t - m.b;
+  const X = (x) => m.l + ((x - xmin) / (xmax - xmin)) * pw;
+  const Y = (y) => m.t + (1 - (y - ymin) / (ymax - ymin)) * ph;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(o.aria || 'line chart')}">`;
+  // role bands
+  if (o.bands) {
+    const step = pw / Math.max(1, xmax - xmin);
+    for (const b of o.bands) {
+      const a = Math.max(b.x0, xmin), z = Math.min(b.x1, xmax); if (z < a) continue;
+      const x0 = X(a) - step / 2, x1 = X(z) + step / 2;
+      const c = roleRGB(b.role);
+      s += `<rect x="${Math.max(m.l, x0).toFixed(1)}" y="${m.t}" width="${Math.max(0.5, Math.min(W - m.r, x1) - Math.max(m.l, x0)).toFixed(1)}" height="${ph}" fill="rgba(${c},${b.role === 'template' ? 0.07 : 0.11})"/>`;
+      if (x1 - x0 > 46 && b.role !== 'template') s += `<text x="${(Math.max(m.l, x0) + 3).toFixed(1)}" y="${m.t - 5}" style="fill:rgb(${c})">${esc(b.role)}</text>`;
+    }
+  }
+  // y grid
+  const yt = niceTicks(ymin, ymax, 4);
+  for (const t of yt) s += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${Y(t).toFixed(1)}" y2="${Y(t).toFixed(1)}"/><text x="${m.l - 5}" y="${(Y(t) + 3.5).toFixed(1)}" text-anchor="end">${esc(+t.toFixed(3))}</text>`;
+  s += `<line class="base" x1="${m.l}" x2="${W - m.r}" y1="${m.t + ph}" y2="${m.t + ph}"/>`;
+  // x ticks
+  const xt = niceTicks(xmin, xmax, Math.max(3, Math.floor(pw / 80))).filter((t) => Number.isInteger(t));
+  for (const t of xt) s += `<text x="${X(t).toFixed(1)}" y="${H - 6}" text-anchor="middle">${esc(o.xFmt ? o.xFmt(t) : t)}</text>`;
+  // series
+  const ends = [];
+  for (const se of o.series) {
+    if (!se.values) continue;
+    let d = '', pen = false, last = null;
+    se.values.forEach((v, i) => {
+      const x = se.x0 + i;
+      if (x < xmin || x > xmax || !isNum(v)) { pen = false; return; }
+      d += (pen ? 'L' : 'M') + X(x).toFixed(1) + ' ' + Y(v).toFixed(1); pen = true; last = v;
+    });
+    s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"${se.dash ? ` stroke-dasharray="${se.dash}"` : ''}/>`;
+    if (last != null && o.series.length > 1) ends.push({ y: Y(last), name: se.name, color: se.color });
+  }
+  // direct labels at the right end (nudged apart)
+  ends.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 12) ends[i].y = ends[i - 1].y + 12;
+  for (const e of ends) s += `<line x1="${W - m.r + 3}" x2="${W - m.r + 11}" y1="${e.y.toFixed(1)}" y2="${e.y.toFixed(1)}" stroke="${e.color}" stroke-width="2"/><text class="lab" x="${W - m.r + 14}" y="${(e.y + 4).toFixed(1)}">${esc(e.name)}</text>`;
+  // selection marker
+  if (o.sel != null && o.sel >= xmin && o.sel <= xmax) {
+    s += `<line class="selline" x1="${X(o.sel).toFixed(1)}" x2="${X(o.sel).toFixed(1)}" y1="${m.t}" y2="${m.t + ph}"/>`;
+    for (const se of o.series) { const v = se.values && se.values[o.sel - se.x0]; if (isNum(v)) s += `<circle cx="${X(o.sel).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="4.5" fill="${se.color}" stroke="${cssVar('--surface')}" stroke-width="2"/>`; }
+  }
+  s += `<line class="cross" x1="0" x2="0" y1="${m.t}" y2="${m.t + ph}" style="display:none"/>`;
+  s += `<rect class="hit" x="${m.l}" y="0" width="${pw}" height="${H}" fill="transparent" style="cursor:crosshair"/>`;
+  s += '</svg>';
+  host.innerHTML = s;
+  const svg = host.firstChild, cross = svg.querySelector('.cross'), hit = svg.querySelector('.hit');
+  const xAt = (ev) => { const r = svg.getBoundingClientRect(); const px = ((ev.clientX - r.left) / r.width) * W; return clamp(Math.round(xmin + ((px - m.l) / pw) * (xmax - xmin)), xmin, xmax); };
+  hit.addEventListener('pointermove', (ev) => {
+    const x = xAt(ev); const cx = X(x).toFixed(1);
+    cross.setAttribute('x1', cx); cross.setAttribute('x2', cx); cross.style.display = '';
+    let html = o.tipHead ? o.tipHead(x) : `<div class="muted">x = ${x}</div>`;
+    for (const se of o.series) { const v = se.values && se.values[x - se.x0]; html += `<div class="tr"><span class="sw" style="background:${se.color}"></span><span class="tv">${fmt(v)}</span><span class="muted">${esc(se.name)}</span></div>`; }
+    showTip(html, ev.clientX, ev.clientY);
+  });
+  hit.addEventListener('pointerleave', () => { cross.style.display = 'none'; hideTip(); });
+  hit.addEventListener('click', (ev) => { hideTip(); o.onSelect && o.onSelect(xAt(ev)); });
+}
+function niceTicks(lo, hi, n) {
+  const span = hi - lo; if (!(span > 0)) return [lo];
+  const raw = span / Math.max(1, n); const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map((k) => k * mag).find((k) => k >= raw) || raw;
+  const out = []; for (let t = Math.ceil(lo / step) * step; t <= hi + step * 1e-6; t += step) out.push(+t.toFixed(10));
+  return out;
+}
+
+/* ====================================================================
+   1. PROMPT
+   ==================================================================== */
+function defaultDraft() {
+  const p = S.meta && S.meta.presets && S.meta.presets[0];
+  return { messages: p ? JSON.parse(JSON.stringify(p.messages)) : [{ role: 'user', content: '' }], prefix: p ? p.prefix || '' : '', gen_tokens: 80, temperature: 0, label: '', steer: [] };
+}
+function steerOpt(id) { return ((S.meta && S.meta.steer_options) || []).find((o) => o.id === id); }
+function steerLayers(opt) { return opt && opt.layers && opt.layers.length ? opt.layers : Array.from({ length: nLayers() }, (_, i) => i); }
+function steerDefaultLayer(opt) { const ls = steerLayers(opt); if (opt && /^sae17/.test(opt.id) && ls.includes(17)) return 17; return ls.includes(12) ? 12 : ls[Math.floor(ls.length / 2)]; }
+function renderPrompt() {
+  const sec = $('#v-prompt'); sec.innerHTML = '';
+  const d = S.draft;
+  const presets = (S.meta && S.meta.presets) || [];
+  const presetSel = h('select', { 'aria-label': 'Preset', onchange: (e) => {
+    const p = presets[+e.target.value]; if (!p) return;
+    d.messages = JSON.parse(JSON.stringify(p.messages)); d.prefix = p.prefix || ''; if (!d.label) d.label = p.name;
+    saveSoon(); renderPrompt();
+  } }, h('option', { value: '', text: presets.length ? 'Load a preset…' : 'no presets' }),
+    Object.entries(presets.reduce((g, p, i) => { (g[p.group || 'Presets'] = g[p.group || 'Presets'] || []).push([p, i]); return g; }, {}))
+      .map(([g, ps]) => h('optgroup', { label: g }, ps.map(([p, i]) => h('option', { value: i, text: p.name })))));
+  sec.append(aboutCard());
+  sec.append(h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('h2', { class: 'grow', text: 'Conversation' }), presetSel,
+      S.run ? h('button', { class: 'btn sm', text: 'Copy from current run', title: 'Fill the builder with the prompt of the loaded run', onclick: () => { const m = messagesFromRun(S.run); d.messages = m.messages.length ? m.messages : d.messages; d.prefix = m.prefix; d.steer = JSON.parse(JSON.stringify(S.run.steer || [])); saveSoon(); renderPrompt(); } }) : null),
+    h('p', { class: 'desc', style: 'margin-bottom:10px', text: 'Turns are wrapped in the Gemma chat template on the server. A system turn is folded into the first user turn by the template.' }),
+    h('div', { id: 'msgs' }),
+    h('div', { class: 'row' }, ['system', 'user', 'assistant'].map((r) => h('button', { class: 'btn sm', text: '+ ' + r, onclick: () => { d.messages.push({ role: r, content: '' }); saveSoon(); renderPrompt(); const tas = $$('#msgs textarea'); tas.length && tas[tas.length - 1].focus(); } })))));
+  const box = $('#msgs', sec);
+  d.messages.forEach((m, i) => {
+    const ta = h('textarea', { rows: 2, placeholder: m.role + ' message', oninput: (e) => { m.content = e.target.value; autoGrow(e.target); saveSoon(); } }); ta.value = m.content;
+    box.append(h('div', { class: 'msg', 'data-role': m.role },
+      h('div', { class: 'row tight' },
+        h('select', { 'aria-label': 'role', onchange: (e) => { m.role = e.target.value; saveSoon(); renderPrompt(); } }, ['system', 'user', 'assistant'].map((r) => h('option', { value: r, text: r, selected: r === m.role }))),
+        h('span', { class: 'grow' }),
+        h('button', { class: 'btn sm icon ghost', title: 'Move up', text: '↑', disabled: i === 0, onclick: () => { [d.messages[i - 1], d.messages[i]] = [d.messages[i], d.messages[i - 1]]; saveSoon(); renderPrompt(); } }),
+        h('button', { class: 'btn sm icon ghost', title: 'Move down', text: '↓', disabled: i === d.messages.length - 1, onclick: () => { [d.messages[i + 1], d.messages[i]] = [d.messages[i], d.messages[i + 1]]; saveSoon(); renderPrompt(); } }),
+        h('button', { class: 'btn sm icon ghost danger', title: 'Remove turn', text: '✕', onclick: () => { d.messages.splice(i, 1); saveSoon(); renderPrompt(); } })),
+      ta));
+  });
+  requestAnimationFrame(() => $$('#msgs textarea').forEach(autoGrow));
+
+  // generation settings
+  const prefix = h('input', { type: 'text', placeholder: 'e.g. *Bram', style: 'width:100%', oninput: (e) => { d.prefix = e.target.value; saveSoon(); } }); prefix.value = d.prefix || '';
+  const label = h('input', { type: 'text', placeholder: 'optional run name', style: 'width:100%', oninput: (e) => { d.label = e.target.value; saveSoon(); } }); label.value = d.label || '';
+  sec.append(h('div', { class: 'card' },
+    h('h2', { text: 'Generation' }),
+    h('div', { class: 'row', style: 'align-items:flex-end' },
+      h('label', { class: 'f grow', style: 'flex-basis:220px' }, 'Reply prefix (the reply is forced to start with this)', prefix),
+      h('label', { class: 'f' }, 'Gen tokens', h('input', { type: 'number', min: 1, max: 1000, value: d.gen_tokens, oninput: (e) => { d.gen_tokens = +e.target.value || 1; saveSoon(); } })),
+      h('label', { class: 'f' }, 'Temperature', h('input', { type: 'number', min: 0, max: 2, step: 0.1, value: d.temperature, oninput: (e) => { d.temperature = +e.target.value || 0; saveSoon(); } })),
+      h('label', { class: 'f grow', style: 'flex-basis:180px' }, 'Run label', label))));
+
+  // steering
+  const opts = (S.meta && S.meta.steer_options) || [];
+  const steerBox = h('div');
+  d.steer.forEach((st, i) => {
+    const opt = steerOpt(st.id);
+    const num = h('input', { type: 'number', step: 0.25, value: st.strength, 'aria-label': 'strength', oninput: (e) => { st.strength = +e.target.value || 0; rng.value = st.strength; saveSoon(); } });
+    const rng = h('input', { type: 'range', min: -8, max: 8, step: 0.25, value: st.strength, 'aria-label': 'strength slider', oninput: (e) => { st.strength = +e.target.value; num.value = st.strength; saveSoon(); } });
+    steerBox.append(h('div', { class: 'steer' },
+      h('div', { class: 'row tight' },
+        h('select', { class: 'grow', 'aria-label': 'direction', onchange: (e) => { st.id = e.target.value; const o = steerOpt(st.id); if (!steerLayers(o).includes(st.layer)) st.layer = steerDefaultLayer(o); saveSoon(); renderPrompt(); } }, opts.map((o) => h('option', { value: o.id, text: o.label || o.id, selected: o.id === st.id }))),
+        h('label', { class: 'row tight small muted' }, 'layer', h('select', { 'aria-label': 'layer', onchange: (e) => { st.layer = +e.target.value; saveSoon(); } }, steerLayers(opt).map((L) => h('option', { value: L, text: L, selected: L === st.layer })))),
+        h('button', { class: 'btn sm icon ghost danger', title: 'Remove', text: '✕', onclick: () => { d.steer.splice(i, 1); saveSoon(); renderPrompt(); } })),
+      h('div', { class: 'row tight', style: 'margin-top:6px' }, h('span', { class: 'small muted', text: 'strength' }), rng, num)));
+  });
+  sec.append(h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('h2', { class: 'grow', text: 'Steering' }),
+      h('button', { class: 'btn sm', text: '+ Add steering', disabled: !opts.length, onclick: () => { const o = opts[0]; d.steer.push({ id: o.id, layer: steerDefaultLayer(o), strength: 0 }); saveSoon(); renderPrompt(); } })),
+    h('p', { class: 'desc', text: d.steer.length ? 'Adds strength × direction to the residual stream at that layer on every position. Strength is in natural units (negative pushes the other way). Several can be combined.' : 'No steering: the model runs unmodified.' }),
+    steerBox));
+
+  // run
+  const runBtn = h('button', { class: 'btn primary', style: 'min-width:140px;min-height:46px;font-size:16px', disabled: S.running, onclick: doRun },
+    S.running ? [h('span', { class: 'spinner' }), ' Running…'] : 'Run ▸');
+  sec.append(h('div', { class: 'card' },
+    h('div', { class: 'row' }, runBtn, h('span', { id: 'runstatus', class: 'muted small grow' }, S.running ? 'Forward + generation + analysis on the GPU…' : '')),
+    S.run ? h('div', { style: 'margin-top:12px' },
+      h('div', { class: 'row' }, h('h3', { class: 'grow', text: 'Reply · ' + S.run.id }),
+        h('button', { class: 'btn sm', text: 'Tokens view ▸', onclick: () => setTab('tokens') }),
+        h('button', { class: 'btn sm', text: 'Step through ▸', onclick: () => setTab('steps') })),
+      h('div', { class: 'reply' }, S.run.tokens.some((t) => t.role === 'prefix') ? h('span', { class: 'pre', text: S.run.tokens.filter((t) => t.role === 'prefix').map((t) => t.text).join('') }) : null, S.run.reply || '')) : null));
+}
+function aboutCard() {
+  const m = S.meta || {}; const st = m.status || {};
+  const views = [
+    ['Prompt', 'Write a conversation (or load a preset), optionally steer the model, and run it. The model writes a reply; every token is then analysed.'],
+    ['Tokens', 'The whole conversation as tokens, coloured by any measure (an axis, a probe such as crisis or refusal, a watched feature, logit-lens confidence). The chart shows the axes token by token.'],
+    ['Heatmap', 'Layer × token grid: residual-stream size, logit-lens confidence or an axis. Tap a cell to open it.'],
+    ['Cell', 'One token at one layer: the transcoder features active there (with labels), what the layer would predict if decoding stopped there (logit lens), the axes, and where attention looks.'],
+    ['Steps', 'Replay the reply one token at a time with the alternatives the model considered.'],
+    ['Watch', 'Sparklines for a list of features and neurons the project found interesting.'],
+    ['Compare', 'Two runs side by side on any axis, aligned at the reply or the last user message.'],
+    ['Runs & Notes', 'Every run is saved; write notes that remember the exact view you were looking at.'],
+  ];
+  const fs = m.findings || [];
+  return h('div', { class: 'card' },
+    h('details', { class: 'about', open: !S.runs.length },
+      h('summary', { text: 'New here? What this shows' }),
+      h('p', { class: 'desc', text: 'This looks inside Gemma 3 4B-it while it plays characters and handles risky messages. An "axis" is a direction in the model\'s internal state, measured so that 0 and 1 mean two kinds of prompt (for example plain assistant vs role-play character). "Features" are the units of Gemma Scope transcoders: each tends to fire on one kind of text. Their labels are best guesses an LLM wrote from example texts, so treat them as hints. The char, tone and assistant axes and the refusal (L14) and crisis (L17) probes were fit on this project\'s own prompts; the persona axis is fit in the notebook on a small built-in set of everyday prompts. "Probes" are read at one layer only. Steering adds a direction to the model\'s state while it writes.' }),
+      h('ul', {}, views.map(([k, v]) => h('li', {}, h('b', { text: k + ': ' }), v))),
+      fs.length ? h('details', { class: 'about', style: 'margin-top:8px' }, h('summary', { text: `What the project found (${fs.length})` }),
+        h('ul', {}, fs.map((f) => h('li', {}, h('b', { text: f.title }), f.big ? h('div', { class: 'big', text: f.big }) : null, h('div', { class: 'small', text: f.body }))))) : null,
+      h('p', { class: 'desc small' }, `Model ${st.model || ''} · ${st.dtype || ''} on ${st.device || ''} · transcoders loaded ${st.transcoders_loaded != null ? st.transcoders_loaded + '/' + st.n_layers : '?'}` +
+        (m.concepts_fitted === false ? ' · persona axis and refusal probe not fitted yet (run the fit cell in the notebook)' : ''))));
+}
+function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 2, 420) + 'px'; }
+async function doRun() {
+  const d = S.draft;
+  const messages = d.messages.filter((m) => m.content.trim() !== '' || m.role === 'assistant').map((m) => ({ role: m.role, content: m.content }));
+  if (!messages.length) { toast('Add at least one message', true); return; }
+  const body = { messages, prefix: d.prefix || '', gen_tokens: d.gen_tokens || 80, temperature: d.temperature || 0 };
+  if (d.steer.length) body.steer = d.steer.map((s) => ({ id: s.id, layer: s.layer, strength: s.strength }));
+  if (d.label) body.label = d.label;
+  S.running = true; renderPrompt();
+  const t0 = Date.now(); const tick = setInterval(() => { const e = $('#runstatus'); if (e) e.textContent = `Forward + generation + analysis on the GPU… ${((Date.now() - t0) / 1000).toFixed(0)}s`; }, 500);
+  try {
+    const run = await api('run', { method: 'POST', body });
+    clearInterval(tick); S.running = false;
+    acceptRun(run, true);
+    if (run.warning) toast(`Run ${run.id}: ${run.warning}`, true);
+    else toast(`Run ${run.id} done in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+    refreshRuns();
+    setTab('tokens');
+  } catch (e) {
+    clearInterval(tick); S.running = false; renderPrompt(); toast('Run failed: ' + e.message, true);
+  }
+}
+
+/* ---------- run loading ---------- */
+function acceptRun(run, fresh) {
+  S.run = run; S.runCache.set(run.id, run); valCache.clear(); cellCache.clear();
+  if (fresh) {
+    S.measure = 'axis:char';
+    const al = run.axis_layers || []; S.axisLayer = al.includes(17) ? 17 : al[nearestIdx(al, 17)];
+    S.sel = run.n_prompt < run.tokens.length ? run.n_prompt : run.tokens.length - 1;
+    S.step = 0; S.layer = 17;
+  } else {
+    if (S.sel == null || S.sel >= run.tokens.length) S.sel = Math.min(run.n_prompt, run.tokens.length - 1);
+    if (!(run.axis_layers || []).includes(S.axisLayer)) S.axisLayer = (run.axis_layers || [17])[nearestIdx(run.axis_layers || [17], 17)];
+  }
+  if (!run.lens_layers || !run.lens_layers.includes(S.lensLayer)) S.lensLayer = run.lens_layers ? run.lens_layers[run.lens_layers.length - 1] : 33;
+  if (!measureDefs().some((d) => d.id === S.measure)) S.measure = 'axis:char';
+  if (!S.cmp.a) S.cmp.a = run.id;
+  updateRunChip(); saveSoon();
+}
+async function getRun(id) {
+  if (S.runCache.has(id)) return S.runCache.get(id);
+  const r = await api('runs/' + encodeURIComponent(id)); S.runCache.set(id, r); return r;
+}
+async function loadRun(id, opts = {}) {
+  try {
+    const r = await getRun(id);
+    acceptRun(r, !opts.keepView);
+    if (!opts.keepView) setTab('tokens');
+    return r;
+  } catch (e) { toast('Could not load run ' + id + ': ' + e.message, true); throw e; }
+}
+async function refreshRuns() { try { S.runs = (await api('runs')) || []; } catch (e) { toast('Runs: ' + e.message, true); } if (S.tab === 'runs' || S.tab === 'compare') renderView(); }
+async function refreshNotes() { try { S.notes = (await api('notes')) || []; } catch (e) { toast('Notes: ' + e.message, true); } if (S.tab === 'runs') renderView(); }
+
+/* ====================================================================
+   2. TOKENS
+   ==================================================================== */
+function layerSelect(list, val, onch, label) {
+  return h('label', { class: 'row tight small muted' }, label || 'layer', h('select', { 'aria-label': label || 'layer', onchange: (e) => onch(+e.target.value) }, list.map((L) => h('option', { value: L, text: L, selected: L === val }))));
+}
+function measurePicker(onch) {
+  const defs = measureDefs(); const groups = {};
+  for (const d of defs) (groups[d.group] = groups[d.group] || []).push(d);
+  return h('select', { 'aria-label': 'Colour tokens by', style: 'max-width:100%', onchange: (e) => onch(e.target.value) },
+    Object.entries(groups).map(([g, ds]) => h('optgroup', { label: g }, ds.map((d) => h('option', { value: d.id, text: d.label, selected: d.id === S.measure })))));
+}
+function renderTokens() {
+  const sec = $('#v-tokens'); if (!S.run) return noRun(sec);
+  sec.innerHTML = '';
+  const run = S.run;
+  const ctrl = h('div', { class: 'card' },
+    h('div', { class: 'row' },
+      h('span', { class: 'small muted', text: 'Colour by' }),
+      measurePicker((v) => { S.measure = v; renderTokens(); saveSoon(); }),
+      h('span', { id: 'mlayer' })),
+    h('p', { class: 'desc', id: 'mdesc' }),
+    h('div', { class: 'legend', id: 'mlegend', style: 'margin-top:6px' }));
+  sec.append(ctrl);
+  sec.append(h('div', { class: 'selbar', id: 'selbar' }));
+  const strip = h('div', { class: 'strip', id: 'strip', role: 'listbox', 'aria-label': 'tokens' });
+  buildStrip(strip, run);
+  strip.addEventListener('click', (e) => { const t = e.target.closest('.tk'); if (t) setSel(+t.dataset.i, { scroll: false }); });
+  strip.addEventListener('pointerover', (e) => {
+    const t = e.target.closest('.tk'); if (!t || e.pointerType === 'touch') return;
+    const i = +t.dataset.i; const v = measureValues(run, S.measure)[i];
+    showTip(`<div class="tt">#${i} ${esc(showTok(tokText(run, i)))}</div><div class="muted">${esc(run.tokens[i].role)}</div><div class="tv">${fmt(v)}</div>`, e.clientX, e.clientY);
+  });
+  strip.addEventListener('pointerout', hideTip);
+  sec.append(h('div', { class: 'card', style: 'padding:8px' }, strip));
+  sec.append(h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('h2', { class: 'grow', text: 'Axes & probes across tokens' }),
+      h('div', { class: 'seg' }, [['all', 'All tokens'], ['reply', 'Last user turn → end']].map(([k, l]) => h('button', { class: S.chartRange === k ? 'on' : '', text: l, onclick: () => { S.chartRange = k; renderTokChart(); renderTokens(); saveSoon(); } })))),
+    h('div', { class: 'legend', id: 'chartlegend' }),
+    h('div', { id: 'tokchart', style: 'margin-top:6px' }),
+    h('p', { class: 'desc', text: 'Tap the chart to select a token. Shaded bands show who wrote each token. Axes are read at the axis layer chosen above.' })));
+  updateMeasure();
+  renderTokChart();
+  updateTokensSel(true);
+}
+function buildStrip(strip, run) {
+  const frag = document.createDocumentFragment();
+  let prevRole = null;
+  for (const t of run.tokens) {
+    if (t.role !== prevRole && t.role !== 'template') {
+      frag.append(h('span', { class: 'rolechip', style: `--rc:${roleRGB(t.role)}`, text: t.role }));
+    }
+    if (t.role !== 'template' || prevRole !== 'template') prevRole = t.role;
+    const sp = document.createElement('span');
+    sp.className = 'tk' + (t.role === 'template' ? ' tpl' : '') + (t.role === 'generated' ? ' gen' : '') + (t.role === 'prefix' ? ' pre' : '');
+    sp.dataset.i = t.i != null ? t.i : 0;
+    sp.textContent = t.text.replace(/\n/g, '↵\n');
+    frag.append(sp);
+  }
+  strip.append(frag);
+  // ensure data-i follows array index even if tokens lack i
+  $$('.tk', strip).forEach((s, k) => (s.dataset.i = k));
+}
+function updateMeasure() {
+  const run = S.run; const d = measureDef(S.measure);
+  const lay = $('#mlayer'); lay.innerHTML = '';
+  if (d.needs === 'axis') {
+    lay.append(layerSelect(axisLayers(), S.axisLayer, (L) => { S.axisLayer = L; updateMeasure(); renderTokChart(); updateTokensSel(false); saveSoon(); }, 'axis layer'));
+    const sm = h('select', { 'aria-label': 'smoothing', onchange: (e) => { S.smooth = +e.target.value; updateMeasure(); updateTokensSel(false); saveSoon(); } },
+      [[1, 'single token (noisy)'], [4, 'smooth: 4 tokens'], [8, 'smooth: 8 tokens'], [16, 'smooth: 16 tokens']].map(([k, l]) => h('option', { value: k, text: l, selected: (S.smooth || 1) === k })));
+    lay.append(h('label', { class: 'small muted', text: ' ' }), sm);
+  }
+  if (d.needs === 'norm') lay.append(layerSelect(Array.from({ length: nLayers() }, (_, i) => i), S.normLayer, (L) => { S.normLayer = L; updateMeasure(); updateTokensSel(false); saveSoon(); }));
+  if (d.needs === 'lens') lay.append(layerSelect(run.lens_layers || [], S.lensLayer, (L) => { S.lensLayer = L; updateMeasure(); updateTokensSel(false); saveSoon(); }, 'lens layer'));
+  $('#mdesc').textContent = d.desc + (d.needs === 'axis' ? ' · ' + (AXIS_NOTE[S.measure.slice(5)] || '') : '');
+  if (d.needs === 'axis' && run.n_prompt < run.tokens.length) {
+    const m = replyMean(run, S.measure);
+    $('#mdesc').textContent = d.desc + ` · Reply average at L${S.axisLayer}: ${fmt(m)}. Single tokens are noisy (sd ≈ 0.2–0.4); read averages or smooth. ${AXIS_NOTE[S.measure.slice(5)] || ''}`;
+  }
+  const vals = measureValues(run, S.measure); const sc = measureScale(run, S.measure, vals);
+  const spans = $$('#strip .tk');
+  for (let i = 0; i < spans.length; i++) spans[i].style.background = colorOf(vals[i], sc);
+  const lg = $('#mlegend'); lg.innerHTML = '';
+  lg.append(h('span', { class: 'num', text: fmt(sc.lo) }), h('span', { class: 'ramp', style: `background:${rampCSS(sc)}` }), h('span', { class: 'num', text: fmt(sc.hi) + (d.kind === 'norm' ? ' (98th pct, clipped)' : '') }));
+  if (sc.type === 'div') lg.append(h('span', { class: 'muted', text: '· grey = 0.5 · blue = low · red = high' }));
+  lg.append(h('span', { class: 'key' }, h('span', { class: 'sw', style: `background:rgb(${roleRGB('generated')})` }), 'generated'));
+  lg.append(h('span', { class: 'key' }, h('span', { class: 'sw', style: `background:rgb(${roleRGB('prefix')})` }), 'prefix'));
+}
+function updateTokensSel(scroll) {
+  const run = S.run; if (!run || S.tab !== 'tokens') return;
+  const i = S.sel;
+  $$('#strip .tk.sel').forEach((s) => s.classList.remove('sel'));
+  const sp = $(`#strip .tk[data-i="${i}"]`);
+  if (sp) { sp.classList.add('sel'); if (scroll) { const st = $('#strip'); const r = sp.offsetTop - st.offsetTop; if (r < st.scrollTop + 10 || r > st.scrollTop + st.clientHeight - 30) st.scrollTop = r - st.clientHeight / 2; } }
+  const d = measureDef(S.measure); const v = measureValues(run, S.measure)[i];
+  const t = run.tokens[i]; const k = i - run.n_prompt;
+  const bar = $('#selbar'); bar.innerHTML = '';
+  bar.append(
+    h('button', { class: 'btn sm icon', title: 'Previous token (←)', text: '‹', onclick: () => setSel(S.sel - 1) }),
+    h('span', { class: 'small muted', text: '#' + i }),
+    h('span', { class: 'tokname', text: showTok(t.text) }),
+    h('span', { class: 'badge', style: `color:rgb(${roleRGB(t.role)})`, text: t.role + (k >= 0 ? ' · reply tok ' + k : '') }),
+    h('span', { class: 'small muted', text: d.label.split('  (')[0] + (d.needs === 'axis' ? ' @L' + S.axisLayer : d.needs === 'norm' ? ' @L' + S.normLayer : d.needs === 'lens' ? ' @L' + S.lensLayer : '') }),
+    h('span', { class: 'val', text: fmt(v) }),
+    h('span', { class: 'grow' }),
+    h('button', { class: 'btn sm', text: 'Cell L' + S.layer + ' ▸', title: 'Features, logit lens and attention at this token', onclick: () => openCell() }),
+    h('button', { class: 'btn sm icon', title: 'Next token (→)', text: '›', onclick: () => setSel(S.sel + 1) }));
+  renderTokChart();
+}
+function axisSeries(run, L) {
+  const out = axisNames().map((a, k) => ({ name: a, color: axisColor(a, k), x0: 0, values: axisRow(run, a, L) }));
+  for (const p of probeDefs(run)) out.push({ name: p.id, probe: p, color: axisColor(p.id, 4), x0: 0, values: probeVals(run, p.id), dash: '5 3' });
+  return out;
+}
+function renderTokChart() {
+  const host = $('#tokchart'); if (!host || !S.run) return;
+  const run = S.run; const series = axisSeries(run, S.axisLayer);
+  const lg = $('#chartlegend'); lg.innerHTML = '';
+  for (const s of series) lg.append(h('span', { class: 'key', title: (s.probe ? s.probe.desc : (S.meta.axes || {})[s.name]) || '' }, h('span', { class: 'sw', style: `background:${s.color}` }), s.name + (s.probe ? probeTag(s.probe).replace(')', ', dashed)') : ' @L' + S.axisLayer)));
+  const xr = S.chartRange === 'reply' ? [Math.max(0, lastUserStart(run) - 2), run.tokens.length - 1] : null;
+  lineChart(host, {
+    series, bands: roleSegments(run), sel: S.sel, xRange: xr, yFixed: [0, 1], aria: 'axes across tokens',
+    tipHead: (x) => `<div class="tt">#${x} ${esc(showTok(tokText(run, x)))}</div><div class="muted small">${esc(run.tokens[x] ? run.tokens[x].role : '')}</div>`,
+    onSelect: (x) => setSel(x),
+  });
+}
+
+/* ====================================================================
+   3. HEATMAP
+   ==================================================================== */
+function heatData(run) {
+  let mode = S.heat.mode;
+  if ((mode === 'lens' && !(run.lens && run.lens_layers)) || (mode.startsWith('axis:') && !(run.axes && run.axes[mode.slice(5)]))) mode = S.heat.mode = 'norm';
+  if (mode === 'norm' && !run.norms) return { rows: [], vals: [], kind: 'norm' };
+  if (mode === 'norm') return { rows: Array.from({ length: run.norms.length }, (_, i) => i), vals: run.norms, kind: 'norm' };
+  if (mode === 'lens') return { rows: run.lens_layers, vals: run.lens.map((row) => row.map((x) => (x && x[0] ? x[0][1] : null))), kind: 'prob' };
+  const a = mode.slice(5); return { rows: run.axis_layers, vals: run.axes[a], kind: 'axis' };
+}
+function renderHeat(keepScroll) {
+  const sec = $('#v-heat'); if (!S.run) return noRun(sec);
+  const run = S.run; const T = run.tokens.length;
+  const oldScroll = keepScroll && $('#heatscroll') ? $('#heatscroll').scrollLeft : null;
+  sec.innerHTML = '';
+  const modes = [['norm', 'Residual norm (all layers)'], ...axisNames().map((a) => ['axis:' + a, a + ' axis']), ['lens', 'Logit-lens confidence']];
+  const descs = { norm: 'L2 norm of the residual stream, layer × token (dim 443 excluded). Use "per layer" to see which tokens stand out within each depth; "global" shows growth with depth.', lens: 'Top-1 probability of the logit-lens decoding at each layer (every 2nd layer + 33). Hover/tap for the top-3 tokens.' };
+  const desc = descs[S.heat.mode] || ((S.meta.axes || {})[S.heat.mode.slice(5)] || '') + ' — only the axis layers are shown. Grey = 0.5, blue = low, red = high.';
+  sec.append(h('div', { class: 'card' },
+    h('div', { class: 'row' },
+      h('select', { 'aria-label': 'Heatmap measure', onchange: (e) => { S.heat.mode = e.target.value; renderHeat(); saveSoon(); } }, modes.map(([k, l]) => h('option', { value: k, text: l, selected: k === S.heat.mode }))),
+      S.heat.mode === 'norm' ? h('div', { class: 'seg' }, [['row', 'Per layer'], ['global', 'Global']].map(([k, l]) => h('button', { class: S.heat.norm === k ? 'on' : '', text: l, onclick: () => { S.heat.norm = k; renderHeat(true); saveSoon(); } }))) : null,
+      h('label', { class: 'row tight small muted' }, 'zoom', h('input', { type: 'range', min: 3, max: 26, value: S.heat.zoom, oninput: debounce((e) => { S.heat.zoom = +e.target.value; renderHeat(); saveSoon(); }, 60) }))),
+    h('p', { class: 'desc', text: desc }),
+    h('div', { class: 'legend', id: 'heatlegend', style: 'margin-top:6px' })));
+  const { rows, vals, kind } = heatData(run);
+  const cw = S.heat.zoom, rh = kind === 'norm' ? (innerWidth < 600 ? 13 : 15) : 24;
+  const headH = cw >= 9 ? 66 : 12;
+  const labels = h('div', { class: 'heatlabels', style: `height:${headH + rows.length * rh}px` });
+  rows.forEach((L, r) => labels.append(h('div', { class: L === S.layer ? 'on' : '', style: `top:${headH + r * rh}px;height:${rh}px`, text: 'L' + L })));
+  const scroller = h('div', { class: 'heatscroll', id: 'heatscroll' });
+  const cv = document.createElement('canvas');
+  const Wc = T * cw, Hc = headH + rows.length * rh;
+  let dpr = Math.min(2, devicePixelRatio || 1); while (dpr > 1 && Wc * Hc * dpr * dpr > 12e6) dpr -= 0.5;
+  cv.width = Math.round(Wc * dpr); cv.height = Math.round(Hc * dpr); cv.style.width = Wc + 'px'; cv.style.height = Hc + 'px';
+  scroller.append(cv);
+  sec.append(h('div', { class: 'heatwrap' }, labels, scroller));
+  sec.append(h('p', { class: 'desc', text: 'Rows: layers (input at top, output at bottom). Columns: tokens. Tap a cell to open its features, lens and attention.' }));
+  // scales
+  let scales;
+  if (kind === 'norm') {
+    if (S.heat.norm === 'row') scales = vals.map((row) => { const b = row.filter((x, i) => i > 0); return { type: 'seq', lo: quantile(b, 0.02), hi: quantile(b, 0.98) }; });
+    else { const b = vals.flatMap((row) => row.filter((x, i) => i > 0)); const sc = { type: 'seq', lo: quantile(b, 0.01), hi: quantile(b, 0.99) }; scales = vals.map(() => sc); }
+  } else if (kind === 'prob') scales = vals.map(() => ({ type: 'seq', lo: 0, hi: 1 }));
+  else scales = vals.map(() => ({ type: 'div', lo: 0, mid: 0.5, hi: 1 }));
+  const lg = $('#heatlegend'); const s0 = scales[0];
+  lg.append(h('span', { class: 'num', text: kind === 'norm' && S.heat.norm === 'row' ? 'low (per layer)' : fmt(s0.lo) }), h('span', { class: 'ramp', style: `background:${rampCSS(s0)}` }), h('span', { class: 'num', text: kind === 'norm' && S.heat.norm === 'row' ? 'high' : fmt(s0.hi) }));
+  lg.append(h('span', { class: 'key' }, h('span', { class: 'box', style: `outline:2px solid ${cssVar('--ink')};outline-offset:-2px` }), 'selected token / layer'));
+  // draw
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  ctx.fillStyle = cssVar('--surface'); ctx.fillRect(0, 0, Wc, Hc);
+  const gap = cw >= 6 ? 1 : 0;
+  for (let i = 0; i < T; i++) { ctx.fillStyle = `rgb(${roleRGB(run.tokens[i].role)})`; ctx.fillRect(i * cw, headH - 5, cw - gap, 4); }
+  if (headH > 20) {
+    ctx.save(); ctx.fillStyle = cssVar('--ink2'); ctx.font = `${Math.min(11, cw)}px ui-monospace, Menlo, monospace`; ctx.textBaseline = 'middle';
+    for (let i = 0; i < T; i++) { ctx.save(); ctx.translate(i * cw + cw / 2, headH - 8); ctx.rotate(-Math.PI / 2); ctx.fillStyle = run.tokens[i].role === 'template' ? cssVar('--muted') : cssVar('--ink2'); ctx.fillText(showTok(run.tokens[i].text).slice(0, 9), 0, 0); ctx.restore(); }
+    ctx.restore();
+  }
+  rows.forEach((L, r) => {
+    const row = vals[r] || []; const sc = scales[r];
+    for (let i = 0; i < T; i++) { const c = colorOf(row[i], sc); if (!c) continue; ctx.fillStyle = c; ctx.fillRect(i * cw, headH + r * rh, cw - gap, rh - gap); }
+  });
+  ctx.strokeStyle = cssVar('--ink'); ctx.lineWidth = 2;
+  if (S.sel != null) ctx.strokeRect(S.sel * cw + 1, headH - 5, cw - 2, rows.length * rh + 4);
+  const rSel = rows.indexOf(S.layer); if (rSel >= 0) { ctx.lineWidth = 1; ctx.setLineDash([4, 3]); ctx.strokeRect(0.5, headH + rSel * rh + 0.5, Wc - 1, rh - 1); ctx.setLineDash([]); }
+  if (S.sel != null && rSel >= 0) { ctx.lineWidth = 2.5; ctx.strokeRect(S.sel * cw, headH + rSel * rh, cw, rh); }
+  // events
+  const at = (ev) => { const b = cv.getBoundingClientRect(); const i = Math.floor((ev.clientX - b.left) / cw); const r = Math.floor((ev.clientY - b.top - headH) / rh); return { i: clamp(i, 0, T - 1), r }; };
+  cv.addEventListener('pointermove', (ev) => {
+    if (ev.pointerType === 'touch') return;
+    const { i, r } = at(ev);
+    let html = `<div class="tt">#${i} ${esc(showTok(tokText(run, i)))}</div><div class="muted small">${esc(run.tokens[i].role)}</div>`;
+    if (r >= 0 && r < rows.length) {
+      html += `<div><span class="tv">${fmt((vals[r] || [])[i])}</span> <span class="muted">at L${rows[r]}</span></div>`;
+      if (kind === 'prob') { const top = run.lens[r][i] || []; html += top.map((x) => `<div class="tr"><span class="tt">${esc(showTok(x[0]))}</span><span class="muted">${pct(x[1])}</span></div>`).join(''); }
+    }
+    showTip(html, ev.clientX, ev.clientY);
+  });
+  cv.addEventListener('pointerleave', hideTip);
+  cv.addEventListener('click', (ev) => {
+    hideTip(); const { i, r } = at(ev);
+    S.sel = i; if (r >= 0 && r < rows.length) S.layer = rows[r];
+    saveSoon(); openCell(); renderHeat(true);
+  });
+  if (oldScroll != null) scroller.scrollLeft = oldScroll;
+  else if (S.sel != null) scroller.scrollLeft = Math.max(0, S.sel * cw - scroller.clientWidth / 2);
+}
+
+/* ====================================================================
+   4. CELL DETAIL (panel)
+   ==================================================================== */
+const cellCache = new Map();
+function cached(key, fn) { if (!cellCache.has(key)) cellCache.set(key, fn().catch((e) => { cellCache.delete(key); throw e; })); return cellCache.get(key); }
+function openCell() { if (!S.run) { toast('Load a run first'); return; } if (S.sel == null) S.sel = S.run.n_prompt; S.cellOpen = true; $('#cell').classList.add('open'); document.body.classList.add('cell-open'); markNav(); renderCell(); if (S.tab === 'tokens' || S.tab === 'compare') setTimeout(renderView, 240); }
+function closeCell() { S.cellOpen = false; $('#cell').classList.remove('open'); document.body.classList.remove('cell-open'); markNav(); if (innerWidth >= 900 && (S.tab === 'tokens' || S.tab === 'compare')) setTimeout(renderView, 240); }
+function toggleCell() { S.cellOpen ? closeCell() : openCell(); }
+let cellReq = 0;
+function renderCell() {
+  const box = $('#cell'); const run = S.run; if (!run) return;
+  const i = S.sel, L = S.layer, t = run.tokens[i];
+  const req = ++cellReq;
+  box.innerHTML = '';
+  const layers = Array.from({ length: nLayers() }, (_, k) => k);
+  const head = h('div', { class: 'chead' },
+    h('div', { class: 'row tight' },
+      h('strong', { class: 'grow', text: 'Cell detail' }),
+      h('button', { class: 'btn sm', title: 'Note about this cell', text: '+ Note', onclick: openNoteDlg }),
+      h('button', { class: 'btn sm icon', title: 'Close (Esc)', text: '✕', onclick: closeCell })),
+    h('div', { class: 'row tight' },
+      h('button', { class: 'btn sm icon', title: 'Previous token', text: '‹', onclick: () => setSel(i - 1) }),
+      h('span', { class: 'small muted', text: '#' + i }),
+      h('span', { class: 'chip', style: 'font-size:13px', text: showTok(t.text) }),
+      h('span', { class: 'badge', style: `color:rgb(${roleRGB(t.role)})`, text: t.role }),
+      h('button', { class: 'btn sm icon', title: 'Next token', text: '›', onclick: () => setSel(i + 1) }),
+      h('span', { class: 'grow' }),
+      h('button', { class: 'btn sm icon', title: 'Layer down (↓)', text: '−', onclick: () => setLayer(L - 1) }),
+      h('select', { 'aria-label': 'layer', onchange: (e) => setLayer(+e.target.value) }, layers.map((k) => h('option', { value: k, text: 'L' + k, selected: k === L }))),
+      h('button', { class: 'btn sm icon', title: 'Layer up (↑)', text: '+', onclick: () => setLayer(L + 1) })));
+  const body = h('div', { class: 'cbody' });
+  box.append(head, body);
+  const secAxes = h('div', { class: 'section' }, h('h3', { text: 'Axes at this token' }), h('div', { class: 'muted small', text: 'loading…' }));
+  const secLens = h('div', { class: 'section' }, h('h3', { text: `Logit lens at L${L} (top 10)` }), h('div', { class: 'muted small', text: 'loading…' }));
+  const secTc = h('div', { class: 'section' }, h('h3', { text: `Transcoder features at L${L}` }), h('div', { class: 'muted small' }, h('span', { class: 'spinner' }), ' loading…'));
+  const secSae = L === 17 ? h('div', { class: 'section' }, h('h3', { text: 'SAE-17 features' }), h('div', { class: 'muted small', text: 'loading…' })) : null;
+  const secAttn = h('div', { class: 'section' }, h('h3', { text: `Attention from this token at L${L}` }), h('div', { class: 'muted small', text: 'loading…' }));
+  body.append(secAxes, secLens, secTc, secSae || '', secAttn);
+  const ckey = run.id + '|' + L + '|' + i;
+  cached('c' + ckey, () => api(`cell?run=${encodeURIComponent(run.id)}&layer=${L}&pos=${i}`)).then((c) => {
+    if (req !== cellReq) return;
+    fillAxes(secAxes, c, run, i); fillLens(secLens, c, L); fillTc(secTc, c, L); if (secSae) fillSae(secSae, c);
+  }).catch((e) => { if (req !== cellReq) return; [secAxes, secLens, secTc, secSae].forEach((s) => s && s.lastChild.replaceWith(h('div', { class: 'small', style: 'color:var(--danger)', text: 'Error: ' + e.message }))); });
+  cached('a' + ckey, () => api(`attn?run=${encodeURIComponent(run.id)}&layer=${L}&pos=${i}`)).then((a) => { if (req === cellReq) fillAttn(secAttn, a, run, i); })
+    .catch((e) => { if (req === cellReq) secAttn.lastChild.replaceWith(h('div', { class: 'small', style: 'color:var(--danger)', text: 'Error: ' + e.message })); });
+}
+function fillAxes(sec, c, run, i) {
+  const ax = c.axes || {}; const desc = Object.assign({}, (S.meta && S.meta.axes) || {});
+  const near = ax.layer != null ? ax.layer : axisLayers().length ? axisLayers()[nearestIdx(axisLayers(), c.layer)] : c.layer;
+  const g = h('div', { class: 'axgrid' });
+  const rows = Object.entries(ax).filter(([k]) => k !== 'layer');
+  for (const p of probeDefs(run)) { rows.push([p.id + probeTag(p), probeVals(run, p.id)[i]]); desc[p.id + probeTag(p)] = p.desc || ''; }
+  for (const [k, v] of rows) g.append(h('span', { title: desc[k] || '', text: k }), h('div', { class: 'axtrack', title: desc[k] || '' }, h('i', { style: `width:${clamp((v || 0) * 100, 0, 100)}%;background:${axisColor(k.split(' ')[0], 0)}` })), h('span', { class: 'num', style: 'text-align:right', text: fmt(v) }));
+  sec.lastChild.replaceWith(h('div', {}, g, h('p', { class: 'desc', text: `Axes read at the nearest axis layer (L${near}); probes are always read at their own layer (in brackets). Bars span 0 → 1.` })));
+}
+function bars(items, opts = {}) {
+  const mx = Math.max(1e-9, ...items.map((x) => x.v)); const box = h('div', { class: 'blist' });
+  for (const it of items) box.append(h('div', { class: 'bi' + (it.click ? ' click' : '') + (it.chosen ? ' chosen' : ''), onclick: it.click, title: it.title || '' },
+    h('span', { class: 't', text: it.label }), h('div', {}, h('div', { class: 'bar' + (it.alt ? ' alt' : ''), style: `width:${clamp((it.v / (opts.max || mx)) * 100, 0, 100)}%` })), h('span', { class: 'v', text: opts.pct ? pct(it.v) : fmt(it.v) })));
+  return box;
+}
+function fillLens(sec, c) {
+  const items = (c.lens || []).map(([t, p]) => ({ label: showTok(t), v: p }));
+  sec.lastChild.replaceWith(h('div', {}, items.length ? bars(items, { pct: true, max: 1 }) : h('div', { class: 'muted small', text: 'No lens data.' }), h('p', { class: 'desc', text: 'Next-token guess if the residual at this layer were decoded directly.' })));
+}
+function srcTitle(src) {
+  const m = Object.assign({ ours: 'Label written by the project for this layer-17 SAE feature', neuronpedia: 'Automatic label from Neuronpedia' }, (S.meta && S.meta.label_sources) || {});
+  return (m[src] || src || '') + '. Labels are best guesses from example texts, not proofs.';
+}
+function fillTc(sec, c, L) {
+  const feats = c.transcoder || [];
+  if (!feats.length) { sec.lastChild.replaceWith(h('div', { class: 'muted small', text: 'No active transcoder features.' })); return; }
+  const mx = Math.max(...feats.map((f) => f.act || 0), 1e-9);
+  const list = h('div');
+  for (const f of feats) {
+    const detail = h('div', { class: 'hidden small', style: 'margin-top:6px;padding:8px;background:var(--surface2);border-radius:8px' });
+    const row = h('div', { class: 'feat', title: [f.group, f.confidence ? 'confidence: ' + f.confidence : '', f.concept].filter(Boolean).join(' · ') },
+      h('div', { class: 'top' },
+        h('span', { class: 'lbl', text: f.label || '(unlabelled)' }),
+        h('span', { class: 'badge ' + (f.source || ''), text: f.source || '?', title: srcTitle(f.source) }),
+        h('span', { class: 'key', text: f.key }),
+        h('span', { class: 'grow' }),
+        h('span', { class: 'num small', text: fmt(f.act) })),
+      h('div', { class: 'hbar', style: `width:${clamp((f.act / mx) * 100, 1, 100)}%` }),
+      f.logits && f.logits.length ? h('div', { class: 'chips' }, h('span', { class: 'small muted', text: 'promotes' }), f.logits.slice(0, 8).map((t) => h('span', { class: 'chip', text: showTok(t) }))) : null,
+      f.snippet ? h('div', { class: 'snip', html: snippetHTML(f.snippet) }) : null,
+      detail);
+    row.addEventListener('click', (e) => { if (e.target.closest('a')) return; toggleFeature(f.key, detail); });
+    list.append(row);
+  }
+  sec.lastChild.replaceWith(h('div', {}, h('p', { class: 'desc', style: 'margin:0 0 4px', text: `Top ${feats.length} by activation. Badges: atlas / v16 = the project's labels, gemmascope = unlabelled (shows Gemma Scope example text). Labels are LLM-written best guesses. Tap a feature for its examples.` }), list));
+}
+async function toggleFeature(key, box) {
+  if (!box.classList.contains('hidden')) { box.classList.add('hidden'); return; }
+  box.classList.remove('hidden'); box.textContent = 'loading…';
+  try {
+    const f = await cached('f' + key, () => api('feature?key=' + encodeURIComponent(key)));
+    box.innerHTML = '';
+    if (f.label) box.append(h('div', { style: 'font-weight:600', text: f.label }));
+    if (f.concept) box.append(h('div', { text: f.concept }));
+    if (f.note) box.append(h('div', { class: 'muted', text: 'Note: ' + f.note }));
+    if (f.logits && f.logits.length) box.append(h('div', { class: 'chips' }, h('span', { class: 'muted', text: 'logits' }), f.logits.map((t) => h('span', { class: 'chip', text: showTok(Array.isArray(t) ? t[0] : t) }))));
+    for (const sn of f.snippets || []) box.append(h('div', { class: 'snip', html: snippetHTML(typeof sn === 'string' ? sn : (sn.text || sn.snippet || JSON.stringify(sn))) }));
+    for (const [k, v] of Object.entries(f)) if (!['key', 'label', 'concept', 'note', 'logits', 'snippets', 'error'].includes(k) && v != null && typeof v !== 'object') box.append(h('div', { class: 'muted', text: k + ': ' + v }));
+  } catch (e) { box.textContent = 'Error: ' + e.message; }
+}
+function fillSae(sec, c) {
+  const feats = c.sae17 || [];
+  if (!feats.length) { sec.lastChild.replaceWith(h('div', { class: 'muted small', text: 'No active SAE-17 features.' })); return; }
+  const mx = Math.max(...feats.map((f) => f.act || 0), 1e-9);
+  sec.lastChild.replaceWith(h('div', {}, feats.map((f) => h('div', { class: 'feat', style: 'cursor:default' },
+    h('div', { class: 'top' },
+      h('span', { class: 'lbl', text: f.label || '(unlabelled)' }),
+      h('span', { class: 'badge ' + (f.source || ''), text: f.source || '?', title: srcTitle(f.source) }),
+      f.url ? h('a', { href: f.url, target: '_blank', rel: 'noopener', class: 'key', text: '#' + f.feat + ' ↗' }) : h('span', { class: 'key', text: '#' + f.feat }),
+      h('span', { class: 'grow' }), h('span', { class: 'num small', text: fmt(f.act) })),
+    h('div', { class: 'hbar', style: `width:${clamp((f.act / mx) * 100, 1, 100)}%;background:var(--s2)` })))));
+}
+function fillAttn(sec, a, run, i) {
+  const nh = (a.heads || []).length;
+  const render = () => {
+    const w = S.attnHead === 'mean' || !a.heads || !a.heads[S.attnHead] ? a.mean : a.heads[S.attnHead];
+    const hide = S.attnHideBos;
+    const body = w.map((x, j) => (hide && j === 0 ? 0 : x));
+    const mx = Math.max(1e-9, ...body);
+    const wrap = h('div');
+    wrap.append(h('div', { class: 'row tight', style: 'margin-bottom:6px' },
+      h('div', { class: 'seg', style: 'flex-wrap:wrap' }, ['mean', ...Array.from({ length: nh }, (_, k) => k)].map((k) => h('button', { class: S.attnHead === k ? 'on' : '', text: k === 'mean' ? 'mean' : 'h' + k, onclick: () => { S.attnHead = k; sec.lastChild.replaceWith(render()); } }))),
+      h('label', { class: 'row tight small muted' }, h('input', { type: 'checkbox', checked: hide, onchange: (e) => { S.attnHideBos = e.target.checked; saveSoon(); sec.lastChild.replaceWith(render()); } }), 'rescale without <bos>')));
+    if (hide) wrap.append(h('div', { class: 'small muted', text: `<bos> takes ${pct(w[0])} (attention sink); colours rescaled to the rest.` }));
+    // bar chart
+    const Wd = 460, Hd = 70, n = w.length, bw = Wd / n;
+    let svg = `<svg viewBox="0 0 ${Wd} ${Hd}" preserveAspectRatio="none" style="width:100%;height:${Hd}px;display:block">`;
+    for (let j = 0; j < n; j++) { const v = hide && j === 0 ? 0 : w[j]; const hh = (v / mx) * (Hd - 4); svg += `<rect x="${(j * bw).toFixed(2)}" y="${(Hd - hh).toFixed(2)}" width="${Math.max(0.6, bw - (bw > 3 ? 1 : 0)).toFixed(2)}" height="${hh.toFixed(2)}" fill="${j === i ? 'var(--s2)' : 'var(--s1)'}"><title>#${j} ${esc(showTok(tokText(run, j)))}: ${pct(w[j])}</title></rect>`; }
+    svg += '</svg>';
+    wrap.append(h('div', { class: 'chart', html: svg, style: 'border-bottom:1px solid var(--axis);margin-bottom:6px' }));
+    // token strip
+    const strip = h('div', { class: 'attstrip' });
+    const frag = document.createDocumentFragment();
+    for (let j = 0; j < n; j++) {
+      const sp = document.createElement('span'); sp.textContent = tokText(run, j).replace(/\n/g, '↵\n');
+      const v = hide && j === 0 ? 0 : w[j]; const tt = v / mx;
+      if (tt > 0.02) sp.style.background = rgba(SEQ(), 0.06 + 0.8 * tt);
+      if (j === i) sp.className = 'q';
+      sp.title = `#${j}: ${pct(w[j])}`; sp.dataset.j = j; frag.append(sp);
+    }
+    strip.append(frag);
+    strip.addEventListener('click', (e) => { const s = e.target.closest('span[data-j]'); if (s) setSel(+s.dataset.j); });
+    wrap.append(strip);
+    // top list
+    const top = w.map((v, j) => ({ j, v })).filter((x) => !(hide && x.j === 0)).sort((x, y) => y.v - x.v).slice(0, 10);
+    wrap.append(h('h3', { style: 'margin-top:10px', text: 'Most attended' }), bars(top.map((x) => ({ label: `#${x.j} ${showTok(tokText(run, x.j))}`, v: x.v, click: () => setSel(x.j), title: 'select this token' })), { pct: true }));
+    wrap.append(h('p', { class: 'desc', text: 'Where this token reads from: attention weights from the query token (outlined) to every earlier token, averaged over heads or for one head. Tap a token to jump to it.' }));
+    return wrap;
+  };
+  if (S.attnHead !== 'mean' && S.attnHead >= nh) S.attnHead = 'mean';
+  sec.lastChild.replaceWith(render());
+}
+
+/* ====================================================================
+   5. STEPS
+   ==================================================================== */
+function stopPlay() { if (S.playing) { clearInterval(S.playing); S.playing = null; } }
+function renderSteps() {
+  const sec = $('#v-steps'); if (!S.run) return noRun(sec);
+  const run = S.run; const steps = run.steps || [];
+  sec.innerHTML = '';
+  if (!steps.length) { sec.append(h('div', { class: 'card empty', text: 'This run has no generated steps.' })); return; }
+  S.step = clamp(S.step, 0, steps.length - 1);
+  const st = steps[S.step]; const pos = st.pos;
+  const go = (k) => { S.step = clamp(k, 0, steps.length - 1); setSel(steps[S.step].pos, { fromSteps: true }); renderSteps(); saveSoon(); };
+  const slider = h('input', { type: 'range', min: 0, max: steps.length - 1, value: S.step, 'aria-label': 'step', oninput: (e) => go(+e.target.value) });
+  sec.append(h('div', { class: 'card' },
+    h('div', { class: 'stepnav' },
+      h('button', { class: 'btn icon', title: 'Previous step', text: '‹', onclick: () => go(S.step - 1) }),
+      slider,
+      h('button', { class: 'btn icon', title: 'Next step', text: '›', onclick: () => go(S.step + 1) }),
+      h('button', { class: 'btn', text: S.playing ? '❚❚' : '▶', title: 'Play', onclick: () => {
+        if (S.playing) { stopPlay(); renderSteps(); return; }
+        if (S.step >= steps.length - 1) S.step = 0;
+        S.playing = setInterval(() => { if (S.step >= steps.length - 1) { stopPlay(); renderSteps(); return; } go(S.step + 1); }, 650); renderSteps();
+      } })),
+    h('div', { class: 'row small muted', style: 'margin-top:4px' }, h('span', { text: `Step ${S.step + 1} / ${steps.length}` }), h('span', { text: `· position #${pos}` }), h('span', { class: 'grow' }),
+      h('button', { class: 'btn sm', text: 'Cell at decision ▸', title: 'Open the cell at the position that produced this token', onclick: () => { setSel(pos - 1, { fromSteps: true }); openCell(); } }))));
+  // text so far
+  const txt = h('div', { class: 'steptext' });
+  const ctxStart = Math.max(0, run.n_prompt - 14);
+  txt.append(h('span', { class: 'ctx', text: '… ' + run.tokens.slice(ctxStart, run.n_prompt).map((t) => t.text).join('') }));
+  txt.append(h('span', { text: run.tokens.slice(run.n_prompt, pos).map((t) => t.text).join('') }));
+  txt.append(h('span', { class: 'cur', text: st.token }));
+  sec.append(h('div', { class: 'card' }, h('h3', { text: 'Text so far' }), txt));
+  // alternatives
+  const alts = (st.alts || []).map(([t, p]) => ({ label: showTok(t), v: p, chosen: t === st.token, alt: t !== st.token }));
+  const chosenP = (st.alts || []).find((x) => x[0] === st.token);
+  const altCard = h('div', { class: 'card' },
+    h('h3', { text: 'Chosen token & alternatives' }),
+    h('div', { class: 'row', style: 'margin-bottom:6px' }, h('span', { class: 'chip', style: 'font-size:15px', text: showTok(st.token) }), h('span', { class: 'muted small', text: chosenP ? `p = ${pct(chosenP[1])}` : 'not in top alternatives (sampled)' })),
+    bars(alts, { pct: true, max: 1 }),
+    h('p', { class: 'desc', text: 'Next-token distribution computed at the previous position (#' + (pos - 1) + '); the highlighted bar is what was produced.' }));
+  // state table
+  const prev = pos - 1;
+  const L = S.axisLayer;
+  const rows = [];
+  for (const a of axisNames()) rows.push({ g: 'Axes @L' + L, name: a, a: (axisRow(run, a, L) || [])[prev], b: (axisRow(run, a, L) || [])[pos], tip: (S.meta.axes || {})[a] });
+  for (const p of probeDefs(run)) { const pv = probeVals(run, p.id); rows.push({ g: 'Axes @L' + L, name: p.id + probeTag(p), a: pv[prev], b: pv[pos], tip: p.desc }); }
+  for (const k of Object.keys(run.watch || {})) { const w = watchInfo(k); rows.push({ g: 'Watched', name: w.label, key: k, a: run.watch[k][prev], b: run.watch[k][pos], tip: watchKind(k) }); }
+  const tb = h('tbody'); let lastG = null;
+  for (const r of rows) {
+    if (r.g !== lastG) { tb.append(h('tr', { class: 'grp' }, h('td', { colspan: 4, text: r.g }))); lastG = r.g; }
+    const d = isNum(r.a) && isNum(r.b) ? r.b - r.a : null;
+    tb.append(h('tr', { title: r.tip || '' }, h('td', {}, r.name, r.key ? h('div', { class: 'key mono small muted', text: r.key }) : null), h('td', { text: fmt(r.a) }), h('td', { text: fmt(r.b) }), h('td', { class: d > 0 ? 'pos' : d < 0 ? 'neg' : '', text: d == null ? '–' : (d > 0 ? '+' : '') + fmt(d) })));
+  }
+  const tableCard = h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('h3', { class: 'grow', text: 'Model state around this step' }), layerSelect(axisLayers(), S.axisLayer, (v) => { S.axisLayer = v; renderSteps(); saveSoon(); }, 'axis layer')),
+    h('div', { class: 'tblwrap' }, h('table', { class: 'tbl' }, h('thead', {}, h('tr', {}, h('th', { text: '' }), h('th', { text: '#' + prev + ' choosing' }), h('th', { text: '#' + pos + ' reading it' }), h('th', { text: 'Δ' }))), tb)),
+    h('p', { class: 'desc', text: '"choosing" = activations at the position whose output produced this token; "reading it" = activations once the token is fed back in.' }));
+  // lens by layer at decision point
+  const lensT = h('tbody');
+  (run.lens_layers || []).forEach((Lk, li) => {
+    const top = (run.lens[li] || [])[prev] || [];
+    lensT.append(h('tr', {}, h('td', { text: 'L' + Lk }), ...[0, 1, 2].map((q) => { const x = top[q]; return h('td', { class: x && x[0] === st.token ? 'hit' : '', style: 'text-align:left' }, x ? h('span', { class: 'mono', text: showTok(x[0]) }) : '–', x ? h('span', { class: 'muted small', text: ' ' + pct(x[1]) }) : null); })));
+  });
+  const lensCard = h('div', { class: 'card' }, h('h3', { text: 'Logit lens at the decision point, by layer' }),
+    h('div', { class: 'tblwrap' }, h('table', { class: 'tbl lensgrid' }, h('thead', {}, h('tr', {}, h('th', { text: 'layer' }), h('th', { style: 'text-align:left', text: 'top 1' }), h('th', { style: 'text-align:left', text: 'top 2' }), h('th', { style: 'text-align:left', text: 'top 3' }))), lensT)),
+    h('p', { class: 'desc', text: 'Highlighted = the token that was finally produced. Watch at which depth it appears.' }));
+  sec.append(h('div', { class: 'cols two' }, h('div', {}, altCard, lensCard), h('div', {}, tableCard)));
+}
+
+/* ====================================================================
+   6. WATCH
+   ==================================================================== */
+function sparkSVG(vals, run, sel, color) {
+  const T = vals.length, W = 300, H = 54;
+  const mx = Math.max(1e-9, ...vals.filter(isNum));
+  const X = (i) => (i / Math.max(1, T - 1)) * W, Y = (v) => H - 2 - (v / mx) * (H - 6);
+  let s = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  const g0 = run.n_prompt; if (g0 < T) s += `<rect x="${X(g0) - 0.5}" y="0" width="${W - X(g0) + 0.5}" height="${H}" fill="rgba(${roleRGB('generated')},.10)"/>`;
+  s += `<line x1="0" x2="${W}" y1="${H - 2}" y2="${H - 2}" stroke="var(--axis)" vector-effect="non-scaling-stroke"/>`;
+  let d = ''; vals.forEach((v, i) => { if (isNum(v)) d += (d ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(Math.max(0, v)).toFixed(1); });
+  s += `<path d="${d}" fill="none" stroke="${color}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`;
+  if (sel != null) s += `<line class="wsel" x1="${X(sel)}" x2="${X(sel)}" y1="0" y2="${H}" stroke="var(--ink)" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>`;
+  return s + '</svg>';
+}
+function watchStats(vals, run) {
+  const reg = S.watchRegion === 'reply' ? [run.n_prompt, vals.length - 1] : [1, vals.length - 1];
+  let mx = -Infinity, at = -1, sum = 0, n = 0;
+  for (let i = reg[0]; i <= reg[1]; i++) { const v = vals[i]; if (!isNum(v)) continue; if (v > mx) { mx = v; at = i; } sum += v; n++; }
+  return { max: n ? mx : null, at, mean: n ? sum / n : null };
+}
+function renderWatch() {
+  const sec = $('#v-watch'); if (!S.run) return noRun(sec);
+  const run = S.run; sec.innerHTML = '';
+  const filter = h('input', { type: 'search', placeholder: 'filter by label, key or group', style: 'flex:1 1 200px', value: S.watchFilter, oninput: debounce((e) => { S.watchFilter = e.target.value; renderWatchGrid(); }, 120) });
+  sec.append(h('div', { class: 'card' },
+    h('div', { class: 'row' }, filter,
+      h('select', { 'aria-label': 'sort', onchange: (e) => { S.watchSort = e.target.value; renderWatchGrid(); saveSoon(); } },
+        [['max', 'Sort: max activation'], ['sel', 'Sort: value at selected token'], ['group', 'Sort: group']].map(([k, l]) => h('option', { value: k, text: l, selected: S.watchSort === k }))),
+      h('div', { class: 'seg' }, [['all', 'All tokens'], ['reply', 'Reply only']].map(([k, l]) => h('button', { class: S.watchRegion === k ? 'on' : '', text: l, onclick: () => { S.watchRegion = k; renderWatch(); saveSoon(); } })))),
+    h('p', { class: 'desc', text: 'One sparkline per watched feature/neuron across all tokens (own y-scale each; the shaded region is the reply). Tap a sparkline to select that token; "colour" paints the Tokens view by it.' })));
+  sec.append(h('div', { class: 'wgrid', id: 'wgrid' }));
+  renderWatchGrid();
+}
+function renderWatchGrid() {
+  const run = S.run; const grid = $('#wgrid'); if (!grid) return; grid.innerHTML = '';
+  const q = S.watchFilter.trim().toLowerCase();
+  let items = Object.keys(run.watch || {}).map((k) => { const w = watchInfo(k); return { k, ...w, vals: run.watch[k], st: watchStats(run.watch[k], run) }; });
+  if (q) items = items.filter((x) => (x.k + ' ' + x.label + ' ' + x.group).toLowerCase().includes(q));
+  if (S.watchSort === 'max') items.sort((a, b) => (b.st.max || 0) - (a.st.max || 0));
+  else if (S.watchSort === 'sel') items.sort((a, b) => (b.vals[S.sel] || 0) - (a.vals[S.sel] || 0));
+  else items.sort((a, b) => a.group.localeCompare(b.group) || (b.st.max || 0) - (a.st.max || 0));
+  if (!items.length) grid.append(h('div', { class: 'muted', text: 'No watched features match.' }));
+  for (const it of items) {
+    const svgBox = h('div', { html: sparkSVG(it.vals, run, S.sel, 'var(--s1)') });
+    const svg = svgBox.firstChild;
+    const idxAt = (ev) => { const r = svg.getBoundingClientRect(); return clamp(Math.round(((ev.clientX - r.left) / r.width) * (it.vals.length - 1)), 0, it.vals.length - 1); };
+    svg.addEventListener('click', (ev) => { hideTip(); setSel(idxAt(ev)); });
+    svg.addEventListener('pointermove', (ev) => { if (ev.pointerType === 'touch') return; const i = idxAt(ev); showTip(`<div class="tt">#${i} ${esc(showTok(tokText(run, i)))}</div><div class="tv">${fmt(it.vals[i])}</div>`, ev.clientX, ev.clientY); });
+    svg.addEventListener('pointerleave', hideTip);
+    grid.append(h('div', { class: 'wcard', 'data-k': it.k, title: watchKind(it.k) },
+      h('div', { class: 'row tight', style: 'align-items:flex-start' },
+        h('div', { class: 'grow' }, h('div', { class: 'wl', text: it.label }), h('div', { class: 'wk', text: `${it.k} · ${it.group}` })),
+        h('button', { class: 'btn sm', title: 'Colour the Tokens view by this feature', text: 'colour', onclick: () => { S.measure = 'watch:' + it.k; setTab('tokens'); } })),
+      svgBox,
+      h('div', { class: 'wfoot' },
+        h('span', {}, 'max ', h('b', { class: 'num', text: fmt(it.st.max) }), it.st.at >= 0 ? h('span', { class: 'mono', style: 'cursor:pointer', title: 'select', onclick: () => setSel(it.st.at), text: ` at #${it.st.at} ${showTok(tokText(run, it.st.at)).slice(0, 12)}` }) : null),
+        h('span', { class: 'wselv' }, 'sel ', h('b', { class: 'num', text: fmt(it.vals[S.sel]) })))));
+  }
+}
+function updateWatchSel() {
+  const run = S.run; if (!run) return;
+  if (S.watchSort === 'sel') { renderWatchGrid(); return; }
+  $$('#wgrid .wcard').forEach((c) => {
+    const k = c.dataset.k; const vals = run.watch[k]; const svg = $('svg', c);
+    let ln = $('.wsel', svg); const x = (S.sel / Math.max(1, vals.length - 1)) * 300;
+    if (!ln) { ln = document.createElementNS('http://www.w3.org/2000/svg', 'line'); ln.setAttribute('class', 'wsel'); ln.setAttribute('y1', 0); ln.setAttribute('y2', 54); ln.setAttribute('stroke', 'var(--ink)'); ln.setAttribute('stroke-dasharray', '3 3'); ln.setAttribute('vector-effect', 'non-scaling-stroke'); svg.append(ln); }
+    ln.setAttribute('x1', x); ln.setAttribute('x2', x);
+    const b = $('.wselv b', c); if (b) b.textContent = fmt(vals[S.sel]);
+  });
+}
+
+/* ====================================================================
+   7. COMPARE
+   ==================================================================== */
+function alignOffset(run) {
+  if (S.cmp.align === 'reply') return run.n_prompt;
+  if (S.cmp.align === 'user') return lastUserStart(run);
+  return 0;
+}
+function regionRange(run) {
+  if (S.cmp.region === 'reply') return [run.n_prompt, run.tokens.length - 1];
+  if (S.cmp.region === 'prompt') return [1, run.n_prompt - 1];
+  if (S.cmp.region === 'lastuser') return [lastUserStart(run), run.tokens.length - 1];
+  return [1, run.tokens.length - 1];
+}
+function stats(vals, run) {
+  if (!vals) return { max: null, mean: null };
+  const [a, b] = regionRange(run); let mx = -Infinity, s = 0, n = 0;
+  for (let i = a; i <= b; i++) { const v = vals[i]; if (!isNum(v)) continue; mx = Math.max(mx, v); s += v; n++; }
+  return { max: n ? mx : null, mean: n ? s / n : null };
+}
+async function renderCompare() {
+  const sec = $('#v-compare'); sec.innerHTML = '';
+  if (!S.runs.length) { sec.append(h('div', { class: 'card empty' }, h('p', { text: 'No runs on the server yet.' }), h('button', { class: 'btn', text: 'Refresh', onclick: refreshRuns }))); return; }
+  if (!S.cmp.a) S.cmp.a = (S.run && S.run.id) || S.runs[0].id;
+  if (!S.cmp.b) S.cmp.b = (S.runs.find((r) => r.id !== S.cmp.a) || S.runs[0]).id;
+  const runSel = (key) => h('select', { 'aria-label': 'run ' + key, style: 'flex:1 1 0;min-width:0', onchange: (e) => { S.cmp[key] = e.target.value; saveSoon(); renderCompare(); } },
+    S.runs.map((r) => h('option', { value: r.id, selected: r.id === S.cmp[key], text: `${r.id}${r.label ? ' · ' + r.label : ''} — ${(r.first_user || '').slice(0, 50)}` })));
+  const seg = (key, opts) => h('div', { class: 'seg' }, opts.map(([k, l]) => h('button', { class: S.cmp[key] === k ? 'on' : '', text: l, onclick: () => { S.cmp[key] = k; saveSoon(); renderCompare(); } })));
+  const probeIds = probeDefs(null).map((p) => p.id);
+  const axisOpts = [...axisNames(), ...probeIds];
+  const cmpProbe = probeDefs(null).find((p) => p.id === S.cmp.axis);
+  sec.append(h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('span', { class: 'badge', style: 'color:var(--s1)', text: 'A' }), runSel('a'), h('button', { class: 'btn sm icon', title: 'Swap A and B', text: '⇅', onclick: () => { [S.cmp.a, S.cmp.b] = [S.cmp.b, S.cmp.a]; saveSoon(); renderCompare(); } })),
+    h('div', { class: 'row', style: 'margin-top:6px' }, h('span', { class: 'badge', style: 'color:var(--s2)', text: 'B' }), runSel('b'), h('span', { style: 'width:38px' })),
+    h('div', { class: 'row', style: 'margin-top:10px' },
+      h('select', { 'aria-label': 'axis', onchange: (e) => { S.cmp.axis = e.target.value; saveSoon(); renderCompare(); } }, axisOpts.map((a) => h('option', { value: a, text: a, selected: a === S.cmp.axis }))),
+      !cmpProbe ? layerSelect(axisLayers(), S.cmp.layer, (v) => { S.cmp.layer = v; saveSoon(); renderCompare(); }, 'layer') : null,
+      h('span', { class: 'small muted', text: 'align x by' }),
+      seg('align', [['index', 'token index'], ['reply', 'reply token k'], ['user', 'last user turn']]))));
+  const chartCard = h('div', { class: 'card' }, h('div', { class: 'muted small' }, h('span', { class: 'spinner' }), ' loading runs…'));
+  const tableCard = h('div', { class: 'card' });
+  sec.append(chartCard, tableCard);
+  let A, B;
+  try { [A, B] = await Promise.all([getRun(S.cmp.a), getRun(S.cmp.b)]); } catch (e) { chartCard.innerHTML = ''; chartCard.append(h('div', { style: 'color:var(--danger)', text: 'Error: ' + e.message })); return; }
+  if (S.tab !== 'compare') return;
+  // chart
+  chartCard.innerHTML = '';
+  const getVals = (r) => (cmpProbe ? probeVals(r, S.cmp.axis) : axisRow(r, S.cmp.axis, S.cmp.layer));
+  const offA = alignOffset(A), offB = alignOffset(B);
+  const series = [
+    { name: 'A ' + A.id, color: cssVar('--s1'), x0: -offA, values: getVals(A) },
+    { name: 'B ' + B.id, color: cssVar('--s2'), x0: -offB, values: getVals(B), dash: '6 3' },
+  ];
+  const xName = { index: 'token index', reply: 'reply token k (0 = first generated)', user: 'tokens from the start of the last user turn' }[S.cmp.align];
+  chartCard.append(
+    h('div', { class: 'row' }, h('h2', { class: 'grow', text: `${S.cmp.axis}${cmpProbe ? probeTag(cmpProbe) : ' @L' + S.cmp.layer}: A vs B` })),
+    h('div', { class: 'legend' }, h('span', { class: 'key' }, h('span', { class: 'sw', style: `background:${series[0].color}` }), `A ${A.id}${A.label ? ' · ' + A.label : ''}`), h('span', { class: 'key' }, h('span', { class: 'sw', style: `background:repeating-linear-gradient(90deg,${series[1].color} 0 6px,transparent 6px 9px)` }), `B ${B.id}${B.label ? ' · ' + B.label : ''} (dashed)`)),
+    h('div', { id: 'cmpchart', style: 'margin-top:6px' }),
+    h('p', { class: 'desc', text: `x = ${xName}. ${S.cmp.align !== 'index' ? 'Negative x = prompt tokens before the anchor. ' : ''}${(cmpProbe ? cmpProbe.desc : (S.meta.axes || {})[S.cmp.axis]) || ''}` }));
+  const bands = S.cmp.align === 'index' ? null : [{ x0: 0, x1: Math.max(A.tokens.length - offA, B.tokens.length - offB), role: S.cmp.align === 'reply' ? 'generated' : 'user' }];
+  lineChart($('#cmpchart'), {
+    series, yFixed: [0, 1], bands, aria: 'compare runs',
+    tipHead: (x) => `<div class="muted small">x = ${x}</div><div class="tt">A: ${esc(showTok(tokText(A, x + offA)))}</div><div class="tt">B: ${esc(showTok(tokText(B, x + offB)))}</div>`,
+    onSelect: (x) => { if (S.run && S.run.id === A.id) setSel(x + offA); },
+  });
+  // table
+  const rows = [];
+  for (const a of axisNames()) rows.push({ g: 'Axes @L' + S.cmp.layer, name: a, va: axisRow(A, a, S.cmp.layer), vb: axisRow(B, a, S.cmp.layer) });
+  for (const p of probeDefs(null)) rows.push({ g: 'Axes @L' + S.cmp.layer, name: p.id + probeTag(p), va: probeVals(A, p.id), vb: probeVals(B, p.id) });
+  const keys = Array.from(new Set([...Object.keys(A.watch || {}), ...Object.keys(B.watch || {})]));
+  const wrows = keys.map((k) => ({ g: 'Watched', name: watchInfo(k).label, key: k, va: (A.watch || {})[k], vb: (B.watch || {})[k] }));
+  const calc = (r) => { const sa = stats(r.va, A), sb = stats(r.vb, B); return { ...r, sa, sb, dmax: isNum(sa.max) && isNum(sb.max) ? sb.max - sa.max : null, dmean: isNum(sa.mean) && isNum(sb.mean) ? sb.mean - sa.mean : null }; };
+  const ax = rows.map(calc); const wf = wrows.map(calc).sort((x, y) => Math.abs(y.dmax || 0) - Math.abs(x.dmax || 0));
+  const maxD = Math.max(1e-9, ...wf.map((r) => Math.abs(r.dmax || 0)));
+  const tb = h('tbody');
+  const addRows = (list, scaleD) => {
+    let lastG = null;
+    for (const r of list) {
+      if (r.g !== lastG) { tb.append(h('tr', { class: 'grp' }, h('td', { colspan: 7, text: r.g }))); lastG = r.g; }
+      const dcell = (d) => h('td', { class: d > 0 ? 'pos' : d < 0 ? 'neg' : '' }, d == null ? '–' : (d > 0 ? '+' : '') + fmt(d));
+      tb.append(h('tr', { title: r.key ? watchKind(r.key) : '' },
+        h('td', {}, r.name, r.key ? h('div', { class: 'mono small muted', text: r.key }) : null),
+        h('td', { text: fmt(r.sa.max) }), h('td', { text: fmt(r.sb.max) }),
+        h('td', { class: r.dmax > 0 ? 'pos' : r.dmax < 0 ? 'neg' : '' }, r.dmax == null ? '–' : (r.dmax > 0 ? '+' : '') + fmt(r.dmax), scaleD && r.dmax != null ? h('span', { class: 'diffbar', style: `width:${(Math.abs(r.dmax) / scaleD) * 40}px;background:${r.dmax > 0 ? `rgb(${roleRGB('generated')})` : 'var(--s1)'}` }) : null),
+        h('td', { text: fmt(r.sa.mean) }), h('td', { text: fmt(r.sb.mean) }), dcell(r.dmean)));
+    }
+  };
+  addRows(ax, null); addRows(wf, maxD);
+  tableCard.append(
+    h('div', { class: 'row' }, h('h2', { class: 'grow', text: 'Watched features: A vs B' }), h('span', { class: 'small muted', text: 'over' }),
+      seg('region', [['all', 'all'], ['prompt', 'prompt'], ['lastuser', 'last user →'], ['reply', 'reply']])),
+    h('div', { class: 'tblwrap' }, h('table', { class: 'tbl' },
+      h('thead', {}, h('tr', {}, h('th', { text: 'feature' }), h('th', { text: 'max A' }), h('th', { text: 'max B' }), h('th', { text: 'Δ max (B−A)' }), h('th', { text: 'mean A' }), h('th', { text: 'mean B' }), h('th', { text: 'Δ mean' }))), tb)),
+    h('p', { class: 'desc', text: 'Watched features sorted by |Δ max|. Positive (orange) = stronger in B. <bos> is excluded from all statistics.' }));
+}
+
+/* ====================================================================
+   8. RUNS & NOTES
+   ==================================================================== */
+function renderRuns() {
+  const sec = $('#v-runs'); sec.innerHTML = '';
+  const runsCard = h('div', { class: 'card' }, h('div', { class: 'row' }, h('h2', { class: 'grow', text: 'Runs' }), h('button', { class: 'btn sm', text: 'Refresh', onclick: refreshRuns })));
+  if (!S.runs.length) runsCard.append(h('div', { class: 'muted small', text: 'No runs yet.' }));
+  for (const r of S.runs) {
+    runsCard.append(h('div', { class: 'item' + (S.run && S.run.id === r.id ? ' cur' : '') },
+      h('div', { class: 'row tight' }, h('b', { text: r.id }), r.label ? h('span', { text: r.label }) : null, h('span', { class: 'meta grow', text: r.created || '' }),
+        h('button', { class: 'btn sm primary', text: 'Open', onclick: () => loadRun(r.id) }),
+        h('button', { class: 'btn sm', title: 'Use as compare A', text: 'A', onclick: () => { S.cmp.a = r.id; setTab('compare'); } }),
+        h('button', { class: 'btn sm', title: 'Use as compare B', text: 'B', onclick: () => { S.cmp.b = r.id; setTab('compare'); } })),
+      r.first_user ? h('div', { class: 'txt' }, h('span', { class: 'muted', text: 'user: ' }), r.first_user) : null,
+      r.reply_start ? h('div', { class: 'txt' }, h('span', { class: 'muted', text: 'reply: ' }), r.reply_start) : null));
+  }
+  // notes
+  const ta = h('textarea', { rows: 3, placeholder: S.run ? `Note about ${S.run.id} (captures the current view)` : 'Note (no run loaded)' });
+  const onlyCur = h('input', { type: 'checkbox', checked: !!S._notesOnlyCur, onchange: (e) => { S._notesOnlyCur = e.target.checked; renderRuns(); } });
+  const notesCard = h('div', { class: 'card' },
+    h('div', { class: 'row' }, h('h2', { class: 'grow', text: 'Notes' }), h('label', { class: 'row tight small muted' }, onlyCur, 'this run only'), h('button', { class: 'btn sm', text: 'Refresh', onclick: refreshNotes })),
+    ta, h('div', { class: 'row', style: 'margin:6px 0 10px' }, h('span', { class: 'small muted grow', text: viewSummary(captureView()) }), h('button', { class: 'btn primary', text: 'Save note', onclick: async (e) => { if (await saveNote(ta.value, e.target)) ta.value = ''; } })));
+  let notes = S.notes || [];
+  if (S._notesOnlyCur && S.run) notes = notes.filter((n) => n.run === S.run.id);
+  if (!notes.length) notesCard.append(h('div', { class: 'muted small', text: 'No notes yet.' }));
+  for (const n of notes) {
+    const v = n.view && typeof n.view === 'object' ? n.view : null;
+    notesCard.append(h('div', { class: 'item' },
+      h('div', { class: 'row tight' }, h('span', { class: 'meta grow', text: [n.created || n.time || '', n.run ? 'run ' + n.run : ''].filter(Boolean).join(' · ') }),
+        v ? h('button', { class: 'btn sm', text: 'Open view', title: viewSummary(v), onclick: () => restoreView(v, n.run) }) : null),
+      h('div', { class: 'txt', text: n.text || '' }),
+      v ? h('div', { class: 'meta', text: viewSummary(v) }) : null));
+  }
+  sec.append(h('div', { class: 'cols two' }, runsCard, notesCard));
+}
+function captureView() {
+  const run = S.run;
+  return {
+    tab: S.tab, run: run ? run.id : null,
+    sel: S.sel, token: run && S.sel != null && run.tokens[S.sel] ? run.tokens[S.sel].text : null,
+    role: run && S.sel != null && run.tokens[S.sel] ? run.tokens[S.sel].role : null,
+    layer: S.layer, axisLayer: S.axisLayer, normLayer: S.normLayer, lensLayer: S.lensLayer,
+    measure: S.measure, heat: { ...S.heat }, cell_open: S.cellOpen, attnHead: S.attnHead,
+    step: S.step, watchFilter: S.watchFilter, watchSort: S.watchSort,
+    compare: { a: S.cmp.a, b: S.cmp.b, axis: S.cmp.axis, layer: S.cmp.layer, align: S.cmp.align, region: S.cmp.region },
+  };
+}
+function viewSummary(v) {
+  if (!v) return '';
+  const parts = [v.tab || '?'];
+  if (v.run) parts.push(v.run);
+  if (v.sel != null) parts.push(`#${v.sel}${v.token != null ? ' "' + showTok(v.token) + '"' : ''}`);
+  if (v.tab === 'tokens' && v.measure) parts.push(v.measure + (String(v.measure).startsWith('axis:') ? '@L' + v.axisLayer : ''));
+  if (v.tab === 'heat' && v.heat) parts.push(v.heat.mode);
+  if (v.cell_open) parts.push('cell L' + v.layer);
+  if (v.tab === 'steps') parts.push('step ' + ((v.step || 0) + 1));
+  if (v.tab === 'compare' && v.compare) parts.push(`${v.compare.a} vs ${v.compare.b}`);
+  return parts.join(' · ');
+}
+async function saveNote(text, btn) {
+  text = (text || '').trim(); if (!text) { toast('Write something first', true); return false; }
+  const view = captureView();
+  if (btn) btn.disabled = true;
+  try { await api('note', { method: 'POST', body: { run: view.run, text, view } }); toast('Note saved'); refreshNotes(); return true; }
+  catch (e) { toast('Note failed: ' + e.message, true); return false; }
+  finally { if (btn) btn.disabled = false; }
+}
+async function restoreView(v, runId) {
+  const id = v.run || runId;
+  if (id && (!S.run || S.run.id !== id)) { try { await loadRun(id, { keepView: true }); } catch (e) { return; } }
+  for (const k of ['layer', 'axisLayer', 'normLayer', 'lensLayer', 'measure', 'step', 'watchFilter', 'watchSort']) if (v[k] != null) S[k] = v[k];
+  if (v.heat) Object.assign(S.heat, v.heat);
+  if (v.attnHead != null) S.attnHead = v.attnHead;
+  if (v.compare) Object.assign(S.cmp, v.compare);
+  valCache.clear();
+  if (S.run && v.sel != null) S.sel = clamp(v.sel, 0, S.run.tokens.length - 1);
+  if (S.run && !measureDefs().some((d) => d.id === S.measure)) S.measure = 'axis:char';
+  setTab(v.tab && v.tab !== 'cell' ? v.tab : 'tokens');
+  if (v.cell_open) openCell(); else if (S.cellOpen) closeCell();
+}
+function openNoteDlg() {
+  if ($('#notedlg')) return;
+  const view = captureView();
+  const ta = h('textarea', { rows: 5, placeholder: 'What do you see here?' });
+  const close = () => m.remove();
+  const m = h('div', { class: 'modal', id: 'notedlg', onclick: (e) => { if (e.target === m) close(); } }, h('div', { class: 'sheet' },
+    h('div', { class: 'row' }, h('h2', { class: 'grow', text: 'Note' }), h('button', { class: 'btn sm icon ghost', text: '✕', title: 'Close', onclick: close })),
+    h('div', { class: 'small muted', style: 'margin-bottom:6px' }, 'Captures: ', h('span', { class: 'mono', text: viewSummary(view) || 'no run' })),
+    ta,
+    h('div', { class: 'row', style: 'margin-top:8px;justify-content:flex-end' },
+      h('span', { class: 'small muted grow', text: 'Ctrl/⌘+Enter to save' }),
+      h('button', { class: 'btn', text: 'Cancel', onclick: close }),
+      h('button', { class: 'btn primary', text: 'Save note', id: 'notesave', onclick: async (e) => { if (await saveNote(ta.value, e.target)) close(); } }))));
+  ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) $('#notesave').click(); });
+  document.body.append(m); setTimeout(() => ta.focus(), 30);
+}
+
+/* ====================================================================
+   Boot
+   ==================================================================== */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { if ($('#notedlg')) $('#notedlg').remove(); else if (S.cellOpen) closeCell(); return; }
+  if ((e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) || e.ctrlKey || e.metaKey || e.altKey || !S.run) return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); if (S.tab === 'steps') { S.step--; renderSteps(); setSel(S.run.steps[clamp(S.step, 0, S.run.steps.length - 1)].pos, { fromSteps: true }); } else setSel(S.sel - 1); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); if (S.tab === 'steps') { S.step++; renderSteps(); setSel(S.run.steps[clamp(S.step, 0, S.run.steps.length - 1)].pos, { fromSteps: true }); } else setSel(S.sel + 1); }
+  else if (S.cellOpen && e.key === 'ArrowUp') { e.preventDefault(); setLayer(S.layer + 1); }
+  else if (S.cellOpen && e.key === 'ArrowDown') { e.preventDefault(); setLayer(S.layer - 1); }
+  else if (e.key === 'n') { e.preventDefault(); openNoteDlg(); }
+});
+let lastW = innerWidth;
+addEventListener('resize', debounce(() => { if (Math.abs(innerWidth - lastW) < 2) return; lastW = innerWidth; if (['tokens', 'compare', 'heat'].includes(S.tab)) renderView(); }, 150));
+darkMQ.addEventListener && darkMQ.addEventListener('change', () => { renderView(); if (S.cellOpen) renderCell(); });
+$('#fab').addEventListener('click', openNoteDlg);
+$('#runchip').addEventListener('click', () => setTab('runs'));
+
+async function boot() {
+  buildNav();
+  const prefs = loadPrefs();
+  for (const k of ['axisLayer', 'layer', 'normLayer', 'lensLayer', 'measure', 'chartRange', 'attnHideBos', 'watchSort', 'watchRegion']) if (prefs[k] != null) S[k] = prefs[k];
+  if (prefs.heat) Object.assign(S.heat, prefs.heat);
+  if (prefs.cmp) Object.assign(S.cmp, prefs.cmp);
+  $('#v-prompt').append(h('div', { class: 'card muted' }, h('span', { class: 'spinner' }), ' Connecting to the explorer backend…'));
+  try { S.meta = await api('meta'); }
+  catch (e) {
+    $('#v-prompt').innerHTML = '';
+    $('#v-prompt').append(h('div', { class: 'card' }, h('h2', { text: 'Cannot reach the backend' }), h('p', { class: 'muted', text: e.message + ' · Is the server cell in the notebook still running? Re-run it, then retry.' }),
+      h('div', { class: 'row' }, h('button', { class: 'btn primary', text: 'Retry', onclick: () => location.reload() }))));
+    return;
+  }
+  S.draft = prefs.draft && Array.isArray(prefs.draft.messages) ? Object.assign(defaultDraft(), prefs.draft) : defaultDraft();
+  if (!Array.isArray(S.draft.steer)) S.draft.steer = [];
+  refreshNotes();
+  try { S.runs = (await api('runs')) || []; } catch (e) { toast('Runs: ' + e.message, true); }
+  let tab = 'prompt';
+  if (prefs.lastRun) {
+    try { const r = await getRun(prefs.lastRun); acceptRun(r, false); if (prefs.sel != null) S.sel = clamp(prefs.sel, 0, r.tokens.length - 1); tab = prefs.tab && prefs.tab !== 'cell' ? prefs.tab : 'tokens'; }
+    catch (e) { /* run gone */ }
+  }
+  updateRunChip();
+  setTab(tab);
+}
+boot();
+</script>
+</body>
+</html>

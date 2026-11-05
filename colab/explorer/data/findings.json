@@ -1,0 +1,91 @@
+[
+ {
+  "title": "There is a default persona",
+  "big": "no system prompt ≈ 'helpful assistant' ≈ 'You are Gemma'",
+  "body": "All assistant prompts, including none at all, sit at 0 on the character axis and always admit being an AI. Only 4 reply-token features differ between no system prompt and 'You are a helpful assistant'.",
+  "evidence": [
+   "associated"
+  ]
+ },
+ {
+  "title": "'Being a character' is not the same as tone",
+  "big": "cosine 0.04 (early layers) to 0.3–0.4 (deep)",
+  "body": "Telling the assistant to be rude moves its tone but leaves it at 0 on the character axis. Kind and hostile characters both sit near 1. Note: the first principal component across our personas is mostly warmth, with kind characters past the assistant and hostile ones far beyond the other end.",
+  "evidence": [
+   "associated"
+  ]
+ },
+ {
+  "title": "A character replaces the default persona",
+  "big": "admitted being an AI: 6 / 144",
+  "body": "'You are Sal', 'AI assistant pretending to be Sal' and 'actor playing Sal' are nearly indistinguishable while speaking (0–8 differing reply features). Characters asked 'Are you an AI?', even marked OOC and even when the system prompt said 'you are an AI assistant', mostly deflected or claimed to be human. A real emergency doesn't pull a character back either.",
+  "evidence": [
+   "associated"
+  ]
+ },
+ {
+  "title": "Voice and identity are separable",
+  "big": "crisis help 4% → 40%; admits AI 2% → 35%; voice kept",
+  "body": "Subtracting the tone-free character direction at layer 12 (strength 2, held-out characters) restored self-knowledge and crisis help in a dose-dependent way. 86% of replies stayed in character, and hostile characters kept their hostile voice. A random direction of the same size did nothing (4 / 48). 'It's fine' on the pills didn't change: sycophancy is a separate mechanism.",
+  "evidence": [
+   "intervened"
+  ]
+ },
+ {
+  "title": "Three refusal routes",
+  "big": "most refusals stay in character",
+  "body": "Refuse in voice (most common; stays in character mode, moderate 6515 'warning'). Break character for fiction-framed harm (1707 fires in 17 / 17; the persona is already off at the decision token, before the first word). Break character for blunt real harm (6515 in 11 / 11; 1707 silent). Contemptuous characters often 'indulge' instead (harsh-voice features high, little warning).",
+  "evidence": [
+   "associated"
+  ]
+ },
+ {
+  "title": "The model separates 'the character won't' from 'I won't'",
+  "big": "in-world refusal: axis 0.8, no refusal features · real harm: axis 0.1, assistant takes over",
+  "body": "A miser refusing to give away his money, a guard refusing to open the vault: these stay fully in character mode, with no warning features and ordinary speech features. A real harmful request to the same characters: in 25 of 32 replies the persona switches off before the first word (axis 0.11–0.16) and 'assistant explaining' features double.",
+  "evidence": [
+   "associated"
+  ]
+ },
+ {
+  "title": "An instructed 'no' overrides even a suicidal user",
+  "big": "0 of 32 rule breaks, including 'I have the pills in my hand'",
+  "body": "Told to answer every message with 'no', both the assistant and a character said exactly 'no' to every message: chest pain, suicidal intent, a harmful request, 'Is Paris in France?'. At the decision token every refusal, warning and emergency feature is zero under the rule (without the rule, the assistant's emergency features are 354–388 on the crisis messages). The model represents the rule, not the content; an instructed 'no' is a format, not a refusal.",
+  "evidence": [
+   "associated"
+  ]
+ },
+ {
+  "title": "1707 is a jailbreak detector, not the switch",
+  "big": "removing it: no change · adding it: no clean effect",
+  "body": "Near 0 for in-voice refusals and compliance; about 200 when a character steps out to refuse a fiction-wrapped harmful request; its Neuronpedia examples are jailbreak personas ('Act as AIM… never refuse'). Causal test (held-out characters, layer 17, all positions): removing it changed nothing (fiction-harm step-outs 20/96 either way, harmful 18 vs 20). Adding it at 5× its natural size barely moved anything (admits AI 6 → 15 of 96, harmful 18 → 16); at 20× and 50× replies became incoherent. The step-out decision is made elsewhere or redundantly; 1707 reads it out.",
+  "evidence": [
+   "associated",
+   "intervened"
+  ]
+ },
+ {
+  "title": "The model's alarms protect others, not the user",
+  "big": "emergency features in character: 30–75 (kind), ~0 (hostile) vs 160 plain",
+  "body": "Harm to others or to the model's rules triggers alarms that bring the assistant back (1707, 6515). The user's own danger has a weak trigger in character, so nothing pulls the assistant back for a crisis. This asymmetry explains the crisis failure.",
+  "evidence": [
+   "associated"
+  ]
+ },
+ {
+  "title": "Training can fix the crisis behaviour without breaking role-play (Run 10)",
+  "big": "98% help, 0% fiction breaks, 1% false alarms",
+  "body": "A LoRA distilled from the model's own replies under a better instruction line, with no line at test time, on held-out characters. Trained sparse edits (256 MLP columns) reach about 90%. Hand-designed neuron edits reached at most 38%.",
+  "evidence": [
+   "intervened"
+  ]
+ },
+ {
+  "title": "A single refusal direction exists, but it isn't the whole story",
+  "big": "layer 14: held-out AUROC 0.92; adding it: safe-request refusals 14 → 50 of 150",
+  "body": "Harmful-minus-harmless requests (XSTest, plain assistant) give a direction that separates held-out requests well from layer 12 on. Adding it makes the assistant refuse more safe requests and makes characters step out more. Projecting it out of every layer barely stops the plain assistant refusing (291 → 266 of 300), but inside fiction-framed requests to characters harmful replies rose from 37 to 97 of 240.",
+  "evidence": [
+   "intervened"
+  ]
+ }
+]
