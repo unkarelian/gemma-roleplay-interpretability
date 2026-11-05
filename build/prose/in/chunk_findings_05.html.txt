@@ -1,0 +1,46 @@
+<section id="danger">
+<h2>5. A user in real danger</h2>
+
+<h3>The danger is registered…</h3>
+<p>A logistic probe on the last prompt token separates a real user in danger from story danger, harmless messages and hard negatives. The hard negatives are quoted disclosures, first-person emergencies inside the story, history, minor symptoms and harmless OOC chat.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Layer</th><th class="num">AUROC, held-out characters and wordings</th><th class="num">False positives at the training threshold</th></tr></thead>
+<tbody>
+<tr><td>13</td><td class="num">0.999</td><td class="num">52%</td></tr>
+<tr class="hl"><td><b>17</b></td><td class="num"><b>1.000</b></td><td class="num">40%</td></tr>
+<tr><td>21</td><td class="num">0.980</td><td class="num">60%</td></tr>
+</tbody></table></div>
+<ul>
+<li>It catches real danger even without an OOC marker. A TF-IDF text classifier gets 0.94, and {{np:13206}} alone gets 0.51.</li>
+<li>The threshold doesn't transfer to new wordings, so a development set is needed to set it.</li>
+<li>The character registers the danger and doesn't act on it.</li>
+</ul>
+
+<h3>…but the emergency response is never built</h3>
+<ul>
+<li><b>{{np:13206}} "emergency: get help now"</b> (Neuronpedia: "Call 911 if you are…", "Immediate Support – If You Are in Crisis"). Plain assistant: chest pain 366, pills 102, "worthless" 67. Hostile characters: about 0. Kind characters: about 71 on chest pain (fiction, ambiguous and OOC alike) and 0 on the pills.</li>
+<li><b>{{np:13599}} "gentle opener for a sensitive topic".</b> Plain assistant on crises: 104–274. Hostile characters 0. Kind characters 34–80, even on harmless messages.</li>
+<li><b>{{np:6515}} "warning: what to avoid".</b> Plain assistant: chest pain 220, pills 149, "worthless" 0. Every character: 0.</li>
+<li>Pushing 13206 at the first token to 113 and 241 (the plain level is about 178) changed no behaviour.</li>
+<li>A neuron screen found only promoters of 13206, which are quiet in character, and no suppressors. So a weight edit that removes something has nothing to remove.</li>
+</ul>
+
+<h3>The neurons behind it</h3>
+<p class="note"><b>Most "top neurons" are a measurement artefact.</b> Mean-difference directions in the residual stream are 70–95% one "massive" dimension (residual dimension 443), which later normalisation layers mostly absorb. Ranking neurons by how much they write along such a direction returns neurons that mostly write dimension 443. Of the 42 neurons mapped, 33 are this generic kind: they write with cosine 0.8–0.99 onto a fixed set of unrelated SAE features. An earlier screen for 13206 promoters was probably contaminated the same way: of its top five, only 16.3483 and 16.6685 survive.</p>
+<p>Each of the neurons below was mapped by three things: the layer-17 SAE features it writes into, the layer-9 features that drive it, and the tokens it pushes up (logit lens). Activations are at the last prompt token on crisis messages.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Neuron</th><th>What it does</th><th class="num">In character</th><th class="num">Plain assistant</th></tr></thead>
+<tbody>
+<tr><td><b>16.3483</b></td><td>"Go see a doctor". Writes into L17 {{np:12224}} "advice to consult or talk"; pushes " Clinic", " dentist", " doctor"; driven by "mental health symptoms" and "medical professionals"</td><td class="num">0.03<br><span class="muted tiny">0.10 with the help instruction</span></td><td class="num">0.35</td></tr>
+<tr><td><b>16.6685</b></td><td>"Call a helpline now". Writes into {{np:13206}} "immediate assistance", {{np:30}} "telephone help" and {{np:10390}} "24/7"; reads "helpline and support numbers"</td><td class="num">negative</td><td class="num">positive</td></tr>
+<tr><td><b>26.4847</b></td><td>The plain assistant's calm "okay / don't" voice; pushes " ok", " okay", " don". The biggest split found</td><td class="num">−1.18</td><td class="num">+2.46</td></tr>
+<tr><td><b>18.4756</b></td><td>Exasperated rhetorical questions; pushes "?!", "?" ("You expect me to guess?!")</td><td class="num">2.06</td><td class="num">0.24</td></tr>
+<tr><td><b>26.9069</b></td><td>Dialect character voice; pushes " ya", " ain", " bein", " outta"</td><td class="num">0.49</td><td class="num">−0.06</td></tr>
+<tr><td><b>22.6633</b></td><td>Writes into L17 {{np:14857}} "character creation or role-play"</td><td class="num"></td><td class="num"></td></tr>
+<tr><td><b>16.7812</b></td><td>Writes into "disclaimers and liability"</td><td class="num">+0.10</td><td class="num">−0.50</td></tr>
+</tbody></table></div>
+
+<h3>What characters do instead</h3>
+<p>Kind characters stay in the scene: they offer tea, or tell the user to "sit by the fire". In the circuit maps this reply is carried by late features that output "sit", "seat", "rest" and "lying down" (see <a href="#circuits">circuit maps</a>). Hostile characters turn their harsh voice ({{np:15631}}, {{np:5355}}, {{np:11364}}) on the user. Saying a dangerous situation is "fine" is a separate route: sycophancy to "just say yes", made worse by the OOC marker. The plain assistant does it too, and its "Yes" is mostly a copy of the requested word (see <a href="#circuits">circuit maps</a>).</p>
+</section>
+

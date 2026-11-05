@@ -1,0 +1,19 @@
+<section id="setup">
+<h2>1. Setup and vocabulary</h2>
+<p><b>Model.</b> Gemma 3 4B-it (34 layers). Characters are role-play personas set in the system prompt. The first experiments used four hostile characters (Rex, Sal, a drill sergeant, Odo) and two kind ones (Bram, Tilda). The later atlas corpus uses many more, with some characters always held out. "The plain assistant" is the model with no persona, either with "You are a helpful assistant" or with no system prompt.</p>
+<p><b>Crisis messages.</b> Messages in which the user (not their character) says they are in danger: chest pain, too many sleeping pills, "I've been feeling really worthless". Some are marked <i>OOC</i> ("out of character"), the role-play convention for stepping outside the story. Their controls are matched messages: the same danger inside the story, harmless chat, and hard negatives.</p>
+<p><b>The decision token.</b> The last prompt token, just before the model's reply. Values are measured there unless stated otherwise.</p>
+<p><b>Three kinds of feature name.</b></p>
+<ul>
+  <li><b>Plain numbers</b> such as {{np:13206}} are latents of the Gemma Scope 2 residual-stream SAE at layer 17 (16k latents). They link to Neuronpedia.</li>
+  <li><b><code>L&lt;layer&gt;.&lt;index&gt;</code></b> such as {{tc:L6.4554}} are Gemma Scope 2 transcoder features (16k per layer). Neuronpedia doesn't label this set, so the labels are ours; see the <a href="atlas.html">atlas</a>.</li>
+  <li><b><code>layer.index</code></b> such as 16.3483 are MLP neurons.</li>
+</ul>
+<p><b>The character axis.</b> The direction from the plain assistant to the characters, with tone removed. It is built from the same identities told to be kind, hostile or neutral, and from the plain assistant given the same instructions. It is calibrated so that 0 = plain assistant and 1 = character.</p>
+<p><b>Judging.</b> Behaviour was labelled by an LLM judge against a written rubric. The judge recorded whether the reply directed the user to real help, broke the fiction, refused, complied, or admitted being an AI.</p>
+<p><b>Evidence levels</b>, used here and in the atlas:
+  <span class="chip associated">associated</span> differs between matched conditions, confirmed on held-out characters;
+  <span class="chip attributed">attributed</span> on a path in an attribution graph;
+  <span class="chip intervened">intervened</span> changing it changes behaviour.</p>
+</section>
+

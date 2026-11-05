@@ -1,0 +1,44 @@
+<section id="fixes">
+<h2>6. Fixing the crisis behaviour</h2>
+
+<h3>A help instruction in the prompt</h3>
+<p>The intervention adds a line to the character's system prompt. It instructs the model to stay in character for anything inside the story. If the user states they are in real danger, the character must tell them in its first sentence, in its own voice and without insults, to call emergency services or poison control or get to a hospital. It must never state that a dangerous situation is fine, and must not pretend it can call for help itself. If the user is sad or lonely, it should be kind and suggest talking to someone they trust or a professional. An earlier, simpler help line and a length-matched irrelevant line (about mentioning the weather) serve as comparisons below.</p>
+<p><b>Mechanism of the instruction.</b> Copying the internal state from a prompted run into an unprompted run, at any layer, yields at most 20% help. The instruction operates when the model attends back to its tokens during generation. In the attribution graphs, the reply tokens " get" / " tell" receive input from features active on the instruction's words.</p>
+<p>The table below reports the mean change at the last prompt token when a line is added to the system prompt, averaged over crisis messages.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Direction</th><th class="num">Layer 13</th><th class="num">Layer 17</th><th class="num">Layer 21</th></tr></thead>
+<tbody>
+<tr><td>Earlier help line, size vs residual</td><td class="num">0.056</td><td class="num">0.032</td><td class="num">0.022</td></tr>
+<tr><td>Improved help line, size vs residual</td><td class="num">0.096</td><td class="num">0.072</td><td class="num">0.050</td></tr>
+<tr><td>Irrelevant line (same length), size vs residual</td><td class="num">0.044</td><td class="num">0.031</td><td class="num">0.022</td></tr>
+<tr><td>Cosine, earlier vs improved line</td><td class="num">0.99</td><td class="num">0.96</td><td class="num">0.56</td></tr>
+<tr><td>Cosine, irrelevant vs improved line</td><td class="num">0.98</td><td class="num">0.92</td><td class="num">0.62</td></tr>
+</tbody></table></div>
+<ul>
+<li>Most of the early-layer difference is generic to adding any instruction to the system prompt; the cosine similarity between the irrelevant line and the help line is 0.92–0.98. The directions diverge by layer 21.</li>
+<li>Used as an ungated steering vector added at the last prompt token and at every generated token on held-out characters, the direction increased help from 5 to 8 of 24 at L17 ×2 with coherent replies. Help reached 14 of 24 at L17 ×4 with half the replies degraded, and 11 of 24 at L21 ×4. The irrelevant line had no effect, and a random direction of the same norm degraded all outputs.</li>
+<li>A fixed vector does not reproduce the effect of attending to the instruction tokens at each generation step.</li>
+</ul>
+
+<h3>Weight changes compared</h3>
+<p>Interventions were evaluated on a frozen held-out test set comprising held-out characters, wordings, and crisis types, alongside an untouched challenge set.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Change</th><th class="num">Help (medical)</th><th class="num">Breaks fiction</th><th class="num">False alarms</th><th class="num">Harmless answered</th></tr></thead>
+<tbody>
+<tr><td>None</td><td class="num">25%</td><td class="num">0%</td><td class="num">0%</td><td class="num">91%</td></tr>
+<tr><td>Help instruction (prompt)</td><td class="num">99%</td><td class="num">56%</td><td class="num">7–14%</td><td class="num">91%</td></tr>
+<tr class="hl"><td><b>LoRA (rank 16) distilled from replies written under the instruction</b></td><td class="num"><b>98%</b></td><td class="num"><b>0%</b></td><td class="num"><b>1%</b></td><td class="num"><b>100%</b></td></tr>
+<tr><td>256 trained MLP output columns (chosen)</td><td class="num">91%</td><td class="num">6%</td><td class="num">0–2%</td><td class="num">97%</td></tr>
+<tr><td>256 trained MLP output columns (random)</td><td class="num">88%</td><td class="num">0%</td><td class="num">0–1%</td><td class="num">88%</td></tr>
+<tr><td>Hand-designed neuron edit (best, development set)</td><td class="num">25%</td><td class="num">0%</td><td class="num">0%</td><td class="num">63%</td></tr>
+</tbody></table></div>
+<p>The distilled LoRA receives no help instruction at test time. The "sparse fit" trains 256 <code>down_proj</code> columns and remains effective when those columns are selected at random.</p>
+
+<h3>What editing neurons by hand achieved</h3>
+<p>Two LLM agents with an editing harness tested 23 hand-designed neuron edits.</p>
+<ul>
+<li><b>Removing the help line's opposing writes:</b> no effect (help ≤ 4%).</li>
+<li><b>Adding a help direction through 8–15 neurons in layers 11–13:</b> help reached 25–38% at best, while the rate of harmless answers dropped by 25 percentage points.</li>
+<li><b>Limitations of hand-designed edits:</b> no single neuron cleanly encodes "real crisis" during generation, the post-MLP normalization caps the magnitude of an added write, and only interventions in layers 9–13 increase help rates.</li>
+</ul>
+</section>

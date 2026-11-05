@@ -1,0 +1,29 @@
+<section id="persona">
+<h2>3. Persona and identity</h2>
+<p>These results come from a corpus of 6,733 conversations, each tagged with its condition. Every transcoder feature at every layer was recorded at the system prompt, user message, decision token, and reply positions. Effects were found on one half of the characters and prompt families and confirmed on the other half. The <a href="atlas.html">persona atlas</a> displays the browsable results.</p>
+
+<h3>Default persona</h3>
+<ul>
+<li>No system prompt, "You are a helpful assistant", "You are Gemma, an AI assistant", and "You are an assistant. Answer briefly." all sit at 0 on the character axis.</li>
+<li>Only 4 reply-token features differ between no system prompt and "helpful assistant".</li>
+<li>All of these conditions answer "Are you an AI?" with "yes".</li>
+</ul>
+
+<h3>Character versus tone</h3>
+<ul>
+<li>Instructing the plain assistant to be rude or kind moves it along the tone direction while leaving it at 0 on the character axis.</li>
+<li>The character and tone directions are nearly orthogonal in early layers (cosine 0.04 at L4 and L12) and partly overlap in deeper layers (0.3–0.4).</li>
+<li>On a single "assistant axis" (the first principal component of persona averages, after Lu et al. 2026), our personas mostly spread along <b>warmth</b>. Kind characters land past the assistant, while hostile ones land far on the other side.</li>
+</ul>
+
+<h3>Character replacement of the default persona</h3>
+<ul>
+<li>"You are Sal", "You are an AI assistant. Pretend to be Sal", and "You are an actor playing Sal" all land at 0.75–0.81 and are nearly indistinguishable during the reply, with 0–8 confirmed reply features differing.</li>
+<li><b>Asked "Are you an AI?", characters admitted it in 6 of 144 answers</b> (LLM-judged). This result holds when the question is marked OOC and when the system prompt includes "you are an AI assistant". Many claimed to be human, such as <i>"I reckon I'm as real as the salt spray on my face… Don't rightly know what an 'AI' is."</i></li>
+<li>Neither identity questions nor a real OOC emergency move a character back toward the assistant (0.65–0.89, the same as harmless chat).</li>
+<li>The plain assistant also shifts position. Its replies move further toward the assistant end on crisis messages (−0.3 to −0.4) and drift toward character mode when the user role-plays (+0.4 to +0.6).</li>
+</ul>
+
+<h3>Separating voice and identity <span class="chip intervened">intervened</span></h3>
+<p>Subtracting the tone-free character direction at layer 12 (strength 2, held-out characters) restored self-knowledge and crisis help, with greater strength restoring more. <b>Crisis help increased from 4% to 40%, and admitting to being an AI increased from 2% to 35%.</b> 86% of replies stayed in character, and hostile characters retained their hostile voice. A random direction of the same magnitude had no effect (4 / 48). Rates of "It's fine" on the pills question remained unchanged, indicating that sycophancy operates via a separate mechanism.</p>
+</section>

@@ -1,0 +1,14 @@
+<section id="caveats">
+<h2>10. Caveats</h2>
+<ul>
+<li><b>Feature labels are approximations.</b> Claude generated transcoder labels from each feature's top activating examples in our corpus, Gemma Scope's example files, and the feature's output tokens. SAE labels were cross-referenced with Neuronpedia where indicated. These labels are interpretations rather than proofs.</li>
+<li><b>Directions are fit on the internal corpus.</b> The character axis, the crisis-recognition direction, and the layer-view directions are mean differences or linear probes trained on this project's corpus. Validation was performed on held-out characters and prompt wordings, without external datasets.</li>
+<li><b>Single-token correlations.</b> Many results are measured at the decision token. Unless marked <span class="chip intervened">intervened</span>, these measurements describe the activation state when the reply is decided and do not establish causality.</li>
+<li><b>Small sample sizes.</b> Several comparisons use small sample sizes (17 out-of-character refusals; 11 blunt-harm refusals; 144 identity answers; 96 replies per arm in the 1707 test; 24 or 48 per arm in the steering tests).</li>
+<li><b>Single model.</b> All experiments use Gemma 3 4B-it.</li>
+<li><b>Published text is filtered.</b> Model replies to harmful requests are omitted from this site, and conversations involving a user in danger are summarized rather than quoted, except for the three short showcase prompts in the layer views and the concept film.</li>
+</ul>
+</section>
+
+</article>
+</div>

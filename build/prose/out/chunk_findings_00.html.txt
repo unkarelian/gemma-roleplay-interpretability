@@ -1,0 +1,24 @@
+<div class="page-head">
+  <p class="kicker">Findings</p>
+  <h1>Internal state changes in Gemma during character roleplay</h1>
+  <p class="lede">This report documents the effect of a persona on the model's internal state, the mechanism of in-character refusal, and character failure modes when a user is in danger. All values are reported as measured. Results derived from small sample sizes or single-token measurements are noted alongside the data.</p>
+</div>
+
+<div class="doc">
+<nav class="toc" aria-label="On this page">
+  <p class="kicker">On this page</p>
+  <ol>
+    <li><a href="#setup">Setup and vocabulary</a></li>
+    <li><a href="#picture">Overview of results</a></li>
+    <li><a href="#persona">Persona and identity</a></li>
+    <li><a href="#refusals">In-character refusal mechanisms</a></li>
+    <li><a href="#danger">User crisis responses</a></li>
+    <li><a href="#fixes">Mitigating crisis behaviour</a></li>
+    <li><a href="#circuits">Circuit maps</a></li>
+    <li><a href="#sae">Reference: layer-17 SAE features</a></li>
+    <li><a href="#directions">Reference: directions</a></li>
+    <li><a href="#caveats">Caveats</a></li>
+  </ol>
+</nav>
+
+<article class="prose">

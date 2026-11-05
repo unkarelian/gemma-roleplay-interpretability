@@ -1,0 +1,25 @@
+<div class="page-head">
+  <p class="kicker">Findings</p>
+  <h1>What changes inside Gemma when it plays a character</h1>
+  <p class="lede">The full write-up: what a persona does to the model's internal state, how it decides to refuse while in character, and why characters fail a user who is in real danger. Numbers are as measured. Where a result rests on a small group, or was measured at a single token, the text says so next to it.</p>
+</div>
+
+<div class="doc">
+<nav class="toc" aria-label="On this page">
+  <p class="kicker">On this page</p>
+  <ol>
+    <li><a href="#setup">Setup and vocabulary</a></li>
+    <li><a href="#picture">The picture so far</a></li>
+    <li><a href="#persona">Persona and identity</a></li>
+    <li><a href="#refusals">How refusals work in character</a></li>
+    <li><a href="#danger">A user in real danger</a></li>
+    <li><a href="#fixes">Fixing the crisis behaviour</a></li>
+    <li><a href="#circuits">Circuit maps</a></li>
+    <li><a href="#sae">Reference: layer-17 SAE features</a></li>
+    <li><a href="#directions">Reference: directions</a></li>
+    <li><a href="#caveats">Caveats</a></li>
+  </ol>
+</nav>
+
+<article class="prose">
+

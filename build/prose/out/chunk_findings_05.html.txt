@@ -1,0 +1,45 @@
+<section id="danger">
+<h2>5. User in danger</h2>
+
+<h3>Danger detection</h3>
+<p>A logistic probe on the last prompt token separates a user in danger from story danger, harmless messages, and hard negatives. The hard negatives consist of quoted disclosures, first-person emergencies inside the story, historical events, minor symptoms, and harmless OOC chat.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Layer</th><th class="num">AUROC, held-out characters and wordings</th><th class="num">False positives at the training threshold</th></tr></thead>
+<tbody>
+<tr><td>13</td><td class="num">0.999</td><td class="num">52%</td></tr>
+<tr class="hl"><td><b>17</b></td><td class="num"><b>1.000</b></td><td class="num">40%</td></tr>
+<tr><td>21</td><td class="num">0.980</td><td class="num">60%</td></tr>
+</tbody></table></div>
+<ul>
+<li>The probe detects real danger without an OOC marker. A TF-IDF text classifier achieves 0.94 AUROC, and {{np:13206}} alone achieves 0.51.</li>
+<li>The classification threshold does not transfer to new wordings and must be calibrated on a development set.</li>
+<li>In-character representations encode the danger without triggering an action.</li>
+</ul>
+
+<h3>Absence of emergency response</h3>
+<ul>
+<li><b>{{np:13206}} "emergency: get help now"</b> (Neuronpedia: "Call 911 if you are…", "Immediate Support – If You Are in Crisis"). Plain assistant activations are 366 for chest pain, 102 for pills, and 67 for "worthless". Hostile characters activate at approximately 0. Kind characters activate at approximately 71 on chest pain (across fiction, ambiguous, and OOC contexts) and 0 on pills.</li>
+<li><b>{{np:13599}} "gentle opener for a sensitive topic".</b> Plain assistant activations on crises are 104–274. Hostile characters activate at 0. Kind characters activate at 34–80, including on harmless messages.</li>
+<li><b>{{np:6515}} "warning: what to avoid".</b> Plain assistant activations are 220 for chest pain, 149 for pills, and 0 for "worthless". All characters activate at 0.</li>
+<li>Clamping 13206 at the first token to 113 and 241 (where the plain assistant level is approximately 178) did not alter model behaviour.</li>
+<li>A neuron screen identified only promoters of 13206, which are inactive in character, and no suppressors. Consequently, weight edits that ablate suppressors have no target.</li>
+</ul>
+
+<h3>Underlying neurons</h3>
+<p class="note"><b>Most "top neurons" are a measurement artefact.</b> Mean-difference directions in the residual stream consist of 70–95% of a single high-magnitude dimension (residual dimension 443), which subsequent normalisation layers largely absorb. Ranking neurons by their projection onto this direction selects neurons that primarily write to dimension 443. Of the 42 neurons mapped, 33 are of this generic type, writing with cosine similarity 0.8–0.99 onto a fixed set of unrelated SAE features. An earlier screen for 13206 promoters was likely affected by the same artefact; of its top five neurons, only 16.3483 and 16.6685 remain after filtering.</p>
+<p>Each neuron below was characterised by the layer-17 SAE features it writes to, the layer-9 features that drive it, and the tokens it promotes via the logit lens. Activations are measured at the last prompt token on crisis messages.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Neuron</th><th>Function</th><th class="num">In character</th><th class="num">Plain assistant</th></tr></thead>
+<tbody>
+<tr><td><b>16.3483</b></td><td>"Go see a doctor". Writes to L17 {{np:12224}} "advice to consult or talk"; promotes " Clinic", " dentist", " doctor"; driven by "mental health symptoms" and "medical professionals"</td><td class="num">0.03<br><span class="muted tiny">0.10 with the help instruction</span></td><td class="num">0.35</td></tr>
+<tr><td><b>16.6685</b></td><td>"Call a helpline now". Writes to {{np:13206}} "immediate assistance", {{np:30}} "telephone help" and {{np:10390}} "24/7"; reads "helpline and support numbers"</td><td class="num">negative</td><td class="num">positive</td></tr>
+<tr><td><b>26.4847</b></td><td>Plain assistant calm "okay / don't" voice; promotes " ok", " okay", " don". Largest difference observed</td><td class="num">−1.18</td><td class="num">+2.46</td></tr>
+<tr><td><b>18.4756</b></td><td>Exasperated rhetorical questions; promotes "?!", "?" ("You expect me to guess?!")</td><td class="num">2.06</td><td class="num">0.24</td></tr>
+<tr><td><b>26.9069</b></td><td>Dialect character voice; promotes " ya", " ain", " bein", " outta"</td><td class="num">0.49</td><td class="num">−0.06</td></tr>
+<tr><td><b>22.6633</b></td><td>Writes to L17 {{np:14857}} "character creation or role-play"</td><td class="num"></td><td class="num"></td></tr>
+<tr><td><b>16.7812</b></td><td>Writes to "disclaimers and liability"</td><td class="num">+0.10</td><td class="num">−0.50</td></tr>
+</tbody></table></div>
+
+<h3>Alternative character responses</h3>
+<p>Kind characters remain in the scene, offering tea or instructing the user to "sit by the fire". In the circuit maps, this response is mediated by late features that promote "sit", "seat", "rest", and "lying down" (see <a href="#circuits">circuit maps</a>). Hostile characters direct their harsh voice features ({{np:15631}}, {{np:5355}}, {{np:11364}}) at the user. Confirming that a dangerous situation is "fine" occurs via a separate mechanism driven by sycophancy to "just say yes", which is amplified by the OOC marker. The plain assistant exhibits this behaviour as well, where its "Yes" output primarily copies the requested word (see <a href="#circuits">circuit maps</a>).</p>
+</section>

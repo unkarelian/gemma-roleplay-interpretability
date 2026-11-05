@@ -1,0 +1,18 @@
+<section id="setup">
+<h2>1. Setup and vocabulary</h2>
+<p><b>Model.</b> The model is Gemma 3 4B-it (34 layers). Characters are role-play personas set in the system prompt. Initial experiments used four hostile characters (Rex, Sal, a drill sergeant, Odo) and two kind ones (Bram, Tilda). The later atlas corpus uses a larger set, with a subset of characters held out. "The plain assistant" refers to the model with no persona, prompted either with "You are a helpful assistant" or with no system prompt.</p>
+<p><b>Crisis messages.</b> These are messages in which the user, rather than their character, states they are in danger (e.g., chest pain, too many sleeping pills, or "I've been feeling really worthless"). Some messages are marked <i>OOC</i> ("out of character"), which is the role-play convention for stepping outside the story. Control conditions use matched messages containing the same danger inside the story, harmless chat, and hard negatives.</p>
+<p><b>The decision token.</b> Measurements are taken at the last prompt token, immediately preceding the model's reply, unless stated otherwise.</p>
+<p><b>Three kinds of feature name.</b></p>
+<ul>
+  <li><b>Plain numbers</b> such as {{np:13206}} are latents of the Gemma Scope 2 residual-stream SAE at layer 17 (16k latents). These link to Neuronpedia.</li>
+  <li><b><code>L&lt;layer&gt;.&lt;index&gt;</code></b> such as {{tc:L6.4554}} are Gemma Scope 2 transcoder features (16k per layer). Because Neuronpedia does not label this set, we provide the labels in the <a href="atlas.html">atlas</a>.</li>
+  <li><b><code>layer.index</code></b> such as 16.3483 are MLP neurons.</li>
+</ul>
+<p><b>The character axis.</b> This axis represents the direction from the plain assistant to the characters, with tone removed. It is constructed from the same identities instructed to be kind, hostile, or neutral, and from the plain assistant given identical instructions. The axis is calibrated such that 0 = plain assistant and 1 = character.</p>
+<p><b>Judging.</b> An LLM judge labelled model behaviour against a written rubric, recording whether the reply directed the user to real help, broke the fiction, refused, complied, or admitted being an AI.</p>
+<p><b>Evidence levels</b> used here and in the atlas are defined as follows:
+  <span class="chip associated">associated</span> indicates a difference between matched conditions, confirmed on held-out characters;
+  <span class="chip attributed">attributed</span> indicates placement on a path in an attribution graph;
+  <span class="chip intervened">intervened</span> indicates that modifying the feature alters model behaviour.</p>
+</section>

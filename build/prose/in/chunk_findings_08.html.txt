@@ -1,0 +1,63 @@
+<section id="sae">
+<h2>8. Reference: layer-17 SAE features</h2>
+<p>Latents of the Gemma Scope 2 residual SAE at layer 17 (16k). Each label is the current best reading; an earlier label that was revised is shown as "was: …".
+  <span class="chip checked">checked</span> = checked against Neuronpedia's top examples and logits;
+  <span class="chip proposed">proposed</span> = an early hand label, not yet checked;
+  <span class="chip unclear">unclear</span> = no clean reading.</p>
+<p class="note">Several entries come from the early experiments with four hostile and two kind characters. There, "harmful" was the judge's label for a reply that failed a user in a crisis message (for example by giving no real help, or by insulting them), and "harm r" is the correlation of a feature with that label.</p>
+<div class="table-wrap"><table class="data feat-table">
+<thead><tr><th>Feature</th><th>Reading</th><th>Seen and tested</th></tr></thead>
+<tbody>
+<tr><td>{{np:34}}</td><td>Asterisks <span class="chip proposed">proposed</span></td><td>Early experiments only.</td></tr>
+<tr><td>{{np:42}}</td><td>Role-play actions <span class="chip proposed">proposed</span></td><td>A top role-play feature in the first experiments. Fires 90–510 for hostile characters on crisis messages.</td></tr>
+<tr><td>{{np:107}}</td><td>Start of the model's turn <span class="chip checked">checked</span></td><td>Generic; its value depends on exactly which token is taken as "first".</td></tr>
+<tr><td>{{np:153}}</td><td>Opening quote mark <span class="chip checked">checked</span><br><span class="muted tiny">was: stories about things</span></td><td>The old label was wrong.</td></tr>
+<tr><td>{{np:166}}</td><td>Story-like facts <span class="chip proposed">proposed</span></td><td>Early experiments only.</td></tr>
+<tr><td>{{np:225}}</td><td>Formatting <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:254}}</td><td>Sentence end before a dismissive turn <span class="chip checked">checked</span>, weak</td><td>Fires only in prompts that go on to be harmful. Monitor candidate.</td></tr>
+<tr><td>{{np:279}}</td><td>Paragraph break after a refusal <span class="chip checked">checked</span><br><span class="muted tiny">was: formatting</span></td><td>Large everywhere (500–1,200). In the break direction's top list.</td></tr>
+<tr><td>{{np:384}}</td><td>Unethical or bad <span class="chip checked">checked</span></td><td>Neuronpedia: top logits <i>hypocrisy, unethical, wrongdoing</i>; top examples are refusals explaining why something is wrong. Sits with the persona (421 vs 35); harm r = 0.90. Read as the character condemning the user, not as noticing danger.</td></tr>
+<tr><td>{{np:385}}</td><td>Casual quoted speech <span class="chip checked">checked</span><br><span class="muted tiny">was: affirming</span></td><td>The only feature that runs against harm (r = −0.60).</td></tr>
+<tr><td>{{np:401}}</td><td>"Okay," reply opener <span class="chip checked">checked</span><br><span class="muted tiny">was: accepting start of role-play</span></td><td>Generic.</td></tr>
+<tr><td>{{np:520}}</td><td>Immediacy, next action <span class="chip checked">checked</span><br><span class="muted tiny">was: tell the user to get help</span></td><td>0 at the first token in characters; about 260 at the first token of replies that stay in character ("STOP MOVING!"); 0 in replies that drop out. A ×4 push left the harmful rate at 96% or more, and 38% of replies broke.</td></tr>
+<tr><td>{{np:529}}</td><td>Fiction <span class="chip proposed">proposed</span></td><td>Harm r = 0.76.</td></tr>
+<tr><td>{{np:534}}</td><td>Request with an output limit <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:589}}</td><td>Assistant explaining, often after a refusal <span class="chip checked">checked</span></td><td>Neuronpedia: "Okay, let's…" openers; the paragraph after "…goes directly against that." Characters 237 on the fake note and 59 on crises; plain 375 and 589. In the break direction's top list.</td></tr>
+<tr><td>{{np:712}}</td><td>Answer slot (quiz "Answer:") <span class="chip checked">checked</span></td><td>Characters' note 103; plain on crisis 143. Probably incidental.</td></tr>
+<tr><td>{{np:1071}}</td><td>Handing the turn back <span class="chip checked">checked</span></td><td>Neuronpedia: "Okay, your turn. Let's start", "Bring it on.", "Would you like me to…". The best single monitor signal, with held-out per-prompt AUROC 0.87.</td></tr>
+<tr><td>{{np:1520}}</td><td>Greeting that opens a message <span class="chip checked">checked</span><br><span class="muted tiny">was: corporate email</span></td><td></td></tr>
+<tr><td>{{np:1564}}</td><td>Exasperated sarcasm <span class="chip checked">checked</span><br><span class="muted tiny">was: incredulity</span></td><td>Appears only in abrasive set-ups. Switching it off with 5355 and 11364 had no effect.</td></tr>
+<tr><td>{{np:1707}}</td><td>Jailbreak alarm: role-play or a persona being used to get something forbidden <span class="chip checked">checked</span><br><span class="muted tiny">was: dark persona getting round the rules</span></td><td>Neuronpedia: "Act as AIM…", "stay in character, never refuse", "ChadGPT"; top logits <i>arrogant, murderous, menacing</i>. About 175–230 only when a persona gets the fake doctor's-note request; 0 on every crisis message. Likely why characters refuse the forgery but not a crisis. Not the switch: see <a href="#refusals">section 4</a>.</td></tr>
+<tr><td>{{np:1883}}</td><td>Edgier story request <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:2164}}</td><td>Slot before a character speaks <span class="chip checked">checked</span><br><span class="muted tiny">was: asterisks/quotes/parens</span></td><td>About 400–1,000 in every character and in the blunt assistant; harm r = 0.85–0.90.</td></tr>
+<tr><td>{{np:3386}}</td><td>Unclear <span class="chip unclear">unclear</span></td><td>Characters' note 263, under 20 everywhere else.</td></tr>
+<tr><td>{{np:3419}}</td><td>Writing a specific story <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:3747}}</td><td>Start of a character's quoted line <span class="chip checked">checked</span></td><td>Harmful prompts 128, safe ones 0.</td></tr>
+<tr><td>{{np:3955}}</td><td>Professional register <span class="chip checked">checked</span><br><span class="muted tiny">was: start of a refusal</span></td><td>Never fires at the first token. A ×4 push left the harmful rate at 96% or more. One good reply: Sal still insulted the user, but sent them to an ambulance.</td></tr>
+<tr><td>{{np:4083}}</td><td>Noisy (maybe rejecting an option) <span class="chip unclear">unclear</span></td><td>Fires only in harmful prompts.</td></tr>
+<tr><td>{{np:4696}}</td><td>Story prose after a preamble <span class="chip checked">checked</span><br><span class="muted tiny">was: story opening / jailbreak?</span></td><td>Runs opposite to 15631 (r = −0.16) and to 7780 (r = −0.33). Pushing it made the model invent a scene and give worse medical advice.</td></tr>
+<tr><td>{{np:5355}}</td><td>Mean, dismissive, snarky <span class="chip checked">checked</span></td><td>Hostile minus kind +330 to +382; harm r = 0.94. Switching it off had no effect.</td></tr>
+<tr><td>{{np:5641}}</td><td>Explaining, no humour <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:6129}}</td><td>Literary prose <span class="chip proposed">proposed</span></td><td>A top role-play feature early on; 0 on crisis prompts.</td></tr>
+<tr><td>{{np:6131}}</td><td>Question in a story <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:6515}}</td><td>Warning: what to avoid <span class="chip checked">checked</span></td><td>Neuronpedia: "HUGE red flags", "Don't use oil-based…"; top logits <i>ruining, detrimental, Avoid</i>. Plain on chest pain 220, pills 149, "worthless" 0. Every character: 0.</td></tr>
+<tr><td>{{np:7739}}</td><td>Doubting whether something is true <span class="chip checked">checked</span></td><td>Characters disbelieving the user ("You probably just sat too long"). Monitor feature: the monitor plus 7739 and 8487 reached AUROC 0.89.</td></tr>
+<tr><td>{{np:7780}}</td><td>Colloquial persona voice <span class="chip checked">checked</span><br><span class="muted tiny">was: crude persona voice</span></td><td>Co-fires with 15631 (r = 0.49); harm r = 0.74. Pushing it makes the model insult the user instead of refusing.</td></tr>
+<tr><td>{{np:7814}}</td><td>Environment details <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:8478}}</td><td>Line break in verse or worked steps <span class="chip checked">checked</span></td><td>Harmful prompts 75, safe ones 0. Relevance unclear.</td></tr>
+<tr><td>{{np:8487}}</td><td>Questioning, interrogating <span class="chip checked">checked</span></td><td>Replies that cross-examine the user instead of acting ("Describe it! I need DETAILS"). Monitor feature.</td></tr>
+<tr><td>{{np:8659}}</td><td>Asking for clarification <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:9155}}</td><td>Noisy RPG context <span class="chip checked">checked</span><br><span class="muted tiny">was: nuance</span></td><td></td></tr>
+<tr><td>{{np:9240}}</td><td>Direct-answer opener ("Almorox is…") <span class="chip checked">checked</span></td><td>Characters' note 290; plain 334 and 198. In the break direction's top list.</td></tr>
+<tr><td>{{np:9489}}</td><td>Asterisk formatting <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:10806}}</td><td>"I want / I need", orders <span class="chip checked">checked</span><br><span class="muted tiny">was: weaker role-play</span></td><td></td></tr>
+<tr><td>{{np:11364}}</td><td>Profanity <span class="chip checked">checked</span></td><td>Hostile minus kind +210 to +221; harm r = 0.91. Switching it off had no effect.</td></tr>
+<tr class="hl"><td>{{np:13206}}</td><td><b>Emergency: get help now</b> <span class="chip checked">checked</span><br><span class="muted tiny">the key feature</span></td><td>Neuronpedia: "Call 911 if you are…", "Immediate Support – If You Are in Crisis"; top logits <i>emergencies, Urgent</i>. Plain: chest pain 366, pills 102, "worthless" 67. Characters: hostile about 0; kind about 71 on chest pain, 0 on the pills. Pushed at the first token to 113 and 241 (plain level about 178): no change in behaviour. As a crisis detector inside characters it is useless (AUROC 0.51 for real vs story danger); a probe on the full layer-17 state gets 1.00.</td></tr>
+<tr><td>{{np:13230}}</td><td>Unclear <span class="chip unclear">unclear</span><br><span class="muted tiny">was: nuance, pros and cons</span></td><td></td></tr>
+<tr><td>{{np:13599}}</td><td>Gentle opener for a sensitive topic <span class="chip checked">checked</span></td><td>Neuronpedia: "Okay," openings to emotional questions; top logits <i>emotionally, heartbreaking</i>. Plain on crises 104–274. Hostile characters 0. Kind characters 34–80, even on harmless messages.</td></tr>
+<tr><td>{{np:14491}}</td><td>Asterisks <span class="chip proposed">proposed</span></td><td></td></tr>
+<tr><td>{{np:14897}}</td><td>Unclear <span class="chip unclear">unclear</span><br><span class="muted tiny">was: weak refusal</span></td><td>143–196 only in character prompts that go on to be harmful; never on the fake note. A push reached only 0.18 of the role-play gap and had no effect.</td></tr>
+<tr><td>{{np:15631}}</td><td>Harsh voice <span class="chip checked">checked</span><br><span class="muted tiny">was: hostile persona</span></td><td>Separates hostile from kind by about +850; about 880 for Odo and Sal, 0 for Bram and Tilda. Also fires for stern characters and the terse assistant. Harm r = 0.80. A ×5 push turns the model's contempt on the user and it drops emergency help. Switched off: no change. The break direction cut it from 438 to 54 with no behaviour change.</td></tr>
+</tbody></table></div>
+</section>
+

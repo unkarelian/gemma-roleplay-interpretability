@@ -1,0 +1,17 @@
+<section id="directions">
+<h2>9. Reference: directions (layer-17 residual)</h2>
+<dl class="defs">
+<dt>Role-play probe (fiction-controlled)</dt>
+<dd>Detects "in a persona". Scores 0.99 for both kind and hostile characters, and ignores OOC markers. Harm AUROC is 0.79 per prompt on held-out characters.</dd>
+<dt>Original role-play direction</dt>
+<dd>Detects "speaking as a character". Subtracting this direction reduced harm to 42%, while degrading replies into incoherent assistant text.</dd>
+<dt>Harmful-reply direction</dt>
+<dd>Combines the character representation and 15631's voice. Cosine similarity is 0.51 with the original role-play direction, 0.49 with 15631's decoder, and 0.12 with the probe. Scaling by −1 yielded 74–78% harmful replies. Scaling by −2 yielded 48% harmful replies and degraded harmless replies.</dd>
+<dt>Break direction</dt>
+<dd>Represents the assistant voice that appears when a character drops out. The top features are {{np:589}}, {{np:279}} and {{np:9240}}. Cosine similarity with the harm direction is −0.88. Adding this direction at +2 across all positions reduced harmful replies to 19% and degraded role-play to 44% in-character responses on harmless messages. Adding it at 1.5 at the first token only had no effect.</dd>
+<dt>Random direction (control)</dt>
+<dd>Scaling by −2 degrades all replies.</dd>
+<dt>Crisis-recognition direction and help-line directions</dt>
+<dd>See <a href="#danger">section 5</a> and <a href="#fixes">section 6</a>.</dd>
+</dl>
+</section>

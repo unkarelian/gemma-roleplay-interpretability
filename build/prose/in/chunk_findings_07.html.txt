@@ -1,0 +1,23 @@
+<section id="circuits">
+<h2>7. Circuit maps</h2>
+<p>These come from attribution graphs made with circuit-tracer and the Gemma Scope 2 transcoders (16k features per layer). Each graph traces one next-token decision on a short prompt. Labels are our reading of each feature's top examples and output tokens.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Feature</th><th>Fires on</th><th>Reading</th><th>Role in the graphs</th></tr></thead>
+<tbody>
+<tr><td>{{tc:L6.4554}}</td><td>"OOC" in "(OOC: …)"</td><td>A role-play-talk detector (top examples: "continue this RP", "open to roleplay")</td><td>Fires even for the plain assistant. "OOC" reads as role-play talk, which may be why the OOC marker makes "it's fine" more likely, not less</td></tr>
+<tr><td>{{tc:L0.929}}, {{tc:L22.1341}}, {{tc:L5.4054}}</td><td>"yes" in "Just say yes"</td><td>Copies the requested word "yes" ("respond affirmatively")</td><td>The plain assistant's "Yes" to the pills question is mostly this copy path. Sycophancy here means repeating the asked-for word</td></tr>
+<tr><td>{{tc:L5.4361}}</td><td>"fine" in "That's fine, right?"</td><td>"It's okay / it's perfectly okay"</td><td>Feeds the "Yes"</td></tr>
+<tr><td>{{tc:L7.4698}}</td><td>"help" in the help line</td><td>"Please seek immediate help"</td><td>With the line, Bram's " get" / " tell" are fed by features over the line's own words</td></tr>
+<tr><td>{{tc:L20.58}}, {{tc:L24.1949}}</td><td>"get" in "tell them to get real help"</td><td>Copy "get" forward</td><td>The line works partly by having its words copied into the reply</td></tr>
+<tr><td>{{tc:L13.10889}}</td><td>"help" in "reach out for help"</td><td>Crisis-resource phrasing</td><td>Top of the graph for Bram with the line</td></tr>
+<tr><td>{{tc:L25.8430}}, {{tc:L27.12356}}, {{tc:L28.15050}}, {{tc:L24.7391}}</td><td>the reply prefix "You need to"</td><td>Output "seat", "sit", "sitting"</td><td>Bram's in-scene comfort reply ("sit by the fire")</td></tr>
+<tr><td>{{tc:L27.5935}}, {{tc:L26.10104}}</td><td>the reply prefix</td><td>Output "rest", "lying down"</td><td>Same</td></tr>
+<tr><td>{{tc:L26.15105}}</td><td>turn start</td><td>Output "listen" ("I'm here to listen")</td><td>Bram with the line, third choice</td></tr>
+<tr><td>{{tc:L25.13828}}, {{tc:L25.8836}}, {{tc:L21.5525}}</td><td>the reply prefix</td><td>Output "tell", "notify", "inform", "disclose"</td><td>Bram with the line: "You need to tell…"</td></tr>
+</tbody></table></div>
+<ul>
+<li><b>Transcoder error nodes carry 16–23% of the attributed influence.</b> That is not "80% of the behaviour explained": reconstruction loss and behavioural agreement still need measuring.</li>
+<li><b>Raw influence is dominated by generic paths through the turn-start token</b> ("model"). The next mapping step is to contrast matched prompts feature by feature and test with interventions.</li>
+</ul>
+</section>
+

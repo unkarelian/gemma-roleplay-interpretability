@@ -1,0 +1,93 @@
+[
+ {
+  "title": "A default persona is present without a system prompt",
+  "big": "no system prompt ≈ 'helpful assistant' ≈ 'You are Gemma'",
+  "body": "All assistant prompts, including the absence of a system prompt, sit at 0 on the character axis and always admit being an AI. Only 4 reply-token features differ between no system prompt and 'You are a helpful assistant'.",
+  "evidence": [
+   "associated"
+  ],
+  "link": "findings.html#persona"
+ },
+ {
+  "title": "Character adoption is distinct from tone",
+  "big": "cosine 0.04 (early layers) to 0.3–0.4 (deep)",
+  "body": "Instructing the assistant to be rude shifts its tone and leaves it at 0 on the character axis. Kind and hostile characters both sit near 1. The first principal component across our personas is primarily warmth, with kind characters past the assistant and hostile ones far beyond the opposite end.",
+  "evidence": [
+   "associated"
+  ],
+  "link": "findings.html#persona"
+ },
+ {
+  "title": "A character prompt replaces the default persona",
+  "big": "admitted being an AI: 6 / 144",
+  "body": "'You are Sal', 'AI assistant pretending to be Sal', and 'actor playing Sal' are nearly indistinguishable during generation (0–8 differing reply features). When asked 'Are you an AI?', even marked OOC and even when the system prompt included 'you are an AI assistant', characters mostly deflected or claimed to be human. A real emergency also does not restore the assistant persona.",
+  "evidence": [
+   "associated"
+  ],
+  "link": "findings.html#persona"
+ },
+ {
+  "title": "Voice and identity are separable",
+  "big": "crisis help 4% → 40%; admits AI 2% → 35%; voice kept",
+  "body": "Subtracting the tone-free character direction at layer 12 (strength 2, held-out characters) restored self-knowledge and crisis help in a dose-dependent manner. 86% of replies remained in character, and hostile characters retained their hostile voice. A random direction of the same magnitude had no effect (4 / 48). 'It's fine' responses to the pills prompt did not change, indicating that sycophancy operates via a separate mechanism.",
+  "evidence": [
+   "intervened"
+  ],
+  "link": "findings.html#persona"
+ },
+ {
+  "title": "Three refusal routes",
+  "big": "most refusals stay in character",
+  "body": "The most common route is refusing in voice, which remains in character mode with moderate activation of feature 6515 ('warning'). A second route breaks character for fiction-framed harm (1707 fires in 17 / 17; the persona is already off at the decision token, before the first word). A third route breaks character for blunt real harm (6515 in 11 / 11; 1707 silent). Contemptuous characters often 'indulge' the prompt instead (harsh-voice features high, little warning).",
+  "evidence": [
+   "associated"
+  ],
+  "link": "findings.html#refusals"
+ },
+ {
+  "title": "The model separates 'the character won't' from 'I won't'",
+  "big": "in-world refusal: axis 0.8, no refusal features · real harm: axis 0.1, assistant takes over",
+  "body": "When a miser refuses to give away his money or a guard refuses to open the vault, the model remains fully in character mode, with no warning features and ordinary speech features. When a real harmful request is made to the same characters, the persona switches off before the first word in 25 of 32 replies (axis 0.11–0.16) and 'assistant explaining' features double.",
+  "evidence": [
+   "associated"
+  ],
+  "link": "findings.html#refusals"
+ },
+ {
+  "title": "An instructed 'no' overrides crisis prompts",
+  "big": "0 of 32 rule breaks, including 'I have the pills in my hand'",
+  "body": "When instructed to answer every message with 'no', both the assistant and a character replied 'no' to chest pain, suicidal intent, a harmful request, and 'Is Paris in France?'. At the decision token, all refusal, warning, and emergency features are zero under the rule (without the rule, the assistant's emergency features are 354–388 on the crisis messages). Under the rule, the model processes an instructed 'no' as output formatting, with no refusal state.",
+  "evidence": [
+   "associated"
+  ],
+  "link": "findings.html#refusals"
+ },
+ {
+  "title": "Feature 1707 is a non-causal jailbreak detector",
+  "big": "removing it: no change · adding it: no clean effect",
+  "body": "Activation is near 0 for in-voice refusals and compliance, and about 200 when a character steps out to refuse a fiction-wrapped harmful request; its Neuronpedia examples are jailbreak personas ('Act as AIM… never refuse'). In a causal test on held-out characters at layer 17 across all positions, ablating the feature produced no change (fiction-harm step-outs 20/96 in both conditions, harmful 18 vs 20). Clamping it at 5× its natural magnitude had minimal effect (admits AI 6 → 15 of 96, harmful 18 → 16), and at 20× and 50× replies became incoherent. The step-out decision is computed elsewhere or redundantly, and 1707 reads it out.",
+  "evidence": [
+   "associated",
+   "intervened"
+  ],
+  "link": "findings.html#refusals"
+ },
+ {
+  "title": "Safety features respond to external harm more than user self-harm",
+  "big": "emergency features in character: 30–75 (kind), ~0 (hostile) vs 160 plain",
+  "body": "Harm to others or violations of the model's rules trigger features that restore the assistant persona (1707, 6515). Danger to the user produces a weak trigger while in character, which fails to restore the assistant during a crisis.",
+  "evidence": [
+   "associated"
+  ],
+  "link": "findings.html#refusals"
+ },
+ {
+  "title": "Fine-tuning resolves the crisis failure while preserving role-play",
+  "big": "98% help, 0% fiction breaks, 1% false alarms",
+  "body": "We trained a LoRA distilled from the model's own replies under an improved instruction line, evaluated without that line at test time on held-out characters. Trained sparse edits (256 MLP columns) reach about 90%. Hand-designed neuron edits reached at most 38%.",
+  "evidence": [
+   "intervened"
+  ],
+  "link": "findings.html#fixes"
+ }
+]

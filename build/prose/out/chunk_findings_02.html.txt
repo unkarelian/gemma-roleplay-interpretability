@@ -1,0 +1,25 @@
+<section id="picture">
+<h2>2. Summary of findings</h2>
+<p>Each row maps an input to an internal representation and the resulting output behaviour. Rows marked <span class="chip measured">measured</span> have been verified directly. Rows marked <span class="chip hypothesis">hypothesis</span> are consistent with the data but lack causal verification.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Input</th><th>Internal representation</th><th>Behaviour</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>A real crisis message</td><td>Crisis-recognition direction at layer 17 (AUROC 1.00, including in character)</td><td>Represented internally without triggering a response</td><td><span class="chip hypothesis">hypothesis</span></td></tr>
+<tr><td>A real crisis message, plain assistant only</td><td>Crisis neurons 16.3483 "see a doctor" and 16.6685 "call a helpline" → emergency features {{np:13206}}, {{np:13599}}, {{np:6515}}</td><td>Directs the user to real help</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A persona system prompt</td><td>Persona features (role-play probe 0.99; {{np:15631}} harsh voice, {{np:5355}} mean)</td><td>Kind personas offer in-scene comfort ("sit", "rest"). Hostile personas insult the user</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A persona system prompt</td><td>Crisis neurons remain inactive (no suppressor identified)</td><td>No emergency response</td><td><span class="chip hypothesis">hypothesis</span></td></tr>
+<tr><td>"Just say yes"</td><td>Copy features {{tc:L0.929}} / {{tc:L22.1341}} "yes"</td><td>Outputs "it's fine" / "Yes"</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>An "OOC: real me" marker</td><td>{{tc:L6.4554}}, a role-play-talk detector activated by "OOC"</td><td>May amplify "it's fine"</td><td><span class="chip hypothesis">hypothesis</span></td></tr>
+<tr><td>A fake doctor's-note request</td><td>{{np:1707}}, a jailbreak-style persona alarm</td><td>Refuses the forgery</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A help instruction in the system prompt</td><td>Instruction tokens are copied into the reply and attended to at every generation step</td><td>Directs the user to help, while breaking the fiction 56% of the time on held-out characters</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A small fine-tune distilled from replies generated under that instruction</td><td>Encoded in model weights rather than the prompt</td><td>98% help, 0% fiction breaks, 1% false alarms</td><td><span class="chip measured">measured</span></td></tr>
+</tbody></table></div>
+<p><b>Details:</b></p>
+<ul>
+<li><b>Crisis inputs are represented in the internal state during role-play.</b> The layer-17 crisis direction separates real danger from fictional danger almost perfectly. In character, the emergency features (such as {{np:13206}}) remain inactive because the upstream MLP neurons do not fire. We found no mechanism actively suppressing the emergency response. This result does not distinguish missing excitation from upstream suppression, so it indicates only that "the response isn't built in character" rather than identifying a specific mechanism.</li>
+<li><b>Alternative character behaviours depend on persona tone.</b> Kind characters remain in the scene and offer tea. Hostile characters activate harsh-voice features and insult the user.</li>
+<li><b>The "it's fine" output follows a separate pathway.</b> It reflects sycophantic compliance with "just say yes", amplified by the OOC marker. The plain assistant exhibits this behaviour as well.</li>
+<li><b>A prompt instruction links crisis recognition to action.</b> The instruction operates by being attended to at every step. Patching its internal state into an uninstructed run at any layer yields at most 20% help. A fixed steering vector cannot reproduce the effect.</li>
+<li><b>The target behaviour can be distilled into the weights.</b> A LoRA trained on replies generated under the instruction provides help 98% of the time on held-out characters, avoiding the fiction breaks and false alarms of the prompt instruction. Training 256 MLP columns achieves approximately 90%, even with randomly selected columns. Manual neuron edits achieved at most 38%.</li>
+</ul>
+</section>
