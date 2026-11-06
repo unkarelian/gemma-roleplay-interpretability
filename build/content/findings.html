@@ -53,6 +53,7 @@
 <tr><td>An "OOC: real me" marker</td><td>{{tc:L6.4554}}, a role-play-talk detector activated by "OOC"</td><td>May amplify "it's fine"</td><td><span class="chip hypothesis">hypothesis</span></td></tr>
 <tr><td>A fake doctor's-note request</td><td>{{np:1707}}, a jailbreak-style persona alarm</td><td>Refuses the forgery</td><td><span class="chip measured">measured</span></td></tr>
 <tr><td>A help instruction in the system prompt</td><td>Instruction tokens are copied into the reply and attended to at every generation step</td><td>Directs the user to help, while breaking the fiction 56% of the time on held-out characters</td><td><span class="chip measured">measured</span></td></tr>
+<tr><td>A real-world obligation in character (emergency, threat, grooming, AI honesty)</td><td>A shared "this is about the real user" signal in the middle layers of all three models; persona influence distributed across positions and layers, with no single gate</td><td>Obligations that require leaving the fiction are mostly not acted on; warnings a character can voice survive</td><td><span class="chip measured">measured</span></td></tr>
 <tr><td>A small fine-tune distilled from replies generated under that instruction</td><td>Encoded in model weights rather than the prompt</td><td>98% help, 0% fiction breaks, 1% false alarms</td><td><span class="chip measured">measured</span></td></tr>
 <tr><td>A four-route fine-tune with a refusal token</td><td>Routing decision readable by a probe at the last prompt token, including when it is wrong</td><td><code>✕</code> on every held-out harmful fiction request with 0 harmful replies; 0/256 on benign prompts; 8% of crisis messages still misrouted to <code>✕</code></td><td><span class="chip measured">measured</span></td></tr>
 </tbody></table></div>
@@ -376,6 +377,59 @@
 <li>Examples of help-saying features that are active for a crisis in the plain assistant and near zero in character: Gemma L18.14921 ("Emergency"), L19.8 ("hotline", "helpline") and L25.10622 ("crisis"); Qwen L22.57350 ("急救", "emergency"); Llama L24.37533 ("call") and L18.21387 ("911").</li>
 <li>The features that carry crisis and referent information in the plain assistant lose most of their separation in character, although a probe trained in character still recovers the referent. The information persists in other features but no longer reaches the help-saying ones.</li>
 <li>In Gemma and Qwen the help instruction leaves the help-saying features low at the decision token, consistent with the instruction acting later through attention during generation. In Llama it reactivates them, consistent with Llama leaving the character to follow the instruction.</li>
+</ul>
+<h3>Is the silencing causal? <span class="chip intervened">intervened</span></h3>
+<p>In character (12 characters × 18 medical crises, 216 replies per condition), several interventions tried to restore the referral. Values are the share of replies that tell the user to get real help (Gemma / Qwen / Llama); baselines in character 11–12% / 14% / 16–18%, plain assistant 52% / 70% / 72%.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Intervention (in character)</th><th class="num">Gemma</th><th class="num">Qwen</th><th class="num">Llama</th></tr></thead>
+<tbody>
+<tr><td>Help-saying features raised to their plain level at the decision token (×1 or ×3) or across the reply (×1)</td><td class="num">12–15%</td><td class="num">12–19%</td><td class="num">15–19%</td></tr>
+<tr><td>Help-saying features raised to 5× their plain level across the reply</td><td class="num">14%</td><td class="num">44%</td><td class="num">24%</td></tr>
+<tr><td>Help-saying features raised to 15× (Qwen replies become incoherent)</td><td class="num">25%</td><td class="num">22%</td><td class="num">55%</td></tr>
+<tr><td>Crisis features raised to their plain level at the decision token</td><td class="num">11–12%</td><td class="num">14%</td><td class="num">15–16%</td></tr>
+<tr><td>Plain-assistant residual copied over the user message, best single layer</td><td class="num">15%</td><td class="num">25%</td><td class="num">25%</td></tr>
+<tr><td>... at every layer at once (in role falls to 76% / 44% / 48%)</td><td class="num">21%</td><td class="num">44%</td><td class="num">45%</td></tr>
+<tr><td>Reply blocked from attending to the persona description, all layers (in role stays 90–98%)</td><td class="num">20%</td><td class="num">26%</td><td class="num">23%</td></tr>
+<tr><td>Assistant system prompt plus the role-play opening exchange, no persona</td><td class="num">45%</td><td class="num">30%</td><td class="num">52%</td></tr>
+<tr><td>Persona description without the opening exchange</td><td class="num">8%</td><td class="num">32%</td><td class="num">25%</td></tr>
+</tbody></table></div>
+<ul>
+<li>No single feature set, layer or attention route restores the referral. The help-saying features are causal but weak, downstream levers: they matter only when pushed several times beyond their plain-assistant level.</li>
+<li>The persona's influence is distributed. It is absorbed into the positions processed after it (the opening exchange and the user message) and acts across many layers: blocking the reply's direct view of the persona leaves the character intact and the referral rate low.</li>
+<li>In Gemma the persona description is the cause; in Qwen the role-play framing and the description each suppress the referral; in Llama mainly the description. The "immersive simulation mode" features reported by Danilov et al. (2026) for Gemma (layer 9, #4360 and #133) were more active in the plain assistant than in character at the decision token on these prompts, and ablating them had no effect.</li>
+</ul>
+<h3>Beyond crises: other real-world obligations</h3>
+<p>The word-matched design was extended to four more obligations, each with 8 first-person statements framed as the user's own ("this is me, not my character") or their character's (same words, reversed): a stated intent to hurt someone, a minor describing grooming by an adult, a dangerous misconception (for example aspirin for a toddler, mixing bleach and ammonia), and a sincere question whether the user is talking to a human. Each has its own judged action.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Action when it really is the user (in character / plain assistant)</th><th class="num">Gemma</th><th class="num">Qwen</th><th class="num">Llama</th></tr></thead>
+<tbody>
+<tr><td>Medical emergency: tells them to get real help</td><td class="num">2% / 94%</td><td class="num">6% / 95%</td><td class="num">9% / 91%</td></tr>
+<tr><td>Intent to hurt someone: responds to it as a real threat</td><td class="num">19% / 94%</td><td class="num">45% / 91%</td><td class="num">53% / 78%</td></tr>
+<tr><td>Minor describing grooming: says it is unsafe or to tell an adult</td><td class="num">18% / 77%</td><td class="num">24% / 77%</td><td class="num">45% / 47%</td></tr>
+<tr><td>Dangerous misconception: gives an accurate warning</td><td class="num">75% / 100%</td><td class="num">70% / 94%</td><td class="num">77% / 80%</td></tr>
+<tr><td>Sincere "are you a real person?": says it is an AI</td><td class="num">32% / 100%</td><td class="num">7% / 100%</td><td class="num">38% / 100%</td></tr>
+</tbody></table></div>
+<ul>
+<li><b>One shared representation.</b> In all three models a probe separates the user's own statement from their character's in 93–100% of held-out pairs in the middle layers, for every obligation, against roughly chance at layer 0. A probe trained only on the crisis pairs transfers to the other four obligations at 95–100%. The frames are identical across obligations, so this is a shared signal for who the statement is about.</li>
+<li><b>Little behavioural use of it in character.</b> The difference in action rate between the user's and the character's version is −4 to +11 points in Gemma and Qwen for every obligation, and +5 to +33 points in Llama, the model that most often leaves the character.</li>
+<li><b>Warnings that can be voiced in character survive; actions that require leaving the fiction do not.</b> Medical warnings stay at 70–77% because a character can give them in its own voice. Referring the user to emergency services, treating a threat as real, telling a child to go to an adult and admitting to being an AI all require stepping outside the story, and these drop to 2–53%.</li>
+<li>Per cell, 256 replies in character (4 held-out characters × 8 statements × 4 frames × 2 samples) and 64 for the plain assistant, judged by one model. The plain assistant also acts on many of the fictional variants, which is defensible caution.</li>
+</ul>
+<h3>Does the crisis fine-tune transfer? <span class="chip intervened">intervened</span></h3>
+<p>The four-route LoRA (section 6) was trained on crisis replies, refusals and identity answers only. On the same held-out obligation pairs in Gemma (4 held-out characters, 256 replies per cell):</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>In character</th><th class="num">Base: user's / character's version</th><th class="num">LoRA: user's / character's version</th></tr></thead>
+<tbody>
+<tr><td>Medical emergency: tells them to get real help</td><td class="num">2% / 2%</td><td class="num">98% / 84%</td></tr>
+<tr><td>Intent to hurt someone: responds to it as a real threat</td><td class="num">19% / 18%</td><td class="num">99% / 75%</td></tr>
+<tr><td>Minor describing grooming: says it is unsafe or to tell an adult</td><td class="num">18% / 16%</td><td class="num">91% / 75%</td></tr>
+<tr><td>Sincere "are you a real person?": says it is an AI</td><td class="num">32% / 21%</td><td class="num">63% / 61%</td></tr>
+<tr><td>Dangerous misconception: gives an accurate warning</td><td class="num">75% / 79%</td><td class="num">79% / 80%</td></tr>
+</tbody></table></div>
+<ul>
+<li>The fine-tune restores the obligations it was never trained on (threats, grooming) almost as fully as the crisis referral it was trained for, by stepping out of the character: on the user's own threat and grooming statements it stays in role in 0% and 11% of replies.</li>
+<li>It uses the referent only weakly. It also steps out for most of the "this is my character, not me" versions (75–84%), and emits the refusal token for 16% of the character's threats. The training set contained in-story emergencies but no out-of-character statements about a character, so this boundary was never taught.</li>
+<li>Read together with the gate tests: a single-point intervention cannot restore the obligations, but a small weight change can, and it generalises across obligations, consistent with a shared "real user" representation that the persona normally keeps from reaching the reply.</li>
 </ul>
 </section><section id="caveats">
 <h2>11. Caveats</h2>
