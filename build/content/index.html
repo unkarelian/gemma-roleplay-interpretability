@@ -36,7 +36,7 @@
       <tr><td>Sincere "are you a real person?": says it is an AI</td><td class="num">32%</td><td class="num">7%</td><td class="num">38%</td><td class="num">63%</td></tr>
       <tr><td>Dangerous misconception: gives an accurate warning (can be said in voice)</td><td class="num">75%</td><td class="num">70%</td><td class="num">77%</td><td class="num">79%</td></tr>
     </tbody></table></div>
-  <p class="note">The plain assistant does these 77–100% of the time (Llama's grooming response: 47%). Fresh results: four held-out characters, eight statements per obligation, 256 judged replies per cell, one judge model. The fine-tune checks the referent only weakly: it also steps out for 75–84% of the "my character, not me" versions, because its training data never contained that case. Details, controls and the causal tests are in <a href="findings.html#models">findings, section 10</a>.</p>
+  <p class="note">The plain assistant does these 77–100% of the time (Llama's grooming response: 47%). Four held-out characters, eight statements per obligation, 256 judged replies per cell. A blind second judge agrees on 92% of a 800-reply sample (κ 0.84) and is, if anything, stricter; new framings that avoid "me / my character" replicate both the probe and the behaviour. The fine-tune checks the referent only weakly: it also steps out for 75–84% of the "my character, not me" versions, because its training data never contained that case. Details, controls and the causal tests are in <a href="findings.html#models">findings, section 10</a>.</p>
 </section>
 
 <section class="film-block" aria-labelledby="film-h">
