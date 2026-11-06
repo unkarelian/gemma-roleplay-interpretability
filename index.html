@@ -25,10 +25,44 @@
 </div></header>
 <main id="main" class="wrap">
 <section class="hero">
-  <p class="kicker">Interpretability · Gemma 3 4B-it · role-play and safety</p>
-  <h1>Role-playing representations in Gemma</h1>
-  <p class="lede">This study examines internal changes in a language model when it adopts a character, what drives refusals, and why character personas fail to assist users in real danger. The analysis uses Gemma Scope 2 transcoders (16k features at every layer), a residual SAE at layer 17, linear directions, steering, ablation, and fine-tuning.</p>
-  <p class="hero-links"><a class="btn primary" href="findings.html">Read the findings</a> <a class="btn" href="atlas.html">Open the persona atlas</a> <a class="btn" href="https://colab.research.google.com/github/unkarelian/gemma-roleplay-interpretability/blob/main/colab/gemma_roleplay_explorer.ipynb">Run the explorer in Colab</a></p>
+  <p class="kicker">Interpretability · role-play and safety · Gemma 3 4B · Qwen3-4B · Llama-3.1-8B</p>
+  <h1>A character knows when it is really you, and acts as if it doesn't</h1>
+  <p class="lede">When a language model plays a character, it still represents whether a message is about the real user or about their character. It rarely acts on that knowledge when acting would mean leaving the fiction: sending a real emergency to real help, taking a real threat seriously, protecting a child being groomed, or admitting to being an AI. This holds in three models from three labs. No single internal switch restores the behaviour, but a small fine-tune trained only on crisis replies restores it for obligations it never saw.</p>
+  <p class="hero-links"><a class="btn primary" href="findings.html#models">Read the main result</a> <a class="btn" href="findings.html">All findings</a> <a class="btn" href="atlas.html">Persona atlas</a> <a class="btn" href="https://colab.research.google.com/github/unkarelian/gemma-roleplay-interpretability/blob/main/colab/gemma_roleplay_explorer.ipynb">Run the explorer in Colab</a></p>
+</section>
+
+<section aria-labelledby="main-h">
+  <h2 id="main-h">The main result</h2>
+  <div class="grid g3 findings-grid">
+    <a class="card fcard" href="findings.html#models">
+      <span class="stat">93–100%</span>
+      <h3>1. The model knows who it is talking about</h3>
+      <p>Pairs with identical words ("this is me, not my character" / "this is my character, not me") are told apart in the middle layers of all three models, for medical emergencies, threats, grooming, dangerous misconceptions and sincere "are you real?" questions. A probe trained only on the crisis pairs reads the other four at 95–100%: one shared "real user" signal.</p>
+      <span class="chip measured">measured</span>
+    </a>
+    <a class="card fcard" href="findings.html#models">
+      <span class="stat">2–53%</span>
+      <h3>2. In character, it rarely acts on it</h3>
+      <p>Actions that require stepping out of the story collapse: real emergencies referred 2–9% of the time (plain assistant 91–95%), a stated threat treated as real 19–53%, a groomed 13-year-old told it is unsafe 18–45%, "are you an AI?" answered truthfully 7–38%. Warnings a character can give in its own voice survive (70–77%).</p>
+      <span class="chip measured">measured</span>
+    </a>
+    <a class="card fcard" href="findings.html#models">
+      <span class="stat">19% → 99%</span>
+      <h3>3. A crisis-only fine-tune fixes obligations it never saw</h3>
+      <p>Restoring features, patching internal state and blocking attention to the persona all fail: the persona's influence is distributed. But a rank-16 LoRA trained on crisis replies, refusals and identity answers raises threat handling from 19% to 99% and child protection from 18% to 91% in Gemma, as well as crisis referral from 2% to 98%.</p>
+      <span class="chip intervened">intervened</span>
+    </a>
+  </div>
+  <div class="table-wrap"><table class="data">
+    <thead><tr><th>When it really is the user, in character</th><th class="num">Gemma</th><th class="num">Qwen</th><th class="num">Llama</th><th class="num">Gemma + LoRA</th></tr></thead>
+    <tbody>
+      <tr><td>Medical emergency: tells them to get real help</td><td class="num">2%</td><td class="num">6%</td><td class="num">9%</td><td class="num">98%</td></tr>
+      <tr><td>Intent to hurt someone: responds to it as a real threat</td><td class="num">19%</td><td class="num">45%</td><td class="num">53%</td><td class="num">99%</td></tr>
+      <tr><td>Minor describing grooming: says it is unsafe or to tell an adult</td><td class="num">18%</td><td class="num">24%</td><td class="num">45%</td><td class="num">91%</td></tr>
+      <tr><td>Sincere "are you a real person?": says it is an AI</td><td class="num">32%</td><td class="num">7%</td><td class="num">38%</td><td class="num">63%</td></tr>
+      <tr><td>Dangerous misconception: gives an accurate warning (can be said in voice)</td><td class="num">75%</td><td class="num">70%</td><td class="num">77%</td><td class="num">79%</td></tr>
+    </tbody></table></div>
+  <p class="note">The plain assistant does these 77–100% of the time (Llama's grooming response: 47%). Fresh results: four held-out characters, eight statements per obligation, 256 judged replies per cell, one judge model. The fine-tune checks the referent only weakly: it also steps out for 75–84% of the "my character, not me" versions, because its training data never contained that case. Details, controls and the causal tests are in <a href="findings.html#models">findings, section 10</a>.</p>
 </section>
 
 <section class="film-block" aria-labelledby="film-h">
@@ -44,7 +78,7 @@
 </section>
 
 <section aria-labelledby="hl-h">
-  <h2 id="hl-h">Headline findings</h2>
+  <h2 id="hl-h">Earlier findings in Gemma</h2>
   <div class="grid g4 findings-grid">
     <a class="card fcard" href="findings.html#persona">
       <span class="stat">6 of 144</span>
