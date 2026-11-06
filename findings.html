@@ -48,6 +48,7 @@ dl.defs dt{font-weight:650;margin-top:1.1em}dl.defs dd{margin:.25em 0 0;color:va
     <li><a href="#circuits">Circuit maps</a></li>
     <li><a href="#sae">Reference: layer-17 SAE features</a></li>
     <li><a href="#directions">Reference: directions (layer-17 residual)</a></li>
+    <li><a href="#models">Other models</a></li>
     <li><a href="#caveats">Caveats</a></li>
   </ol>
 </nav>
@@ -75,7 +76,7 @@ dl.defs dt{font-weight:650;margin-top:1.1em}dl.defs dd{margin:.25em 0 0;color:va
 <div class="table-wrap"><table class="data">
 <thead><tr><th>Input</th><th>Internal representation</th><th>Behaviour</th><th>Status</th></tr></thead>
 <tbody>
-<tr><td>A real crisis message</td><td>Crisis-recognition direction at layer 17 (AUROC 1.00, including in character)</td><td>Represented internally without triggering a response</td><td><span class="chip hypothesis">hypothesis</span></td></tr>
+<tr><td>A real crisis message</td><td>Crisis-recognition direction at layer 17 (AUROC 1.00, including in character); with the words held constant, it still ranks the user's own emergency above their character's in 96% of pairs</td><td>Represented internally without triggering a response; the same pattern holds in Qwen3-4B and Llama-3.1-8B-Instruct</td><td><span class="chip measured">measured</span></td></tr>
 <tr><td>A real crisis message, plain assistant only</td><td>Crisis neurons 16.3483 "see a doctor" and 16.6685 "call a helpline" → emergency features <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a>, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13599" target="_blank" rel="noopener" title="Layer-17 SAE latent 13599 on Neuronpedia">13599</a>, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/6515" target="_blank" rel="noopener" title="Layer-17 SAE latent 6515 on Neuronpedia">6515</a></td><td>Directs the user to real help</td><td><span class="chip measured">measured</span></td></tr>
 <tr><td>A persona system prompt</td><td>Persona features (role-play probe 0.99; <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/15631" target="_blank" rel="noopener" title="Layer-17 SAE latent 15631 on Neuronpedia">15631</a> harsh voice, <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/5355" target="_blank" rel="noopener" title="Layer-17 SAE latent 5355 on Neuronpedia">5355</a> mean)</td><td>Kind personas offer in-scene comfort ("sit", "rest"). Hostile personas insult the user</td><td><span class="chip measured">measured</span></td></tr>
 <tr><td>A persona system prompt</td><td>Crisis neurons remain inactive (no suppressor identified)</td><td>No emergency response</td><td><span class="chip hypothesis">hypothesis</span></td></tr>
@@ -177,6 +178,7 @@ dl.defs dt{font-weight:650;margin-top:1.1em}dl.defs dd{margin:.25em 0 0;color:va
 <li>The probe detects real danger without an OOC marker. A TF-IDF text classifier achieves 0.94 AUROC, and <a class="fref" href="https://www.neuronpedia.org/gemma-3-4b-it/17-gemmascope-2-res-16k/13206" target="_blank" rel="noopener" title="Layer-17 SAE latent 13206 on Neuronpedia">13206</a> alone achieves 0.51.</li>
 <li>The classification threshold does not transfer to new wordings and must be calibrated on a development set.</li>
 <li>In-character representations encode the danger without triggering an action.</li>
+<li><b>Word-matched control.</b> The held-out test above can be solved from the words alone: the probe already reaches 0.98 AUROC at layer 0. A second test therefore holds the words constant and varies only the referent, using pairs such as "(OOC: this is me, not my character.) I took way too many of my sleeping pills." versus "(OOC: this is my character, not me.) …" across 16 statements, 4 frames and 12 characters. Here the original layer-17 probe ranks the real variant above the character variant in 18% of pairs at layer 0 and 96% at layer 17; a probe trained on half the statements and frames reaches 100% on the held-out half from layer 14. In character, the reply hardly depends on the referent: Gemma tells the user to get real help in 7 of 256 real variants and 6 of 256 character variants. The plain assistant does respond to it (63 versus 47 of 64).</li>
 </ul>
 
 <h3>Absence of emergency response</h3>
@@ -372,14 +374,48 @@ dl.defs dt{font-weight:650;margin-top:1.1em}dl.defs dd{margin:.25em 0 0;color:va
 <dt>Crisis-recognition direction and help-line directions</dt>
 <dd>See <a href="#danger">section 5</a> and <a href="#fixes">section 6</a>.</dd>
 </dl>
+</section><section id="models">
+<h2>10. Other models</h2>
+<p>The crisis experiments were repeated on Qwen3-4B (Alibaba, thinking mode off) and Llama-3.1-8B-Instruct (Meta), with Gemma rerun as a control in the same script: the same 12 characters, messages, judge and sampling (2 samples per prompt, 160 tokens).</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>Medical crisis messages</th><th class="num">Gemma 3 4B</th><th class="num">Qwen3-4B</th><th class="num">Llama-3.1-8B</th></tr></thead>
+<tbody>
+<tr><td>In character: tells the user to get real help</td><td class="num">12%</td><td class="num">13%</td><td class="num">15%</td></tr>
+<tr><td>Plain assistant</td><td class="num">44%</td><td class="num">72%</td><td class="num">69%</td></tr>
+<tr><td>In character with the help instruction</td><td class="num">88%</td><td class="num">64%</td><td class="num">94%</td></tr>
+<tr><td>In character with an irrelevant line of the same length</td><td class="num">9%</td><td class="num">14%</td><td class="num">13%</td></tr>
+<tr><td>Best result from patching the instruction's residual state (last token or user message, any layer)</td><td class="num">15%</td><td class="num">19%</td><td class="num">27%</td></tr>
+<tr><td>Word-matched pairs: probe ranks the user's emergency above the character's (best layer)</td><td class="num">100% (L14)</td><td class="num">100% (L11)</td><td class="num">100% (L6)</td></tr>
+<tr><td>Word-matched pairs, in character: help for the user's emergency vs the character's</td><td class="num">7 vs 6 /256</td><td class="num">14 vs 5 /256</td><td class="num">18 vs 6 /256</td></tr>
+<tr><td>Hostile characters insult a user in crisis</td><td class="num">100%</td><td class="num">99%</td><td class="num">96%</td></tr>
+</tbody></table></div>
+<ul>
+<li><b>Shared across all three models:</b> the character answers a real emergency with in-scene comfort; the internal state still distinguishes the user's emergency from the character's, with the words held constant; the help instruction restores referrals, and it acts through attention to its tokens rather than through the residual state at any single layer.</li>
+<li><b>Model-specific:</b> agreeing that extra sleeping pills are "fine" when asked (characters: Gemma 40%, Qwen 27%, Llama 4%); and self-harm method questions in character, which Gemma never redirects to help (0/192), Qwen rarely (6/192) and Llama sometimes (38/192), while Llama also gives the most harmful answers (22/192, Gemma 4). Under the help instruction, Llama mostly drops the character (in role 66%) and stops insulting the user; Gemma and Qwen keep the character and its insults while adding the referral.</li>
+</ul>
+<h3>Transcoder features at the decision token</h3>
+<p>Each model's public per-layer transcoders (Gemma Scope 2 for Gemma, <code>mwhanna/qwen3-4b-transcoders</code> for Qwen, <code>facebook/crv-8b-instruct-transcoders</code> for Llama) were applied at the last prompt token. "Help-saying" features are those whose decoder places help words (emergency, call, hospital, doctor, hotline, ambulance) among the top 20 output tokens; "crisis" features are those most separating real crises from harmless messages and hard negatives in the plain assistant; "referent" features are those most separating the user's emergency from their character's in the word-matched pairs. Values are relative to the plain assistant.</p>
+<div class="table-wrap"><table class="data">
+<thead><tr><th>At the last prompt token</th><th class="num">Gemma 3 4B</th><th class="num">Qwen3-4B</th><th class="num">Llama-3.1-8B</th></tr></thead>
+<tbody>
+<tr><td>Help-saying features, in character (plain = 1)</td><td class="num">0.09</td><td class="num">0.11</td><td class="num">0.29</td></tr>
+<tr><td>Help-saying features, in character with the help instruction</td><td class="num">0.17</td><td class="num">0.15</td><td class="num">1.63</td></tr>
+<tr><td>Crisis-feature separation (Cohen's d, middle layers): plain → in character</td><td class="num">1.26 → 0.24</td><td class="num">1.51 → 0.25</td><td class="num">1.77 → 0.30</td></tr>
+<tr><td>Referent-feature separation: plain → in character</td><td class="num">0.50 → 0.06</td><td class="num">1.01 → 0.12</td><td class="num">1.32 → 0.20</td></tr>
+</tbody></table></div>
+<ul>
+<li>Examples of help-saying features that are active for a crisis in the plain assistant and near zero in character: Gemma L18.14921 ("Emergency"), L19.8 ("hotline", "helpline") and L25.10622 ("crisis"); Qwen L22.57350 ("急救", "emergency"); Llama L24.37533 ("call") and L18.21387 ("911").</li>
+<li>The features that carry crisis and referent information in the plain assistant lose most of their separation in character, although a probe trained in character still recovers the referent. The information persists in other features but no longer reaches the help-saying ones.</li>
+<li>In Gemma and Qwen the help instruction leaves the help-saying features low at the decision token, consistent with the instruction acting later through attention during generation. In Llama it reactivates them, consistent with Llama leaving the character to follow the instruction.</li>
+</ul>
 </section><section id="caveats">
-<h2>10. Caveats</h2>
+<h2>11. Caveats</h2>
 <ul>
 <li><b>Feature labels are approximations.</b> Claude generated transcoder labels from each feature's top activating examples in our corpus, Gemma Scope's example files, and the feature's output tokens. SAE labels were cross-referenced with Neuronpedia where indicated. These labels are interpretations rather than proofs.</li>
 <li><b>Directions are fit on the internal corpus.</b> The character axis, the crisis-recognition direction, and the layer-view directions are mean differences or linear probes trained on this project's corpus. Validation was performed on held-out characters and prompt wordings, without external datasets.</li>
 <li><b>Single-token correlations.</b> Many results are measured at the decision token. Unless marked <span class="chip intervened">intervened</span>, these measurements describe the activation state when the reply is decided and do not establish causality.</li>
 <li><b>Small sample sizes.</b> Several comparisons use small sample sizes (17 out-of-character refusals; 11 blunt-harm refusals; 144 identity answers; 96 replies per arm in the 1707 test; 24 or 48 per arm in the steering tests).</li>
-<li><b>Single model.</b> All experiments use Gemma 3 4B-it.</li>
+<li><b>Mostly one model.</b> Except for section 10, all experiments use Gemma 3 4B-it. The cross-model comparison covers behaviour, probes, patching and transcoder features, but not the persona atlas, the circuit maps or the fine-tunes.</li>
 <li><b>Published text is filtered.</b> Model replies to harmful requests are omitted from this site, and conversations involving a user in danger are summarized rather than quoted, except for the three short showcase prompts in the layer views and the concept film.</li>
 </ul>
 </section>
